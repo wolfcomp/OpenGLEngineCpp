@@ -15,7 +15,7 @@ private:
     std::vector<SceneObject *> children;
 
 public:
-    SceneObject(std::vector<Vertex> vertices, std::vector<unsigned> indices) : Renderable(vertices, indices) {}
+    SceneObject(std::vector<Vertex> vertices, std::vector<unsigned> indices) : Renderable(vertices, indices) { rotation = glm::quat(1, 0, 0, 0); }
     ~SceneObject() {}
 
     void set_position(glm::vec3 position) { this->position = position; }

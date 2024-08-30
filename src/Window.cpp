@@ -4,8 +4,9 @@
 #include "Shadow.h"
 #include "Light.h"
 #include "ShaderStore.h"
-#include "World.h"
 #include "objects/base/Renderable.h"
+#include "objects/primitives/IcoSphere.h"
+#include "World.h"
 #include <iostream>
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
@@ -36,7 +37,7 @@ GLFWscrollfun prev_scroll_callback;
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
     glViewport(0, 0, width, height);
-    prev_framebuffer_size_callback(window, width, height);
+    // prev_framebuffer_size_callback(window, width, height);
 }
 
 static void glfw_error_callback(int error, const char *description)
@@ -50,15 +51,6 @@ void move_character(const glm::vec3 &direction)
     pos += camera.get_movement(direction) * (float)(CAMERA_SPEED * deltaTime);
     camera.set_position(pos);
 }
-
-typedef struct
-{
-    GLFWwindow *window;
-    int number;
-    int closeable;
-} Slot;
-
-static unsigned int counter = 0;
 
 static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
 {
@@ -131,7 +123,42 @@ int Window::init()
     ShaderStore::load_shaders();
     Renderable::setup();
     world = new World();
-    world->set_bounds(AABB(glm::vec3(0, 0, 0), glm::vec3(10, 10, 10)));
+    world->set_bounds(glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
+    auto sphere = new IcoSphere();
+    sphere->create(3);
+    sphere->set_position(glm::vec3(4, 0, -4));
+    sphere->set_shader(ShaderStore::get_shader("noLight"));
+    sphere->set_material(new ColorMaterial());
+    dynamic_cast<ColorMaterial *>(sphere->get_material())->color = glm::vec3(0.5f, 0.5f, 0.0f);
+    world->insert(sphere);
+    sphere = new IcoSphere();
+    sphere->create(3);
+    sphere->set_position(glm::vec3(-4, 0, 4));
+    sphere->set_shader(ShaderStore::get_shader("noLight"));
+    sphere->set_material(new ColorMaterial());
+    dynamic_cast<ColorMaterial *>(sphere->get_material())->color = glm::vec3(0.5f, 0.5f, 0.0f);
+    world->insert(sphere);
+    sphere = new IcoSphere();
+    sphere->create(3);
+    sphere->set_position(glm::vec3(4, 0, 4));
+    sphere->set_shader(ShaderStore::get_shader("noLight"));
+    sphere->set_material(new ColorMaterial());
+    dynamic_cast<ColorMaterial *>(sphere->get_material())->color = glm::vec3(0.5f, 0.5f, 0.0f);
+    world->insert(sphere);
+    sphere = new IcoSphere();
+    sphere->create(3);
+    sphere->set_position(glm::vec3(-4, 0, -4));
+    sphere->set_shader(ShaderStore::get_shader("noLight"));
+    sphere->set_material(new ColorMaterial());
+    dynamic_cast<ColorMaterial *>(sphere->get_material())->color = glm::vec3(0.5f, 0.5f, 0.0f);
+    world->insert(sphere);
+    sphere = new IcoSphere();
+    sphere->create(3);
+    sphere->set_position(glm::vec3(-6, 0, -6));
+    sphere->set_shader(ShaderStore::get_shader("noLight"));
+    sphere->set_material(new ColorMaterial());
+    dynamic_cast<ColorMaterial *>(sphere->get_material())->color = glm::vec3(0.5f, 0.5f, 0.0f);
+    world->insert(sphere);
     return 0;
 }
 
@@ -207,6 +234,8 @@ void Window::render() const
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     world->draw_debug();
+
+    world->draw();
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

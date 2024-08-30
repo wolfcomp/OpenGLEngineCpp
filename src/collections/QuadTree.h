@@ -22,44 +22,41 @@ private:
     {
         glm::vec3 center = boundary.center;
         glm::vec3 extent = boundary.extent;
+        glm::vec3 extentDevide = extent / 2.0f;
+        extentDevide.y = extent.y;
 
-        glm::vec3 nw_center = center + glm::vec3(-extent.x / 2, extent.y / 2, 0.0f);
-        glm::vec3 ne_center = center + glm::vec3(extent.x / 2, extent.y / 2, 0.0f);
-        glm::vec3 sw_center = center + glm::vec3(-extent.x / 2, -extent.y / 2, 0.0f);
-        glm::vec3 se_center = center + glm::vec3(extent.x / 2, -extent.y / 2, 0.0f);
+        glm::vec3 nw_center = center + glm::vec3(-extent.x / 2, 0, extent.z / 2);
+        glm::vec3 ne_center = center + glm::vec3(extent.x / 2, 0, extent.z / 2);
+        glm::vec3 sw_center = center + glm::vec3(-extent.x / 2, 0, -extent.z / 2);
+        glm::vec3 se_center = center + glm::vec3(extent.x / 2, 0, -extent.z / 2);
 
-        northWest = new QuadTree<T>(AABB(nw_center, extent / 2.0f));
-        northEast = new QuadTree<T>(AABB(ne_center, extent / 2.0f));
-        southWest = new QuadTree<T>(AABB(sw_center, extent / 2.0f));
-        southEast = new QuadTree<T>(AABB(se_center, extent / 2.0f));
+        northWest = new QuadTree<T>();
+        northWest->set_bounds(nw_center, extentDevide);
+        northEast = new QuadTree<T>();
+        northEast->set_bounds(ne_center, extentDevide);
+        southWest = new QuadTree<T>();
+        southWest->set_bounds(sw_center, extentDevide);
+        southEast = new QuadTree<T>();
+        southEast->set_bounds(se_center, extentDevide);
 
         for (const T &point : points)
         {
-            northWest->insert(point);
-            northEast->insert(point);
-            southWest->insert(point);
-            southEast->insert(point);
+            if (northWest->insert(point))
+                continue;
+            if (northEast->insert(point))
+                continue;
+            if (southWest->insert(point))
+                continue;
+            if (southEast->insert(point))
+                continue;
         }
 
         points.clear();
     };
 
-    QuadTree(AABB boundry) : boundary(boundry)
-    {
-        northWest = nullptr;
-        northEast = nullptr;
-        southWest = nullptr;
-        southEast = nullptr;
-        points.reserve(capacity);
-    };
-
 public:
-    QuadTree()
+    QuadTree() : northWest(nullptr), northEast(nullptr), southWest(nullptr), southEast(nullptr)
     {
-        northWest = nullptr;
-        northEast = nullptr;
-        southWest = nullptr;
-        southEast = nullptr;
         points.reserve(capacity);
     };
     ~QuadTree()
@@ -71,24 +68,29 @@ public:
     };
 
     bool is_leaf() const { return northWest == nullptr; }
-    void insert(const T &point)
+    bool insert(const T &point)
     {
         if (!boundary.contains(point))
-            return;
+            return false;
 
         if (points.size() < capacity && is_leaf())
         {
             points.push_back(point);
-            return;
+            return true;
         }
 
         if (is_leaf())
             subdivide();
 
-        northWest->insert(point);
-        northEast->insert(point);
-        southWest->insert(point);
-        southEast->insert(point);
+        if (northWest->insert(point))
+            return true;
+        if (northEast->insert(point))
+            return true;
+        if (southWest->insert(point))
+            return true;
+        if (southEast->insert(point))
+            return true;
+        return false;
     };
 
     void query_range(const AABB &range, std::vector<T> &found)
@@ -98,7 +100,7 @@ public:
 
         for (const T &point : points)
         {
-            if (boundary.contains(range, point))
+            if (range.contains(point))
                 found.push_back(point);
         }
 
@@ -123,5 +125,9 @@ public:
         southEast->draw_debug();
     };
     AABB get_bounds() const { return boundary; }
-    void set_bounds(AABB bounds) { boundary = bounds; }
+    void set_bounds(const glm::vec3 &center, const glm::vec3 &extent)
+    {
+        boundary.center = center;
+        boundary.extent = extent;
+    }
 };

@@ -1,7 +1,6 @@
 #include "World.h"
 #include "objects/base/SceneObject.h"
 #include "collections/QuadTree.h"
-#include "colliders/AABB.h"
 
 void World::insert(SceneObject *object)
 {
@@ -23,7 +22,7 @@ void World::draw_debug()
     quadTree.draw_debug();
 }
 
-void World::set_bounds(AABB bounds)
+void World::set_bounds(const glm::vec3 &center, const glm::vec3 &extent)
 {
-    quadTree.set_bounds(bounds);
+    quadTree.set_bounds(center, extent);
 }

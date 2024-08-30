@@ -6,17 +6,15 @@
 #include "../../Material.h"
 #include <glad/glad.h>
 
-unsigned VBO, VAO, EBO;
-
 class Renderable
 {
 private:
     std::vector<Vertex> vertices;
     std::vector<unsigned> indices;
     // Shaders can be shared between objects
-    Shader *shader;
+    Shader *shader = nullptr;
     // Materials are per object currently, TODO make a shared library for materials to be shared between objects
-    Material *material;
+    Material *material = nullptr;
     GLenum mode = GL_TRIANGLES;
 
 public:
@@ -40,7 +38,6 @@ public:
     {
         shader->use();
         material->use(shader);
-        glBindVertexArray(VAO);
     }
     virtual void render() const
     {
@@ -48,36 +45,7 @@ public:
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STATIC_DRAW);
         glDrawElements(mode, indices.size(), GL_UNSIGNED_INT, 0);
     }
-    virtual void post_render() const
-    {
-        glBindVertexArray(0);
-    }
-    void draw() const
-    {
-        pre_render();
-        render();
-        post_render();
-    }
-    static void setup()
-    {
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        glGenBuffers(1, &EBO);
-
-        glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
-        // position attribute
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
-        // normal attribute
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal));
-        // texture coord attribute
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, texCoords));
-
-        glBindVertexArray(0);
-    }
+    virtual void post_render() const {}
+    void draw() const;
+    static void setup();
 };

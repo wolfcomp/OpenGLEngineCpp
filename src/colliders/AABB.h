@@ -6,15 +6,17 @@
 #include "../objects/base/Vertex.h"
 
 class SceneObject;
+class Line;
 
 struct AABB
 {
     glm::vec3 center;
     glm::vec3 extent;
+    Line *line;
 
-    AABB(glm::vec3 center, glm::vec3 extent) : center(center), extent(extent) {}
-    AABB() : center(glm::vec3(0.0f)), extent(glm::vec3(0.0f)) {}
-    ~AABB() {}
+    AABB(glm::vec3 center, glm::vec3 extent);
+    AABB();
+    ~AABB();
 
     bool intersects(const AABB &other) const
     {
@@ -29,14 +31,14 @@ struct AABB
     void draw_debug();
 
     template <typename T>
-    bool contains(const T &point)
+    bool contains(const T &point) const
     {
         std::string message = "Not implemented on type of ";
         throw message + typeid(T).name();
     }
 
     template <>
-    bool contains<glm::vec3>(const glm::vec3 &point)
+    bool contains<glm::vec3>(const glm::vec3 &point) const
     {
         return (center.x - extent.x <= point.x &&
                 center.x + extent.x >= point.x &&
@@ -47,5 +49,5 @@ struct AABB
     }
 
     template <>
-    bool contains<SceneObject *>(const SceneObject *&point);
+    bool contains<SceneObject *>(SceneObject *const &point) const;
 };

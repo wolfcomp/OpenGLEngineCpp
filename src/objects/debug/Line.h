@@ -23,6 +23,7 @@ public:
     void pre_render() const override
     {
         Renderable::pre_render();
+        get_shader()->set_mat4("model", glm::mat4x4(1.0f));
         glLineWidth(5);
     }
 

@@ -4,7 +4,6 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "colliders/AABB.h"
 #include "collections/QuadTree.h"
 
 class SceneObject;
@@ -15,7 +14,15 @@ class World
 
 public:
     World() {}
-    ~World() {}
+    ~World()
+    {
+        std::vector<SceneObject *> objects;
+        quadTree.query_range(quadTree.get_bounds(), objects);
+        for (auto &object : objects)
+        {
+            delete object;
+        }
+    }
 
     void insert(SceneObject *object);
 
@@ -23,5 +30,5 @@ public:
 
     void draw_debug();
 
-    void set_bounds(AABB bounds);
+    void set_bounds(const glm::vec3 &center, const glm::vec3 &extent);
 };
