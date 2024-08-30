@@ -4,8 +4,8 @@
 #include "Shadow.h"
 #include "Light.h"
 #include "ShaderStore.h"
+#include "World.h"
 #include "objects/base/Renderable.h"
-#include "objects/debug/Arrow.h"
 #include <iostream>
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
@@ -27,7 +27,7 @@ InputProcessing input;
 ShadowProcessor shadowProcessor;
 LightManager lightManager;
 
-Arrow *arrow;
+World *world;
 GLFWframebuffersizefun prev_framebuffer_size_callback;
 GLFWcursorposfun prev_cursor_position_callback;
 GLFWmousebuttonfun prev_mouse_button_callback;
@@ -130,8 +130,8 @@ int Window::init()
                                        input.set_shader(shader); });
     ShaderStore::load_shaders();
     Renderable::setup();
-    arrow = new Arrow({0, 0, 1}, {0, 0, 0});
-    arrow->set_shader(ShaderStore::get_shader("default"));
+    world = new World();
+    world->set_bounds(AABB(glm::vec3(0, 0, 0), glm::vec3(10, 10, 10)));
     return 0;
 }
 
@@ -139,7 +139,9 @@ void Window::init_listeners()
 {
     input.attach_keyboard_listener(
         GLFW_KEY_F, []()
-        { wireframe = !wireframe; },
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_FILL : GL_LINE); 
+            wireframe = !wireframe; },
         false);
     input.attach_keyboard_listener(
         GLFW_KEY_W, []()
@@ -204,9 +206,7 @@ void Window::render() const
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    arrow->pre_render();
-    arrow->render();
-    arrow->post_render();
+    world->draw_debug();
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

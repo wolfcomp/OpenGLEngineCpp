@@ -72,15 +72,14 @@ void TextureMaterial::load_texture(const std::string block, const std::string pa
     normalTexture = create_texture(get_path(p, "_n").c_str(), false, true);
 }
 
-void Material::use()
+void Material::use(Shader *shader)
 {
-    shader->use();
     shader->set_float("material.shininess", shininess);
 }
 
-void TextureMaterial::use()
+void TextureMaterial::use(Shader *shader)
 {
-    Material::use();
+    Material::use(shader);
     shader->set_int("material.diffuse", 0);
     shader->set_int("material.specular", 1);
     shader->set_int("material.normal", 2);
@@ -93,9 +92,9 @@ void TextureMaterial::use()
     glBindTexture(GL_TEXTURE_2D, normalTexture);
 }
 
-void ColorMaterial::use()
+void ColorMaterial::use(Shader *shader)
 {
-    Material::use();
+    Material::use(shader);
     shader->set_vec3("material.color", color);
     shader->set_int("material.hasMap", 0);
 }

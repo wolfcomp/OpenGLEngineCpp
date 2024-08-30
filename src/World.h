@@ -4,36 +4,24 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "colliders/AABB.h"
 #include "collections/QuadTree.h"
-#include "objects/base/Renderable.h"
+
+class SceneObject;
 
 class World
 {
-    QuadTree<Renderable> quadTree;
+    QuadTree<SceneObject *> quadTree;
 
 public:
     World() {}
     ~World() {}
 
-    void insert(Renderable object)
-    {
-        quadTree.insert(object);
-    }
+    void insert(SceneObject *object);
 
-    void draw()
-    {
-        std::vector<Renderable> objects;
-        quadTree.query_range(quadTree.get_bounds(), objects);
-        for (auto &object : objects)
-        {
-            object.pre_render();
-            object.render();
-            object.post_render();
-        }
-    }
+    void draw();
 
-    void draw_debug()
-    {
-        quadTree.draw_debug();
-    }
+    void draw_debug();
+
+    void set_bounds(AABB bounds);
 };

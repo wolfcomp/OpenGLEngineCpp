@@ -39,6 +39,17 @@ public:
         get_shader()->set_mat4("model", get_model_matrix());
     }
 
+    void render() const override
+    {
+        Renderable::render();
+        for (auto &child : children)
+        {
+            child->pre_render();
+            child->render();
+            child->post_render();
+        }
+    }
+
     glm::mat4x4 get_model_matrix() const
     {
         glm::mat4 model = glm::mat4(1.0f);
@@ -53,9 +64,3 @@ public:
         return parent * get_model_matrix();
     }
 };
-
-template <>
-bool checkBoundry(AABB bounds, SceneObject object)
-{
-    return bounds.contains(object.get_position());
-}

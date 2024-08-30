@@ -1,7 +1,11 @@
 #pragma once
+
+#include <string>
 #include <glm/vec3.hpp>
 #include <vector>
 #include "../objects/base/Vertex.h"
+
+class SceneObject;
 
 struct AABB
 {
@@ -22,7 +26,17 @@ struct AABB
                 center.z + extent.z >= other.center.z - other.extent.z);
     }
 
-    bool contains(const glm::vec3 &point) const
+    void draw_debug();
+
+    template <typename T>
+    bool contains(const T &point)
+    {
+        std::string message = "Not implemented on type of ";
+        throw message + typeid(T).name();
+    }
+
+    template <>
+    bool contains<glm::vec3>(const glm::vec3 &point)
     {
         return (center.x - extent.x <= point.x &&
                 center.x + extent.x >= point.x &&
@@ -32,37 +46,6 @@ struct AABB
                 center.z + extent.z >= point.z);
     }
 
-    void draw_debug()
-    {
-        std::vector<Vertex> points;
-        std::vector<unsigned> indices;
-
-        points.push_back(Vertex(center + glm::vec3(-extent.x, -extent.y, -extent.z)));
-        points.push_back(Vertex(center + glm::vec3(extent.x, -extent.y, -extent.z)));
-        points.push_back(Vertex(center + glm::vec3(extent.x, extent.y, -extent.z)));
-        points.push_back(Vertex(center + glm::vec3(-extent.x, extent.y, -extent.z)));
-        points.push_back(Vertex(center + glm::vec3(-extent.x, -extent.y, extent.z)));
-        points.push_back(Vertex(center + glm::vec3(extent.x, -extent.y, extent.z)));
-        points.push_back(Vertex(center + glm::vec3(extent.x, extent.y, extent.z)));
-        points.push_back(Vertex(center + glm::vec3(-extent.x, extent.y, extent.z)));
-
-        indices = {
-            0, 1, 1, 2, 2, 3, 3, 0,
-            4, 5, 5, 6, 6, 7, 7, 4,
-            0, 4, 1, 5, 2, 6, 3, 7};
-
-        // Draw lines
-    }
+    template <>
+    bool contains<SceneObject *>(const SceneObject *&point);
 };
-
-template <typename T>
-bool checkBoundry(AABB bounds, T object)
-{
-    throw "Not implemented on type of" + typeid(T).name();
-}
-
-template <>
-bool checkBoundry(AABB bounds, glm::vec3 object)
-{
-    return bounds.contains(object);
-}
