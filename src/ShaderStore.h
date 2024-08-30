@@ -10,4 +10,5 @@ public:
     static void remove_shader(unsigned id);
     static void remove_all_shaders();
     static void add_params_callback(void func(const Shader *));
+    static void load_shaders();
 };

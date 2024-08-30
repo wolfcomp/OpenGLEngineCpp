@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <map>
 #include <glm/glm.hpp>
+#include <functional>
 
 #include "Camera.h"
 #include "Shader.h"
@@ -21,7 +22,7 @@ struct MouseInput
 class InputProcessing
 {
     glm::mat4 projection;
-    std::map<int, void (*)()> keyboard_listeners;
+    std::map<int, std::function<void()>> keyboard_listeners;
     std::map<int, void (*)(MouseInput)> mouse_listeners;
     std::map<int, bool> should_repeat;
     std::map<int, bool> key_pressed;
@@ -36,9 +37,9 @@ public:
     void change_aspect(float width, float height);
     void process_keyboard(GLFWwindow *window, double delta_time);
     void process_mouse_button(GLFWwindow *window, int button, int action, int mods);
-    void process_mouse_move(GLFWwindow *window, double x_offset, double y_offset);
+    void process_mouse_move(GLFWwindow *window, double x_offset, double y_offset, bool resetPosition = false);
     void process_mouse_scroll(GLFWwindow *window, double x_scroll, double y_scroll);
-    void attach_keyboard_listener(int key, void (*event_handler)(), bool repeat);
+    void attach_keyboard_listener(int key, std::function<void()> event_handler, bool repeat);
     int attach_mouse_listener(void (*event_handler)(MouseInput input));
     void remove_keyboard_listener(int key);
     void remove_mouse_listener(int listener);

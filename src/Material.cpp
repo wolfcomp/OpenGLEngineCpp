@@ -84,9 +84,7 @@ void TextureMaterial::use()
     shader->set_int("material.diffuse", 0);
     shader->set_int("material.specular", 1);
     shader->set_int("material.normal", 2);
-    shader->set_bool("material.hasDiffuseMap", true);
-    shader->set_bool("material.hasNormalMap", normalTexture != 0);
-    shader->set_bool("material.hasSpecularMap", specularTexture != 0);
+    shader->set_int("material.hasMap", 1 | (specularTexture != 0) << 1 | (normalTexture != 0) << 2);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, diffuseTexture);
     glActiveTexture(GL_TEXTURE1);
@@ -99,7 +97,5 @@ void ColorMaterial::use()
 {
     Material::use();
     shader->set_vec3("material.color", color);
-    shader->set_bool("material.hasNormalMap", false);
-    shader->set_bool("material.hasSpecularMap", false);
-    shader->set_bool("material.hasDiffuseMap", false);
+    shader->set_int("material.hasMap", 0);
 }

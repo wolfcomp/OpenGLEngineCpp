@@ -26,4 +26,6 @@ public:
     void insert(const T &point);
     void subdivide();
     void query_range(const AABB &range, std::vector<T> &found);
+    void draw_debug();
+    AABB get_bounds() const { return boundary; }
 };

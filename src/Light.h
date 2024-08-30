@@ -27,7 +27,6 @@ struct Light
 struct DirectionalLight : public Light
 {
     glm::vec3 direction;
-    glm::vec3 position;
 
     void set_shader(const Shader *shader) override
     {
@@ -83,11 +82,7 @@ struct SpotLight : public PointLight
         shader->set_vec3(get_name() + ".direction", direction);
         shader->set_float(get_name() + ".cutOff", cutOff);
         shader->set_float(get_name() + ".outerCutOff", outerCutOff);
-    }
-
-    void bind_depth_map(const Shader *shader)
-    {
-        shadowProcessor->bind_depth_map(shader);
+        shadowProcessor->set_shader(shader);
     }
 
     std::string get_name() override
@@ -118,29 +113,9 @@ public:
         }
     }
 
-    void bind_depth_maps(const Shader *shader)
+    std::vector<Light *> get_lights()
     {
-        for (auto light : lights)
-        {
-            auto spotLight = dynamic_cast<SpotLight *>(light);
-            if (spotLight)
-            {
-                spotLight->bind_depth_map(shader);
-            }
-        }
-    }
-
-    DirectionalLight *get_directional_light()
-    {
-        for (auto light : lights)
-        {
-            auto dirLight = dynamic_cast<DirectionalLight *>(light);
-            if (dirLight)
-            {
-                return dirLight;
-            }
-        }
-        return nullptr;
+        lights = this->lights;
     }
 
     void cleanup()

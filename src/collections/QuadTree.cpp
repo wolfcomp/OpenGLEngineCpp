@@ -86,3 +86,17 @@ void QuadTree<T>::query_range(const AABB &range, std::vector<T> &found)
     southWest->query_range(range, found);
     southEast->query_range(range, found);
 }
+
+template <typename T>
+void QuadTree<T>::draw_debug()
+{
+    boundary.draw();
+
+    if (northWest == nullptr)
+        return;
+
+    northWest->draw_debug();
+    northEast->draw_debug();
+    southWest->draw_debug();
+    southEast->draw_debug();
+}

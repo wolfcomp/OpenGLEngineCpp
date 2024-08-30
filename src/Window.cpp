@@ -4,6 +4,8 @@
 #include "Shadow.h"
 #include "Light.h"
 #include "ShaderStore.h"
+#include "objects/base/Renderable.h"
+#include "objects/debug/Arrow.h"
 #include <iostream>
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
@@ -16,6 +18,7 @@
 
 constexpr int width = 1280, height = 720;
 bool wireframe = false;
+bool mouseActive = false;
 double deltaTime = 0.0;
 std::chrono::time_point<std::chrono::high_resolution_clock> lastFrame;
 
@@ -24,9 +27,16 @@ InputProcessing input;
 ShadowProcessor shadowProcessor;
 LightManager lightManager;
 
+Arrow *arrow;
+GLFWframebuffersizefun prev_framebuffer_size_callback;
+GLFWcursorposfun prev_cursor_position_callback;
+GLFWmousebuttonfun prev_mouse_button_callback;
+GLFWscrollfun prev_scroll_callback;
+
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
     glViewport(0, 0, width, height);
+    prev_framebuffer_size_callback(window, width, height);
 }
 
 static void glfw_error_callback(int error, const char *description)
@@ -39,6 +49,33 @@ void move_character(const glm::vec3 &direction)
     auto pos = camera.get_pos();
     pos += camera.get_movement(direction) * (float)(CAMERA_SPEED * deltaTime);
     camera.set_position(pos);
+}
+
+typedef struct
+{
+    GLFWwindow *window;
+    int number;
+    int closeable;
+} Slot;
+
+static unsigned int counter = 0;
+
+static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
+{
+    input.process_mouse_move(window, xpos, ypos);
+    prev_cursor_position_callback(window, xpos, ypos);
+}
+
+static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
+{
+    input.process_mouse_button(window, button, action, mods);
+    prev_mouse_button_callback(window, button, action, mods);
+}
+
+static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+{
+    input.process_mouse_scroll(window, xoffset, yoffset);
+    prev_scroll_callback(window, xoffset, yoffset);
 }
 
 int Window::init()
@@ -77,15 +114,24 @@ int Window::init()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 410");
 
+    init_listeners();
+
     glViewport(0, 0, width, height);
     glEnable(GL_DEPTH_TEST);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    prev_framebuffer_size_callback = glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    prev_cursor_position_callback = glfwSetCursorPosCallback(window, cursor_position_callback);
+    prev_mouse_button_callback = glfwSetMouseButtonCallback(window, mouse_button_callback);
+    prev_scroll_callback = glfwSetScrollCallback(window, scroll_callback);
     ShaderStore::add_params_callback([](const Shader *shader)
                                      { camera.set_shader(shader);
                                        lightManager.set_shader(shader);
                                        shadowProcessor.set_shader(shader);
                                        input.set_shader(shader); });
+    ShaderStore::load_shaders();
+    Renderable::setup();
+    arrow = new Arrow({0, 0, 1}, {0, 0, 0});
+    arrow->set_shader(ShaderStore::get_shader("default"));
     return 0;
 }
 
@@ -119,13 +165,30 @@ void Window::init_listeners()
         GLFW_KEY_LEFT_CONTROL, []()
         { move_character(glm::vec3(0, -1, 0)); },
         true);
+    input.attach_keyboard_listener(
+        GLFW_KEY_ESCAPE, [&]()
+        { 
+            if(mouseActive)
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            else
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
+            input.process_mouse_move(window, xpos, ypos, true);
+            mouseActive = !mouseActive; },
+        false);
     input.attach_mouse_listener([](MouseInput input)
-                                { camera.process_mouse(input.x_pos_offset, input.y_pos_offset); });
+                                { if(mouseActive) camera.process_mouse(input.x_pos_offset, input.y_pos_offset); });
 }
 
 void Window::update() const
 {
+    auto currentFrame = std::chrono::high_resolution_clock::now();
+    deltaTime = std::chrono::duration<double>(currentFrame - lastFrame).count();
+    lastFrame = currentFrame;
     glfwPollEvents();
+    input.process_keyboard(window, deltaTime);
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -140,6 +203,11 @@ void Window::render() const
 
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    arrow->pre_render();
+    arrow->render();
+    arrow->post_render();
+
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     glfwSwapBuffers(window);

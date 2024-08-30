@@ -64,3 +64,25 @@ void ShaderStore::add_params_callback(void func(const Shader *))
         shader.second->add_params_callback(func);
     }
 }
+
+void ShaderStore::load_shaders()
+{
+    // load shaders based on the mapped names in `shaders/shaders.dat`
+    // the file should be in the following format:
+    // name vertex_filename fragment_filename
+    // vertex_filename and fragment_filename should be relative to the shaders/ directory
+    // vertex_filename needs to be appended with .vert and fragment_filename with .frag
+
+    std::ifstream file("shaders/shaders.dat");
+    if (!file.is_open())
+    {
+        std::cerr << "Failed to open shaders.dat" << std::endl;
+        return;
+    }
+
+    std::string name, vertex, fragment;
+    while (file >> name >> vertex >> fragment)
+    {
+        add_shader(name, ("shaders/" + vertex + ".vert").c_str(), ("shaders/" + fragment + ".frag").c_str());
+    }
+}

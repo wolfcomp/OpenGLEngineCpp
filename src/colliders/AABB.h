@@ -1,5 +1,7 @@
 #pragma once
 #include <glm/vec3.hpp>
+#include <vector>
+#include "../objects/base/Vertex.h"
 
 struct AABB
 {
@@ -28,6 +30,28 @@ struct AABB
                 center.y + extent.y >= point.y &&
                 center.z - extent.z <= point.z &&
                 center.z + extent.z >= point.z);
+    }
+
+    void draw_debug()
+    {
+        std::vector<Vertex> points;
+        std::vector<unsigned> indices;
+
+        points.push_back(Vertex(center + glm::vec3(-extent.x, -extent.y, -extent.z)));
+        points.push_back(Vertex(center + glm::vec3(extent.x, -extent.y, -extent.z)));
+        points.push_back(Vertex(center + glm::vec3(extent.x, extent.y, -extent.z)));
+        points.push_back(Vertex(center + glm::vec3(-extent.x, extent.y, -extent.z)));
+        points.push_back(Vertex(center + glm::vec3(-extent.x, -extent.y, extent.z)));
+        points.push_back(Vertex(center + glm::vec3(extent.x, -extent.y, extent.z)));
+        points.push_back(Vertex(center + glm::vec3(extent.x, extent.y, extent.z)));
+        points.push_back(Vertex(center + glm::vec3(-extent.x, extent.y, extent.z)));
+
+        indices = {
+            0, 1, 1, 2, 2, 3, 3, 0,
+            4, 5, 5, 6, 6, 7, 7, 4,
+            0, 4, 1, 5, 2, 6, 3, 7};
+
+        // Draw lines
     }
 };
 

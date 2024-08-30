@@ -26,9 +26,6 @@ void InputProcessing::set_shader(const Shader *shader)
 
 void InputProcessing::process_keyboard(GLFWwindow *window, const double delta_time)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
     for (const auto &[key, func] : keyboard_listeners)
     {
         if (glfwGetKey(window, key) == GLFW_PRESS && (should_repeat[key] || !key_pressed[key]))
@@ -43,7 +40,7 @@ void InputProcessing::process_keyboard(GLFWwindow *window, const double delta_ti
     }
 }
 
-void InputProcessing::attach_keyboard_listener(const int key, void (*event_handler)(), bool repeat)
+void InputProcessing::attach_keyboard_listener(const int key, std::function<void()> event_handler, bool repeat)
 {
     keyboard_listeners[key] = event_handler;
     should_repeat[key] = repeat;
@@ -72,11 +69,8 @@ void InputProcessing::remove_mouse_listener(int listener)
     mouse_listeners.erase(listener);
 }
 
-void InputProcessing::process_mouse_move(GLFWwindow *window, double x_offset, double y_offset)
+void InputProcessing::process_mouse_move(GLFWwindow *window, double x_offset, double y_offset, bool resetPosition)
 {
-    if (!key_pressed[GLFW_MOUSE_BUTTON_LEFT] && !key_pressed[GLFW_MOUSE_BUTTON_RIGHT])
-        return;
-
     auto new_x_rel = x_offset - last.x_pos;
     auto new_y_rel = last.y_pos - y_offset;
 
@@ -87,6 +81,9 @@ void InputProcessing::process_mouse_move(GLFWwindow *window, double x_offset, do
     last.x_scroll = 0;
     last.y_scroll = 0;
 
+    if (resetPosition)
+        return;
+
     for (const auto &[key, func] : mouse_listeners)
     {
         func(last);
@@ -95,23 +92,6 @@ void InputProcessing::process_mouse_move(GLFWwindow *window, double x_offset, do
 
 void InputProcessing::process_mouse_button(GLFWwindow *window, int key, int action, int mods)
 {
-    if ((key == GLFW_MOUSE_BUTTON_LEFT || key == GLFW_MOUSE_BUTTON_RIGHT) && action == GLFW_PRESS && !key_pressed[GLFW_MOUSE_BUTTON_LEFT] && !key_pressed[GLFW_MOUSE_BUTTON_RIGHT])
-    {
-        glfwGetCursorPos(window, &last.x_pos, &last.y_pos);
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    }
-    else if (key == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE && !key_pressed[GLFW_MOUSE_BUTTON_RIGHT])
-    {
-        last.x_pos_offset = 0;
-        last.y_pos_offset = 0;
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
-    else if (key == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE && !key_pressed[GLFW_MOUSE_BUTTON_LEFT])
-    {
-        last.x_pos_offset = 0;
-        last.y_pos_offset = 0;
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
     key_pressed[key] = action == GLFW_PRESS;
 }
 
