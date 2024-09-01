@@ -6,6 +6,8 @@
 #include "../../Material.h"
 #include <glad/glad.h>
 
+class ConvexHull;
+
 class Renderable
 {
 private:
@@ -16,6 +18,7 @@ private:
     // Materials are per object currently, TODO make a shared library for materials to be shared between objects
     Material *material = nullptr;
     GLenum mode = GL_TRIANGLES;
+    ConvexHull *convexHull = nullptr;
 
 public:
     Renderable(std::vector<Vertex> vertices, std::vector<unsigned> indices) : vertices(vertices), indices(indices) {};
@@ -25,6 +28,7 @@ public:
         vertices.clear();
         indices.clear();
         delete material;
+        delete convexHull;
     };
 
     void update_vertices(std::vector<Vertex> vertices) { this->vertices = vertices; }

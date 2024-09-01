@@ -4,13 +4,13 @@
 
 void World::insert(SceneObject *object)
 {
-    quadTree.insert(object);
+    ocTree.insert(object);
 }
 
 void World::draw()
 {
     std::vector<SceneObject *> objects;
-    quadTree.query_range(quadTree.get_bounds(), objects);
+    ocTree.query_range(ocTree.get_bounds(), objects);
     for (auto &object : objects)
     {
         object->draw();
@@ -19,10 +19,10 @@ void World::draw()
 
 void World::draw_debug()
 {
-    quadTree.draw_debug();
+    ocTree.draw_debug();
 }
 
 void World::set_bounds(const glm::vec3 &center, const glm::vec3 &extent)
 {
-    quadTree.set_bounds(center, extent);
+    ocTree.set_bounds(center, extent);
 }

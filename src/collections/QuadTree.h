@@ -22,8 +22,8 @@ private:
     {
         glm::vec3 center = boundary.center;
         glm::vec3 extent = boundary.extent;
-        glm::vec3 extentDevide = extent / 2.0f;
-        extentDevide.y = extent.y;
+        glm::vec3 extentDivide = extent / 2.0f;
+        extentDivide.y = extent.y;
 
         glm::vec3 nw_center = center + glm::vec3(-extent.x / 2, 0, extent.z / 2);
         glm::vec3 ne_center = center + glm::vec3(extent.x / 2, 0, extent.z / 2);
@@ -31,13 +31,13 @@ private:
         glm::vec3 se_center = center + glm::vec3(extent.x / 2, 0, -extent.z / 2);
 
         northWest = new QuadTree<T>();
-        northWest->set_bounds(nw_center, extentDevide);
+        northWest->set_bounds(nw_center, extentDivide);
         northEast = new QuadTree<T>();
-        northEast->set_bounds(ne_center, extentDevide);
+        northEast->set_bounds(ne_center, extentDivide);
         southWest = new QuadTree<T>();
-        southWest->set_bounds(sw_center, extentDevide);
+        southWest->set_bounds(sw_center, extentDivide);
         southEast = new QuadTree<T>();
-        southEast->set_bounds(se_center, extentDevide);
+        southEast->set_bounds(se_center, extentDivide);
 
         for (const T &point : points)
         {

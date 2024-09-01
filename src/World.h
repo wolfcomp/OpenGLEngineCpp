@@ -4,20 +4,20 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "collections/QuadTree.h"
+#include "collections/OcTree.h"
 
 class SceneObject;
 
 class World
 {
-    QuadTree<SceneObject *> quadTree;
+    OcTree<SceneObject *> ocTree;
 
 public:
     World() {}
     ~World()
     {
         std::vector<SceneObject *> objects;
-        quadTree.query_range(quadTree.get_bounds(), objects);
+        ocTree.query_range(ocTree.get_bounds(), objects);
         for (auto &object : objects)
         {
             delete object;
