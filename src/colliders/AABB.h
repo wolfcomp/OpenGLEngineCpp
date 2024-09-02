@@ -18,16 +18,6 @@ struct AABB
     AABB();
     ~AABB();
 
-    bool intersects(const AABB &other) const
-    {
-        return (center.x - extent.x <= other.center.x + other.extent.x &&
-                center.x + extent.x >= other.center.x - other.extent.x &&
-                center.y - extent.y <= other.center.y + other.extent.y &&
-                center.y + extent.y >= other.center.y - other.extent.y &&
-                center.z - extent.z <= other.center.z + other.extent.z &&
-                center.z + extent.z >= other.center.z - other.extent.z);
-    }
-
     void draw_debug();
 
     template <typename T>
@@ -46,6 +36,17 @@ struct AABB
                 center.y + extent.y >= point.y &&
                 center.z - extent.z <= point.z &&
                 center.z + extent.z >= point.z);
+    }
+
+    template <>
+    bool contains<AABB>(const AABB &other) const
+    {
+        return (center.x - extent.x <= other.center.x + other.extent.x &&
+                center.x + extent.x >= other.center.x - other.extent.x &&
+                center.y - extent.y <= other.center.y + other.extent.y &&
+                center.y + extent.y >= other.center.y - other.extent.y &&
+                center.z - extent.z <= other.center.z + other.extent.z &&
+                center.z + extent.z >= other.center.z - other.extent.z);
     }
 
     template <>

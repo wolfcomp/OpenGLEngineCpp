@@ -37,7 +37,7 @@ public:
     /// @param collider The collider to check for intersection with
     /// @return true If the convex hull intersects with the collider
     template <typename T>
-    bool intersects(const T &collider) const
+    bool contains(const T &collider) const
     {
         std::string message = "Not implemented on type of ";
         throw message + typeid(T).name();
