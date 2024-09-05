@@ -3,10 +3,11 @@
 #include <vector>
 #include <glm/vec3.hpp>
 #include "AABB.h"
+#include "Collider.h"
 
 class Renderable;
 
-class ConvexHull
+class ConvexHull : public Collider
 {
 private:
     Renderable *hull;

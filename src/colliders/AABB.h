@@ -4,12 +4,13 @@
 #include <glm/vec3.hpp>
 #include <vector>
 #include "../objects/base/Vertex.h"
+#include "Collider.h"
 
 class SceneObject;
 class SceneUpdatableObject;
 class Line;
 
-struct AABB
+struct AABB : public Collider
 {
     glm::vec3 center;
     glm::vec3 extent;

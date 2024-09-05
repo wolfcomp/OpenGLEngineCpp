@@ -4,7 +4,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "../../colliders/AABB.h"
+#include "../../colliders/Collider.h"
 
 class SceneObject : public Renderable
 {
@@ -13,6 +13,7 @@ private:
     glm::quat rotation;
     glm::vec3 scale;
     std::vector<SceneObject *> children;
+    Collider *collider;
 
 public:
     SceneObject(std::vector<Vertex> vertices, std::vector<unsigned> indices) : Renderable(vertices, indices), scale(1), rotation(glm::quat(1, 0, 0, 0)), position(0) {}

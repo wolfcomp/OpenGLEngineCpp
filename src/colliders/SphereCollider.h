@@ -2,15 +2,14 @@
 #include <glm/vec3.hpp>
 #include <glm/geometric.hpp>
 #include "AABB.h"
+#include "Collider.h"
 #include <math.h>
 
-class SphereCollider
+struct SphereCollider : public Collider
 {
-private:
     glm::vec3 center;
     float radius;
 
-public:
     SphereCollider(glm::vec3 center, float radius) : center(center), radius(radius) {}
     ~SphereCollider() {}
 
