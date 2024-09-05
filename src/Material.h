@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 class Shader;
 
@@ -24,6 +24,6 @@ struct TextureMaterial : public Material
 
 struct ColorMaterial : public Material
 {
-    glm::vec3 color;
+    glm::vec4 color;
     void use(Shader *shader) override;
 };

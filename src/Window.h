@@ -5,6 +5,7 @@ struct GLFWwindow;
 struct Window
 {
     GLFWwindow *window;
+    float *fpsPtr;
 
     ~Window();
 

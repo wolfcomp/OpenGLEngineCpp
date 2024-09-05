@@ -4,31 +4,33 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "collections/OcTree.h"
+#include "collections/QuadTree.h"
 
-class SceneObject;
+class SceneUpdatableObject;
 
 class World
 {
-    OcTree<SceneObject *> ocTree;
+    QuadTree<SceneUpdatableObject *> quad_tree;
 
 public:
     World() {}
     ~World()
     {
-        std::vector<SceneObject *> objects;
-        ocTree.query_range(ocTree.get_bounds(), objects);
+        std::vector<SceneUpdatableObject *> objects;
+        quad_tree.query_range(quad_tree.get_bounds(), objects);
         for (auto &object : objects)
         {
             delete object;
         }
     }
 
-    void insert(SceneObject *object);
+    void insert(SceneUpdatableObject *object);
 
     void draw();
 
-    void draw_debug();
+    void draw_debug(Line *line);
 
     void set_bounds(const glm::vec3 &center, const glm::vec3 &extent);
+
+    void update(float delta_time);
 };

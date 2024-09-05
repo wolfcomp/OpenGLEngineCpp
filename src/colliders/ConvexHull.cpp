@@ -9,7 +9,7 @@ ConvexHull::ConvexHull(AABB bounds, Renderable *parent) : parent(parent)
     hull->set_shader(ShaderStore::get_shader("noLight"));
     hull->set_mode(GL_LINE);
     hull->set_material(new ColorMaterial());
-    dynamic_cast<ColorMaterial *>(hull->get_material())->color = glm::vec3(1.0f, 0.0f, 0.0f);
+    dynamic_cast<ColorMaterial *>(hull->get_material())->color = glm::vec4(1.0f, 0.0f, 0.0f, 0.5f);
 
     auto min = bounds.center - bounds.extent;
     auto max = bounds.center + bounds.extent;
@@ -58,7 +58,7 @@ void ConvexHull::draw_debug()
 }
 
 template <>
-bool ConvexHull::intersects<ConvexHull>(const ConvexHull &collider) const
+bool ConvexHull::contains<ConvexHull>(const ConvexHull &collider) const
 {
     // TODO implement intersection check with GJK algorithm
     return false;

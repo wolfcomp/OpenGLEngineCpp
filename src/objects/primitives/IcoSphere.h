@@ -1,15 +1,19 @@
 #pragma once
 
-#include "../base/SceneObject.h"
+#include "../base/SceneUpdatableObject.h"
 
-class IcoSphere : public SceneObject
+class IcoSphere : public SceneUpdatableObject
 {
 private:
     const float H_ANGLE = glm::pi<float>() / 180 * 72;
     const float V_ANGLE = atanf(1.0f / 2);
 
 public:
-    IcoSphere() : SceneObject({}, {}) {};
+    IcoSphere(glm::vec3 position) : SceneUpdatableObject({}, {})
+    {
+        set_position(position);
+    };
+    IcoSphere() : SceneUpdatableObject({}, {}) {};
     ~IcoSphere() {};
     void create(int subdivisions)
     {
@@ -107,5 +111,22 @@ public:
 
         update_vertices(vertices);
         update_indices(indices);
+    }
+
+    void setup() override
+    {
+        create(3);
+    }
+
+    void update(float delta_time) override
+    {
+        auto pos = get_position();
+        auto toCenterVec = -pos;
+        auto speed = get_velocity();
+        speed += toCenterVec * delta_time;
+        set_velocity(speed);
+        pos += speed * delta_time;
+        set_position(pos);
+        SceneUpdatableObject::update(delta_time);
     }
 };

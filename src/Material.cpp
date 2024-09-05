@@ -95,6 +95,6 @@ void TextureMaterial::use(Shader *shader)
 void ColorMaterial::use(Shader *shader)
 {
     Material::use(shader);
-    shader->set_vec3("material.color", color);
+    shader->set_vec4("material.color", color);
     shader->set_int("material.hasMap", 0);
 }

@@ -6,19 +6,19 @@
 #include "../objects/base/Vertex.h"
 
 class SceneObject;
+class SceneUpdatableObject;
 class Line;
 
 struct AABB
 {
     glm::vec3 center;
     glm::vec3 extent;
-    Line *line;
 
     AABB(glm::vec3 center, glm::vec3 extent);
     AABB();
     ~AABB();
 
-    void draw_debug();
+    void draw_debug(Line *line);
 
     template <typename T>
     bool contains(const T &point) const
@@ -51,4 +51,7 @@ struct AABB
 
     template <>
     bool contains<SceneObject *>(SceneObject *const &point) const;
+
+    template <>
+    bool contains<SceneUpdatableObject *>(SceneUpdatableObject *const &point) const;
 };

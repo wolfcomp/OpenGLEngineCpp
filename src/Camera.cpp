@@ -6,7 +6,7 @@
 #define MOUSE_SENSITIVITY 0.1f
 #define PITCH_LIMIT 89.9f
 
-Camera::Camera() : Camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0, 0)
+Camera::Camera() : Camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90, 0)
 {
 }
 

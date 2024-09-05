@@ -3,7 +3,7 @@ out vec4 FragColor;
 
 struct Material {
     sampler2D diffuse;
-    vec3 color;
+    vec4 color;
     int hasMap;
 };
 
@@ -14,6 +14,6 @@ void main() {
     if((material.hasMap & 1) != 0)
         diffuseColor = texture(material.diffuse, vec2(0.5, 0.5));
     else
-        diffuseColor = vec4(material.color, 1.0);
+        diffuseColor = material.color;
     FragColor = diffuseColor;
 }

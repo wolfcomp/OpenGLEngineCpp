@@ -108,7 +108,7 @@ public:
     };
     void query_range(const AABB &range, std::vector<T> &found)
     {
-        if (!boundary.intersects(range))
+        if (!boundary.contains(range))
             return;
 
         for (const T &point : points)
