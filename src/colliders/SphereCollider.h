@@ -5,12 +5,16 @@
 #include "Collider.h"
 #include <math.h>
 
-struct SphereCollider : public Collider
+class SphereCollider : public Collider<SphereCollider>
 {
+public:
     glm::vec3 center;
     float radius;
 
-    SphereCollider(glm::vec3 center, float radius) : center(center), radius(radius) {}
+    SphereCollider() : center(glm::vec3(0.0f)), radius(0.0f), Collider() {}
+    SphereCollider(SceneObject *parent) : center(glm::vec3(0.0f)), radius(0.0f), Collider(parent) {}
+    SphereCollider(glm::vec3 center, float radius) : center(center), radius(radius), Collider() {}
+    SphereCollider(SceneObject *parent, glm::vec3 center, float radius) : center(center), radius(radius), Collider(parent) {}
     ~SphereCollider() {}
 
     /// @brief Fallback for unsupported types
@@ -36,8 +40,7 @@ struct SphereCollider : public Collider
     /// @brief Finds if a sphere collider intersects with another sphere collider
     /// @param other The sphere collider to check for intersection
     /// @return true if the spheres intersect, false otherwise
-    template <>
-    bool contains<SphereCollider>(const SphereCollider &other) const
+    bool contains(const SphereCollider &other) const override
     {
         return glm::distance(center, other.center) <= radius + other.radius;
     }
@@ -58,4 +61,6 @@ struct SphereCollider : public Collider
         closest = std::max(closest, z);
         return closest <= radius;
     }
+
+    void update(SceneObject *object) override;
 };

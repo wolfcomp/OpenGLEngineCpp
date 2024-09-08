@@ -7,6 +7,7 @@
 #include "collections/QuadTree.h"
 
 class SceneUpdatableObject;
+class Arrow;
 
 class World
 {
@@ -28,7 +29,7 @@ public:
 
     void draw();
 
-    void draw_debug(Line *line);
+    void draw_debug(Line *line, Arrow *arrow);
 
     void set_bounds(const glm::vec3 &center, const glm::vec3 &extent);
 

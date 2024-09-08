@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../base/SceneUpdatableObject.h"
+#include "../../colliders/SphereCollider.h"
 
 class IcoSphere : public SceneUpdatableObject
 {
@@ -12,6 +13,7 @@ public:
     IcoSphere(glm::vec3 position) : SceneUpdatableObject({}, {})
     {
         set_position(position);
+        set_collider(new SphereCollider(this));
     };
     IcoSphere() : SceneUpdatableObject({}, {}) {};
     ~IcoSphere() {};

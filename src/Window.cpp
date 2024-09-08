@@ -7,6 +7,8 @@
 #include "objects/base/Renderable.h"
 #include "objects/primitives/IcoSphere.h"
 #include "objects/debug/Line.h"
+#include "objects/debug/Arrow.h"
+#include "colliders/SphereCollider.h"
 #include "World.h"
 #include <iostream>
 #include <imgui/imgui.h>
@@ -32,6 +34,7 @@ LightManager lightManager;
 
 World *world;
 Line *debugLine;
+Arrow *debugArrow;
 GLFWframebuffersizefun prev_framebuffer_size_callback;
 GLFWcursorposfun prev_cursor_position_callback;
 GLFWmousebuttonfun prev_mouse_button_callback;
@@ -145,22 +148,14 @@ int Window::init()
     world->set_bounds(glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
     create_new(glm::vec3(4, 0, 0), glm::vec3(0, 0, 4), glm::vec3(0.5f, 0.5f, 0.0f));
     create_new(glm::vec3(0, 0, 4), glm::vec3(4, 0, 0), glm::vec3(0.5f, 0.5f, 0.0f));
-    create_new(glm::vec3(-4, 0, 0), glm::vec3(0, 0, -4), glm::vec3(0.5f, 0.5f, 0.0f));
-    create_new(glm::vec3(0, 0, -4), glm::vec3(-4, 0, 0), glm::vec3(0.5f, 0.5f, 0.0f));
-    create_new(glm::vec3(4, 0, 4), glm::vec3(-2, 0, -2), glm::vec3(0.5f, 0.5f, 0.0f));
-    create_new(glm::vec3(-4, 0, -4), glm::vec3(2, 0, 2), glm::vec3(0.5f, 0.5f, 0.0f));
-    create_new(glm::vec3(-4, 0, 4), glm::vec3(-2, 0, 2), glm::vec3(0.5f, 0.5f, 0.0f));
-    create_new(glm::vec3(4, 0, -4), glm::vec3(2, 0, -2), glm::vec3(0.5f, 0.5f, 0.0f));
-    create_new(glm::vec3(6, 0, 6), glm::vec3(-2, 0, -2), glm::vec3(0.5f, 0.5f, 0.0f));
-    create_new(glm::vec3(-6, 0, -6), glm::vec3(2, 0, 2), glm::vec3(0.5f, 0.5f, 0.0f));
-    create_new(glm::vec3(-6, 0, 6), glm::vec3(2, 0, -2), glm::vec3(0.5f, 0.5f, 0.0f));
-    create_new(glm::vec3(6, 0, -6), glm::vec3(-2, 0, 2), glm::vec3(0.5f, 0.5f, 0.0f));
-    create_new(glm::vec3(6, 0, 0), glm::vec3(0, 0, 6), glm::vec3(0.5f, 0.5f, 0.0f));
-    create_new(glm::vec3(0, 0, 6), glm::vec3(6, 0, 0), glm::vec3(0.5f, 0.5f, 0.0f));
     debugLine = new Line();
     debugLine->set_shader(ShaderStore::get_shader("noLight"));
     debugLine->set_material(new ColorMaterial());
     dynamic_cast<ColorMaterial *>(debugLine->get_material())->color = glm::vec4(1.0f, 0.0f, 0.0f, 0.5f);
+    debugArrow = new Arrow();
+    debugArrow->set_shader(ShaderStore::get_shader("noLight"));
+    debugArrow->set_material(new ColorMaterial());
+    dynamic_cast<ColorMaterial *>(debugArrow->get_material())->color = glm::vec4(0.0f, 1.0f, 0.0f, 0.5f);
     return 0;
 }
 
@@ -239,7 +234,7 @@ void Window::render() const
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    world->draw_debug(debugLine);
+    world->draw_debug(debugLine, debugArrow);
 
     world->draw();
 

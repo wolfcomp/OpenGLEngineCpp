@@ -16,23 +16,62 @@ private:
     Collider *collider;
 
 public:
-    SceneObject(std::vector<Vertex> vertices, std::vector<unsigned> indices) : Renderable(vertices, indices), scale(1), rotation(glm::quat(1, 0, 0, 0)), position(0) {}
-    ~SceneObject() {}
+    SceneObject(std::vector<Vertex> vertices, std::vector<unsigned> indices) : Renderable(vertices, indices), scale(1), rotation(glm::quat(1, 0, 0, 0)), position(0), collider(nullptr) {}
+    ~SceneObject()
+    {
+        if (collider != nullptr)
+            delete collider;
+    }
 
-    void set_position(glm::vec3 position) { this->position = position; }
+    void set_position(glm::vec3 position)
+    {
+        this->position = position;
+        if (collider != nullptr)
+            collider->update(this);
+    }
+    /// @brief Sets the rotation of the object
+    /// @param rotation The rotation of the object in quaternion
     void set_rotation(glm::quat rotation) { this->rotation = rotation; }
-    void set_scale(glm::vec3 scale) { this->scale = scale; }
+    /// @brief Sets the rotation of the object
+    /// @param rotation The rotation of the object in euler angles
+    void set_rotation(glm::vec3 rotation) { this->rotation = glm::quat(rotation); }
+    /// @brief Sets the rotation of the object
+    /// @param rotation The rotation of the object in normalized vector form
+    void set_rotation_world_up(glm::vec3 rotation) { this->rotation = glm::quat(glm::normalize(rotation), glm::vec3(0, 1, 0)); }
+    void set_scale(glm::vec3 scale)
+    {
+        this->scale = scale;
+        if (collider != nullptr)
+            collider->update(this);
+    }
     glm::vec3 get_position() const { return position; }
     glm::quat get_rotation() const { return rotation; }
     glm::vec3 get_scale() const { return scale; }
 
-    void translate(glm::vec3 translation) { position += translation; }
+    void translate(glm::vec3 translation)
+    {
+        position += translation;
+        if (collider != nullptr)
+            collider->update(this);
+    }
     void rotate(glm::quat rotation) { this->rotation = rotation * this->rotation; }
-    void scale_by(glm::vec3 scale) { this->scale *= scale; }
+    void scale_by(glm::vec3 scale)
+    {
+        this->scale *= scale;
+        if (collider != nullptr)
+            collider->update(this);
+    }
 
     void add_child(SceneObject *child) { children.push_back(child); }
     void remove_child(SceneObject *child) { children.erase(std::remove(children.begin(), children.end(), child), children.end()); }
     std::vector<SceneObject *> get_children() const { return children; }
+
+    void set_collider(Collider *collider)
+    {
+        this->collider = collider;
+        collider->update(this);
+    }
+    Collider *get_collider() const { return collider; }
 
     void pre_render() const override
     {

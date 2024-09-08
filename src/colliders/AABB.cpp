@@ -56,3 +56,8 @@ bool AABB::contains<SceneUpdatableObject *>(SceneUpdatableObject *const &point) 
 {
     return contains(point->get_position());
 }
+
+void AABB::update(SceneObject *object)
+{
+    center = object->get_position();
+}

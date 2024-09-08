@@ -43,26 +43,14 @@ public:
     float l;
     float rgb[3];
 
-    void shift(float time)
-    {
-        h = mod(time * 100, 360.0f);
-    }
-
-    void from_time(float time)
-    {
-        h = static_cast<int>(time) % 360;
-        s = 1;
-        l = clamp(get_modif(time, sin), 0.25f, 0.75f);
-    }
-
-    void blend(int h, float s, float l, float amount)
+    void blend(int h, float s, float l, float amount = 0.5f)
     {
         this->h = static_cast<int>(this->h + (h - this->h) * amount) % 360;
         this->s = this->s + (s - this->s) * amount;
         this->l = this->l + (l - this->l) * amount;
     }
 
-    void blend(hsl &other, float amount)
+    void blend(hsl &other, float amount = 0.5f)
     {
         h = static_cast<int>(h + (other.h - h) * amount) % 360;
         s = s + (other.s - s) * amount;

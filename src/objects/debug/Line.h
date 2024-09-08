@@ -29,7 +29,7 @@ public:
 
     void post_render() const override
     {
-        Renderable::post_render();
         glLineWidth(1);
+        Renderable::post_render();
     }
 };

@@ -10,8 +10,9 @@ class SceneObject;
 class SceneUpdatableObject;
 class Line;
 
-struct AABB : public Collider
+class AABB : public Collider<AABB>
 {
+public:
     glm::vec3 center;
     glm::vec3 extent;
 
@@ -39,8 +40,7 @@ struct AABB : public Collider
                 center.z + extent.z >= point.z);
     }
 
-    template <>
-    bool contains<AABB>(const AABB &other) const
+    bool contains<AABB>(const AABB &other) const override
     {
         return (center.x - extent.x <= other.center.x + other.extent.x &&
                 center.x + extent.x >= other.center.x - other.extent.x &&
@@ -55,4 +55,6 @@ struct AABB : public Collider
 
     template <>
     bool contains<SceneUpdatableObject *>(SceneUpdatableObject *const &point) const;
+
+    void update(SceneObject *object) override;
 };

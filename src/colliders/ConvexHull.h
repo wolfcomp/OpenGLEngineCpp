@@ -7,6 +7,7 @@
 
 class Renderable;
 
+/// @brief Not implemented yet
 class ConvexHull : public Collider
 {
 private:
