@@ -79,25 +79,10 @@ private:
     {
         if (northWest != nullptr)
         {
-            if (northWest->node == nullptr && northEast->node == nullptr && southWest->node == nullptr && southEast->node == nullptr)
-            {
-                delete northWest;
-                delete northEast;
-                delete southWest;
-                delete southEast;
-                northWest = nullptr;
-                northEast = nullptr;
-                southWest = nullptr;
-                southEast = nullptr;
-                return true;
-            }
-            else
-            {
-                northWest->unsubdivide();
-                northEast->unsubdivide();
-                southWest->unsubdivide();
-                southEast->unsubdivide();
-            }
+            northWest->unsubdivide();
+            northEast->unsubdivide();
+            southWest->unsubdivide();
+            southEast->unsubdivide();
             if (northWest->node == nullptr && northEast->node == nullptr && southWest->node == nullptr && southEast->node == nullptr)
             {
                 delete northWest;

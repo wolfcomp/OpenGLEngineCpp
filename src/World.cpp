@@ -63,16 +63,23 @@ void World::set_bounds(const glm::vec3 &center, const glm::vec3 &extent)
 void World::update(float delta_time)
 {
     std::vector<SceneUpdatableObject *> objects;
-    quad_tree.query_range(quad_tree.get_bounds(), objects);
-
+    AABB bounds = quad_tree.get_bounds();
+    quad_tree.query_range(bounds, objects);
+    unsigned index = 0;
     for (auto &object : objects)
     {
         if (object != nullptr)
         {
-            object->pre_update(delta_time);
             if (object->get_active())
+            {
+                auto size = object->get_scale();
+                auto minVertex = object->get_min_vertex().position * size;
+                auto maxVertex = object->get_max_vertex().position * size;
+                object->pre_update(delta_time);
                 object->update(delta_time);
+            }
         }
+        index++;
     }
     quad_tree.recalculate();
 }

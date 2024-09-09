@@ -33,3 +33,45 @@ void Renderable::setup()
 
     glBindVertexArray(0);
 }
+
+Vertex Renderable::get_min_vertex() const
+{
+    Vertex min = vertices[0];
+    for (auto &vertex : vertices)
+    {
+        if (vertex.position.x < min.position.x)
+        {
+            min.position.x = vertex.position.x;
+        }
+        if (vertex.position.y < min.position.y)
+        {
+            min.position.y = vertex.position.y;
+        }
+        if (vertex.position.z < min.position.z)
+        {
+            min.position.z = vertex.position.z;
+        }
+    }
+    return min;
+}
+
+Vertex Renderable::get_max_vertex() const
+{
+    Vertex max = vertices[0];
+    for (auto &vertex : vertices)
+    {
+        if (vertex.position.x > max.position.x)
+        {
+            max.position.x = vertex.position.x;
+        }
+        if (vertex.position.y > max.position.y)
+        {
+            max.position.y = vertex.position.y;
+        }
+        if (vertex.position.z > max.position.z)
+        {
+            max.position.z = vertex.position.z;
+        }
+    }
+    return max;
+}

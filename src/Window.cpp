@@ -40,6 +40,8 @@ GLFWframebuffersizefun prev_framebuffer_size_callback;
 GLFWcursorposfun prev_cursor_position_callback;
 GLFWmousebuttonfun prev_mouse_button_callback;
 GLFWscrollfun prev_scroll_callback;
+glm::vec3 a = glm::normalize(glm::vec3(-.5, 0, -1));
+glm::vec3 b = {0, 0, -1};
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
@@ -159,8 +161,8 @@ int Window::init()
     Renderable::setup();
     world = new World();
     world->set_bounds(glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
-    create_new(glm::vec3(4, 0, 0), glm::vec3(0, 0, 4), glm::vec3(0.5f, 0.5f, 0.0f));
-    create_new(glm::vec3(0, 0, 4), glm::vec3(4, 0, 0), glm::vec3(0.5f, 0.5f, 0.0f));
+    // create_new(glm::vec3(4, 0, 0), glm::vec3(0, 0, 4), glm::vec3(0.5f, 0.5f, 0.0f));
+    // create_new(glm::vec3(0, 0, 4), glm::vec3(4, 0, 0), glm::vec3(0.5f, 0.5f, 0.0f));
     debugLine = new Line();
     debugLine->set_shader(ShaderStore::get_shader("noLight"));
     debugLine->set_material(new ColorMaterial());
@@ -247,9 +249,26 @@ void Window::render() const
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    world->draw_debug(debugLine, debugArrow);
+    auto w = glm::cross(a, b) / sqrtf(pow(glm::length(a) * glm::length(b), 2));
+    auto theta = acos(glm::dot(a, b) / (glm::length(a) * glm::length(b)));
+    auto q = glm::rotate(glm::mat4(1.0f), theta, w);
+    auto arot = glm::vec3(q * glm::vec4(b, 1.0f));
+    debugLine->set_positions(glm::vec3(0, 0, 0), arot);
+    dynamic_cast<ColorMaterial *>(debugLine->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 0.5f);
+    debugLine->draw();
+    debugLine->set_positions(glm::vec3(0, 0, 0), a);
+    dynamic_cast<ColorMaterial *>(debugLine->get_material())->color = glm::vec4(1.0f, 0.0f, 0.0f, 0.5f);
+    debugLine->draw();
+    debugLine->set_positions(glm::vec3(0, 0, 0), b);
+    dynamic_cast<ColorMaterial *>(debugLine->get_material())->color = glm::vec4(0.0f, 1.0f, 0.0f, 0.5f);
+    debugLine->draw();
+    debugLine->set_positions(glm::vec3(0, 0, 0), w);
+    dynamic_cast<ColorMaterial *>(debugLine->get_material())->color = glm::vec4(0.0f, 0.0f, 1.0f, 0.5f);
+    debugLine->draw();
 
-    world->draw();
+    // world->draw_debug(debugLine, debugArrow);
+
+    // world->draw();
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

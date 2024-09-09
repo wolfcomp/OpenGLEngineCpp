@@ -1,53 +1,17 @@
 #pragma once
 
 #include <glm/vec3.hpp>
+#include <detail/typename.h>
 #include "Collider.h"
 
-#include <string_view>
-
-template <typename T>
-constexpr std::string_view type_name();
-
-template <>
-constexpr std::string_view type_name<void>()
+struct CollisionType
 {
-    return "void";
-}
-
-namespace detail
-{
-
-    using type_name_prober = void;
-
-    template <typename T>
-    constexpr std::string_view wrapped_type_name()
-    {
-        return __FUNCSIG__;
-    }
-
-    constexpr std::size_t wrapped_type_name_prefix_length()
-    {
-        return wrapped_type_name<type_name_prober>()
-            .find(type_name<type_name_prober>());
-    }
-
-    constexpr std::size_t wrapped_type_name_suffix_length()
-    {
-        return wrapped_type_name<type_name_prober>().length() - wrapped_type_name_prefix_length() - type_name<type_name_prober>().length();
-    }
-
-} // namespace detail
-
-template <typename T>
-constexpr std::string_view type_name()
-{
-    constexpr auto wrapped_name = detail::wrapped_type_name<T>();
-    constexpr auto prefix_length = detail::wrapped_type_name_prefix_length();
-    constexpr auto suffix_length = detail::wrapped_type_name_suffix_length();
-    constexpr auto type_name_length =
-        wrapped_name.length() - prefix_length - suffix_length;
-    return wrapped_name.substr(prefix_length, type_name_length);
-}
+    bool is_colliding;
+    /// @brief The normal of the collision from the perspective of collider a to collider b
+    glm::vec3 normal;
+    ColliderBase *a;
+    ColliderBase *b;
+};
 
 namespace ColliderHandler
 {
@@ -80,4 +44,6 @@ namespace ColliderHandler
     {
         return contains(a, b);
     }
+
+    CollisionType get_collision_type(ColliderBase *a, ColliderBase *b);
 };
