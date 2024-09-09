@@ -6,6 +6,7 @@
 #include "ShaderStore.h"
 #include "objects/base/Renderable.h"
 #include "objects/primitives/IcoSphere.h"
+#include "objects/primitives/Cube.h"
 #include "objects/debug/Line.h"
 #include "objects/debug/Arrow.h"
 #include "colliders/SphereCollider.h"
@@ -87,6 +88,18 @@ IcoSphere *create_new(glm::vec3 position, glm::vec3 velocity, glm::vec3 color)
     dynamic_cast<ColorMaterial *>(sphere->get_material())->color = glm::vec4(color, 1);
     sphere->set_velocity(velocity);
     return sphere;
+}
+
+Cube *create_new_cube(glm::vec3 postion, glm::vec3 velocity, glm::vec3 color)
+{
+    Cube *cube;
+    world->insert(cube = new Cube(postion));
+    cube->set_shader(ShaderStore::get_shader("noLight"));
+    cube->set_material(new ColorMaterial());
+    cube->set_scale(glm::vec3(0.1f));
+    dynamic_cast<ColorMaterial *>(cube->get_material())->color = glm::vec4(color, 1);
+    cube->set_velocity(velocity);
+    return cube;
 }
 
 int Window::init()

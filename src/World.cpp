@@ -26,16 +26,31 @@ void World::draw_debug(Line *line, Arrow *arrow)
     quad_tree.draw_debug(line);
     std::vector<SceneUpdatableObject *> objects;
     quad_tree.query_range(quad_tree.get_bounds(), objects);
-    if (objects.size() < 2)
+    if (objects.size() < 3)
         return;
     SceneUpdatableObject *object1 = objects[0];
     SceneUpdatableObject *object2 = objects[1];
+    SceneUpdatableObject *object3 = objects[2];
 
-    auto f = ColliderHandler::get_collision_normal(*object1->get_collider(), *object2->get_collider());
+    auto f = ColliderHandler::get_collision_normal(object1->get_collider(), object2->get_collider());
     arrow->set_position(object1->get_position());
     arrow->set_rotation_world_up(f);
     arrow->draw();
     arrow->set_position(object2->get_position());
+    arrow->set_rotation_world_up(-f);
+    arrow->draw();
+    f = ColliderHandler::get_collision_normal(object1->get_collider(), object3->get_collider());
+    arrow->set_position(object1->get_position());
+    arrow->set_rotation_world_up(f);
+    arrow->draw();
+    arrow->set_position(object3->get_position());
+    arrow->set_rotation_world_up(-f);
+    arrow->draw();
+    f = ColliderHandler::get_collision_normal(object2->get_collider(), object3->get_collider());
+    arrow->set_position(object2->get_position());
+    arrow->set_rotation_world_up(f);
+    arrow->draw();
+    arrow->set_position(object3->get_position());
     arrow->set_rotation_world_up(-f);
     arrow->draw();
 }

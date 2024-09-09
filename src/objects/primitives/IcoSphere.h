@@ -131,4 +131,6 @@ public:
         set_position(pos);
         SceneUpdatableObject::update(delta_time);
     }
+
+    SphereCollider *get_collider() override { return dynamic_cast<SphereCollider *>(SceneObject::get_collider()); }
 };

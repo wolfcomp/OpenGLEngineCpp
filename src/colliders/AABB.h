@@ -40,7 +40,7 @@ public:
                 center.z + extent.z >= point.z);
     }
 
-    bool contains<AABB>(const AABB &other) const override
+    bool contains(const AABB &other) const override
     {
         return (center.x - extent.x <= other.center.x + other.extent.x &&
                 center.x + extent.x >= other.center.x - other.extent.x &&

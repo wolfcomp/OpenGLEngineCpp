@@ -13,7 +13,7 @@ private:
     glm::quat rotation;
     glm::vec3 scale;
     std::vector<SceneObject *> children;
-    Collider *collider;
+    ColliderBase *collider;
 
 public:
     SceneObject(std::vector<Vertex> vertices, std::vector<unsigned> indices) : Renderable(vertices, indices), scale(1), rotation(glm::quat(1, 0, 0, 0)), position(0), collider(nullptr) {}
@@ -66,12 +66,13 @@ public:
     void remove_child(SceneObject *child) { children.erase(std::remove(children.begin(), children.end(), child), children.end()); }
     std::vector<SceneObject *> get_children() const { return children; }
 
-    void set_collider(Collider *collider)
+    template <typename T>
+    void set_collider(Collider<T> *collider)
     {
         this->collider = collider;
         collider->update(this);
     }
-    Collider *get_collider() const { return collider; }
+    virtual ColliderBase *get_collider() { return collider; }
 
     void pre_render() const override
     {

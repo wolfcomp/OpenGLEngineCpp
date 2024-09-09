@@ -8,7 +8,7 @@
 class Renderable;
 
 /// @brief Not implemented yet
-class ConvexHull : public Collider
+class ConvexHull : public Collider<ConvexHull>
 {
 private:
     Renderable *hull;
