@@ -4,13 +4,7 @@
 #include "../colliders/AABB.h"
 #include <functional>
 #include <iostream>
-
-template <typename T>
-struct Node
-{
-    T data;
-    Node *next;
-};
+#include "Node.h"
 
 template <typename T>
 class QuadTree
@@ -161,9 +155,6 @@ public:
         if (result != nullptr)
             return result;
         result = southEast->pop(point);
-        if (result != nullptr)
-            return result;
-
         return result;
     };
 

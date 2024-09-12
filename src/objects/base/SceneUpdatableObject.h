@@ -14,6 +14,8 @@ private:
 
 public:
     Physics(glm::vec3 velocity, glm::vec3 acceleration, float mass) : velocity(velocity), acceleration(acceleration), mass(mass) {}
+    Physics(SceneUpdatableObject *parent) : parent(parent), velocity(0.0f, 0.0f, 0.0f), acceleration(0.0f, 0.0f, 0.0f), mass(0.0f) {}
+    Physics(SceneUpdatableObject *parent, glm::vec3 velocity, glm::vec3 acceleration, float mass) : parent(parent), velocity(velocity), acceleration(acceleration), mass(mass) {}
     ~Physics() {}
 
     void set_velocity(glm::vec3 velocity) { this->velocity = velocity; }
@@ -23,6 +25,7 @@ public:
     glm::vec3 get_velocity() const { return velocity; }
     glm::vec3 get_acceleration() const { return acceleration; }
     float get_mass() const { return mass; }
+    SceneUpdatableObject *get_parent() const { return parent; }
 
     void update(float delta_time)
     {
@@ -68,6 +71,7 @@ public:
     }
 
     void apply_collision(Physics *other);
+    void apply_collision(glm::vec3 normal);
 };
 
 class SceneUpdatableObject : public SceneObject
@@ -78,7 +82,7 @@ private:
     Physics physics;
 
 public:
-    SceneUpdatableObject(std::vector<Vertex> vertices, std::vector<unsigned> indices) : SceneObject(vertices, indices), is_active(true), physics(Physics(glm::vec3(0), glm::vec3(0), 0.0f)) {}
+    SceneUpdatableObject(std::vector<Vertex> vertices, std::vector<unsigned> indices) : SceneObject(vertices, indices), is_active(true), physics(Physics(this, glm::vec3(0), glm::vec3(0), 0.0f)) {}
     ~SceneUpdatableObject() {}
 
     void set_active(bool is_active) { this->is_active = is_active; }
@@ -91,6 +95,7 @@ public:
     glm::vec3 get_velocity() const { return physics.get_velocity(); }
     glm::vec3 get_acceleration() const { return physics.get_acceleration(); }
     float get_mass() const { return physics.get_mass(); }
+    Physics *get_physics() { return &physics; }
 
     virtual void setup() {};
     /// @brief Handles any pre-update logic before the object moves
@@ -105,4 +110,7 @@ public:
     {
         has_updated = true;
     };
+
+    void apply_collision(SceneUpdatableObject *other) { physics.apply_collision(&other->physics); }
+    void apply_collision(glm::vec3 normal) { physics.apply_collision(normal); }
 };

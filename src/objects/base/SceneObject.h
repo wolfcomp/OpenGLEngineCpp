@@ -70,6 +70,7 @@ public:
     void set_collider(Collider<T> *collider)
     {
         this->collider = collider;
+        collider->set_parent(this);
         collider->update(this);
     }
     virtual ColliderBase *get_collider() { return collider; }

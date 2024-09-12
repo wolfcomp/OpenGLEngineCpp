@@ -110,3 +110,20 @@ CollisionType ColliderHandler::get_collision_type(ColliderBase *a, ColliderBase 
     auto bt = type_name<decltype(b)>();
     throw;
 }
+
+bool ColliderHandler::contains(ColliderBase *a, ColliderBase *b)
+{
+    auto sca = dynamic_cast<SphereCollider *>(a);
+    auto scb = dynamic_cast<SphereCollider *>(b);
+    auto aba = dynamic_cast<AABB *>(a);
+    auto abb = dynamic_cast<AABB *>(b);
+    if (sca != nullptr && scb != nullptr)
+        return sca->contains(*scb);
+    else if (sca != nullptr && abb != nullptr)
+        return sca->contains(*abb);
+    else if (aba != nullptr && scb != nullptr)
+        return aba->contains(*scb);
+    else if (aba != nullptr && abb != nullptr)
+        return aba->contains(*abb);
+    return false;
+}

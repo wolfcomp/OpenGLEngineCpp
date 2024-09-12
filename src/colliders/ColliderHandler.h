@@ -33,6 +33,8 @@ namespace ColliderHandler
         return t;
     }
 
+    bool contains(ColliderBase *a, ColliderBase *b);
+
     /// @brief Gets the collision normal between two colliders
     /// @param a The collider to get the normal of
     /// @param b the collider that is colliding with a

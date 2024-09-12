@@ -5,13 +5,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "collections/QuadTree.h"
+#include "collections/OcTree.h"
 
 class SceneUpdatableObject;
 class Arrow;
 
 class World
 {
-    QuadTree<SceneUpdatableObject *> quad_tree;
+    OcTree<SceneUpdatableObject *> quad_tree;
 
 public:
     World() {}

@@ -24,11 +24,13 @@
 constexpr int width = 1280, height = 720;
 bool wireframe = false;
 bool mouseActive = false;
+bool drawDebug = false;
 double deltaTime = 0.0;
 float fps = 0.0f;
+float fpsAvg[100] = {0};
 std::chrono::time_point<std::chrono::high_resolution_clock> lastFrame = std::chrono::high_resolution_clock::now();
 
-Camera camera;
+Camera camera = Camera(glm::vec3(1.5f, 3.0f, 11.5f), glm::vec3(0.0f, 1.0f, 0.0f), -101.0f, -14.5f);
 InputProcessing input;
 ShadowProcessor shadowProcessor;
 LightManager lightManager;
@@ -79,16 +81,17 @@ static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
     prev_scroll_callback(window, xoffset, yoffset);
 }
 
-IcoSphere *create_new(glm::vec3 position, glm::vec3 velocity, glm::vec3 color)
+IcoSphere *create_new(glm::vec3 position, glm::vec3 velocity, glm::vec3 color, float mass = 1)
 {
     IcoSphere *sphere;
     world->insert(sphere = new IcoSphere(position));
     sphere->create(3);
     sphere->set_shader(ShaderStore::get_shader("noLight"));
     sphere->set_material(new ColorMaterial());
-    sphere->set_scale(glm::vec3(0.1f));
+    sphere->set_scale(glm::vec3(mass / 10));
     dynamic_cast<ColorMaterial *>(sphere->get_material())->color = glm::vec4(color, 1);
     sphere->set_velocity(velocity);
+    sphere->set_mass(mass);
     return sphere;
 }
 
@@ -101,12 +104,32 @@ Cube *create_new_cube(glm::vec3 postion, glm::vec3 velocity, glm::vec3 color)
     cube->set_scale(glm::vec3(0.1f));
     dynamic_cast<ColorMaterial *>(cube->get_material())->color = glm::vec4(color, 1);
     cube->set_velocity(velocity);
+    cube->get_collider()->set_channel(CollisionChannel::STATIC);
     return cube;
+}
+
+void spawn_random()
+{
+    auto pos = glm::vec3(0, 0, 0);
+    auto vel = glm::vec3(0, 0, 0);
+    auto color = glm::vec3(0, 0, 0);
+    auto mass = 1.0f;
+    for (int i = 0; i < 200; i++)
+    {
+        pos = glm::vec3(rand() % 2000, rand() % 2000, rand() % 2000) / 100.0f - glm::vec3(10, 10, 10);
+        vel = glm::vec3(rand() % 1000, rand() % 1000, rand() % 1000) / 100.0f;
+        color = glm::vec3(rand() % 255, rand() % 255, rand() % 255) / 255.0f;
+        mass = (rand() % 25) / 10.0f;
+        if (mass < 0.5f)
+            create_new(pos, vel, color, 0.5f);
+        else
+            create_new(pos, vel, color, mass);
+    }
 }
 
 int Window::init()
 {
-    fpsPtr = &fps;
+    srand(time(NULL));
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
         return 1;
@@ -161,8 +184,6 @@ int Window::init()
     Renderable::setup();
     world = new World();
     world->set_bounds(glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
-    // create_new(glm::vec3(4, 0, 0), glm::vec3(0, 0, 4), glm::vec3(0.5f, 0.5f, 0.0f));
-    // create_new(glm::vec3(0, 0, 4), glm::vec3(4, 0, 0), glm::vec3(0.5f, 0.5f, 0.0f));
     debugLine = new Line();
     debugLine->set_shader(ShaderStore::get_shader("noLight"));
     debugLine->set_material(new ColorMaterial());
@@ -181,6 +202,10 @@ void Window::init_listeners()
         {
             glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_FILL : GL_LINE); 
             wireframe = !wireframe; },
+        false);
+    input.attach_keyboard_listener(
+        GLFW_KEY_Q, []()
+        { drawDebug = !drawDebug; },
         false);
     input.attach_keyboard_listener(
         GLFW_KEY_W, []()
@@ -207,6 +232,10 @@ void Window::init_listeners()
         { move_character(glm::vec3(0, -1, 0)); },
         true);
     input.attach_keyboard_listener(
+        GLFW_KEY_R, []()
+        { spawn_random(); },
+        false);
+    input.attach_keyboard_listener(
         GLFW_KEY_ESCAPE, [&]()
         { 
             if(mouseActive)
@@ -231,6 +260,18 @@ void Window::update() const
     deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(currentFrame - lastFrame).count() / 1000000.0f;
     lastFrame = currentFrame;
     fps = 1.0f / deltaTime;
+    // calculate the average fps
+    for (int i = 0; i < 99; i++)
+    {
+        fpsAvg[i] = fpsAvg[i + 1];
+    }
+    fpsAvg[99] = fps;
+    float sum = 0;
+    for (int i = 0; i < 100; i++)
+    {
+        sum += fpsAvg[i];
+    }
+    fps = sum / 100;
     glfwPollEvents();
     input.process_keyboard(window, deltaTime);
     world->update(deltaTime);
@@ -239,7 +280,12 @@ void Window::update() const
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::ShowDemoWindow();
+    if (drawDebug)
+        ImGui::ShowDemoWindow();
+
+    ImGui::Begin("Debug");
+    ImGui::Text("FPS: %.1f", fps);
+    ImGui::End();
 }
 
 void Window::render() const
@@ -249,26 +295,10 @@ void Window::render() const
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    auto w = glm::cross(a, b) / sqrtf(pow(glm::length(a) * glm::length(b), 2));
-    auto theta = acos(glm::dot(a, b) / (glm::length(a) * glm::length(b)));
-    auto q = glm::rotate(glm::mat4(1.0f), theta, w);
-    auto arot = glm::vec3(q * glm::vec4(b, 1.0f));
-    debugLine->set_positions(glm::vec3(0, 0, 0), arot);
-    dynamic_cast<ColorMaterial *>(debugLine->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 0.5f);
-    debugLine->draw();
-    debugLine->set_positions(glm::vec3(0, 0, 0), a);
-    dynamic_cast<ColorMaterial *>(debugLine->get_material())->color = glm::vec4(1.0f, 0.0f, 0.0f, 0.5f);
-    debugLine->draw();
-    debugLine->set_positions(glm::vec3(0, 0, 0), b);
-    dynamic_cast<ColorMaterial *>(debugLine->get_material())->color = glm::vec4(0.0f, 1.0f, 0.0f, 0.5f);
-    debugLine->draw();
-    debugLine->set_positions(glm::vec3(0, 0, 0), w);
-    dynamic_cast<ColorMaterial *>(debugLine->get_material())->color = glm::vec4(0.0f, 0.0f, 1.0f, 0.5f);
-    debugLine->draw();
+    if (drawDebug)
+        world->draw_debug(debugLine, debugArrow);
 
-    // world->draw_debug(debugLine, debugArrow);
-
-    // world->draw();
+    world->draw();
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
