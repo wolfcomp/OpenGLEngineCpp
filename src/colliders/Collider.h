@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <glm/vec3.hpp>
 
 class SceneObject;
 
@@ -40,6 +41,10 @@ public:
     void set_parent(SceneObject *parent) { this->parent = parent; }
 
     virtual void update(SceneObject *object) = 0;
+    virtual float get_radius() { return 0.0f; }
+    virtual glm::vec3 get_center() { return glm::vec3(0.0f); }
+    template <typename T>
+    float collision_delta(T *collider, float delta_time);
 };
 
 template <typename T>

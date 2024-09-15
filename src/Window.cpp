@@ -18,6 +18,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <chrono>
+#include "HSL.h"
 
 #define CAMERA_SPEED 2.5f
 
@@ -26,6 +27,8 @@ bool wireframe = false;
 bool mouseActive = false;
 bool drawDebug = false;
 double deltaTime = 0.0;
+double lastWorldUpdate = 0.0;
+constexpr double minDeltaTime = 1 / 60.0;
 float fps = 0.0f;
 float fpsAvg[100] = {0};
 std::chrono::time_point<std::chrono::high_resolution_clock> lastFrame = std::chrono::high_resolution_clock::now();
@@ -38,6 +41,7 @@ LightManager lightManager;
 World *world;
 Line *debugLine;
 Arrow *debugArrow;
+IcoSphere *debugSphere;
 GLFWframebuffersizefun prev_framebuffer_size_callback;
 GLFWcursorposfun prev_cursor_position_callback;
 GLFWmousebuttonfun prev_mouse_button_callback;
@@ -114,17 +118,19 @@ void spawn_random()
     auto vel = glm::vec3(0, 0, 0);
     auto color = glm::vec3(0, 0, 0);
     auto mass = 1.0f;
-    for (int i = 0; i < 200; i++)
+    for (int i = 0; i < 50; i++)
     {
         pos = glm::vec3(rand() % 2000, rand() % 2000, rand() % 2000) / 100.0f - glm::vec3(10, 10, 10);
         vel = glm::vec3(rand() % 1000, rand() % 1000, rand() % 1000) / 100.0f;
-        color = glm::vec3(rand() % 255, rand() % 255, rand() % 255) / 255.0f;
+        color = hsl(rand() % 360, (rand() % 255) / 255.0f, (rand() % 128 + 127) / 255.0f).get_rgb_vec3();
         mass = (rand() % 25) / 10.0f;
         if (mass < 0.5f)
             create_new(pos, vel, color, 0.5f);
         else
             create_new(pos, vel, color, mass);
     }
+    // create_new(glm::vec3(2, 0, 0), glm::vec3(2, 0, 1), glm::vec3(1, 0, 0), 1);
+    // create_new(glm::vec3(-2, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), 1);
 }
 
 int Window::init()
@@ -192,6 +198,12 @@ int Window::init()
     debugArrow->set_shader(ShaderStore::get_shader("noLight"));
     debugArrow->set_material(new ColorMaterial());
     dynamic_cast<ColorMaterial *>(debugArrow->get_material())->color = glm::vec4(0.0f, 1.0f, 0.0f, 0.5f);
+    debugSphere = new IcoSphere(glm::vec3(0, 0, 0));
+    debugSphere->create(3);
+    debugSphere->set_shader(ShaderStore::get_shader("noLight"));
+    debugSphere->set_material(new ColorMaterial());
+    debugSphere->set_scale(glm::vec3(0.1f));
+    dynamic_cast<ColorMaterial *>(debugSphere->get_material())->color = glm::vec4(0.0f, 0.0f, 1.0f, 0.5f);
     return 0;
 }
 
@@ -274,7 +286,15 @@ void Window::update() const
     fps = sum / 100;
     glfwPollEvents();
     input.process_keyboard(window, deltaTime);
-    world->update(deltaTime);
+    if (lastWorldUpdate >= minDeltaTime)
+    {
+        world->update(minDeltaTime);
+        lastWorldUpdate = 0;
+    }
+    else
+    {
+        lastWorldUpdate += deltaTime;
+    }
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -296,7 +316,10 @@ void Window::render() const
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (drawDebug)
+    {
         world->draw_debug(debugLine, debugArrow);
+        debugSphere->draw();
+    }
 
     world->draw();
 

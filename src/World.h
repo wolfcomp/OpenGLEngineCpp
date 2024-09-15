@@ -12,14 +12,14 @@ class Arrow;
 
 class World
 {
-    OcTree<SceneUpdatableObject *> quad_tree;
+    OcTree<SceneUpdatableObject *> tree;
 
 public:
     World() {}
     ~World()
     {
         std::vector<SceneUpdatableObject *> objects;
-        quad_tree.query_range(quad_tree.get_bounds(), objects);
+        tree.query_range(tree.get_bounds(), objects);
         for (auto &object : objects)
         {
             delete object;

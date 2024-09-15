@@ -2,10 +2,12 @@
 #include "AABB.h"
 #include "ConvexHull.h"
 #include "SphereCollider.h"
+#include "../objects/base/SceneUpdatableObject.h"
 
 static glm::vec3 get_collision_normal(AABB *a, AABB *b)
 {
-    glm::vec3 normal = b->center - a->center;
+    auto b_center = b->get_center();
+    glm::vec3 normal = b_center - a->center;
     float x_overlap = a->extent.x + b->extent.x - abs(normal.x);
     float y_overlap = a->extent.y + b->extent.y - abs(normal.y);
     float z_overlap = a->extent.z + b->extent.z - abs(normal.z);
@@ -29,16 +31,19 @@ static glm::vec3 get_collision_normal(AABB *a, AABB *b)
 
 static glm::vec3 get_collision_normal(AABB *a, SphereCollider *b)
 {
+    auto b_center = b->get_center();
     glm::vec3 closest = glm::vec3(
-        glm::clamp(b->center.x, a->center.x - a->extent.x, a->center.x + a->extent.x),
-        glm::clamp(b->center.y, a->center.y - a->extent.y, a->center.y + a->extent.y),
-        glm::clamp(b->center.z, a->center.z - a->extent.z, a->center.z + a->extent.z));
-    glm::vec3 normal = b->center - closest;
-    if (glm::length(normal) < b->radius)
-    {
-        return glm::normalize(normal);
-    }
-    return glm::vec3(0);
+        glm::clamp(b_center.x, a->center.x - a->extent.x, a->center.x + a->extent.x),
+        glm::clamp(b_center.y, a->center.y - a->extent.y, a->center.y + a->extent.y),
+        glm::clamp(b_center.z, a->center.z - a->extent.z, a->center.z + a->extent.z));
+    glm::vec3 normal = glm::vec3(0.0f);
+    if (abs(closest.x) > abs(closest.y) && abs(closest.x) > abs(closest.z))
+        normal.x = closest.x;
+    else if (abs(closest.y) > abs(closest.x) && abs(closest.y) > abs(closest.z))
+        normal.y = closest.y;
+    else
+        normal.z = closest.z;
+    return normalize(normal);
 }
 
 static glm::vec3 get_collision_normal(SphereCollider *a, AABB *b)
@@ -48,7 +53,7 @@ static glm::vec3 get_collision_normal(SphereCollider *a, AABB *b)
 
 static glm::vec3 get_collision_normal(SphereCollider *a, SphereCollider *b)
 {
-    glm::vec3 normal = a->center - b->center;
+    glm::vec3 normal = a->get_center() - b->get_center();
     float distance = glm::length(normal);
     if (distance < a->radius + b->radius)
     {

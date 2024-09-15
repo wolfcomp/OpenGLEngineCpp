@@ -44,9 +44,9 @@ public:
         if (collider != nullptr)
             collider->update(this);
     }
-    glm::vec3 get_position() const { return position; }
-    glm::quat get_rotation() const { return rotation; }
-    glm::vec3 get_scale() const { return scale; }
+    glm::vec3 get_position() { return position; }
+    glm::quat get_rotation() { return rotation; }
+    glm::vec3 get_scale() { return scale; }
 
     void translate(glm::vec3 translation)
     {
@@ -64,7 +64,7 @@ public:
 
     void add_child(SceneObject *child) { children.push_back(child); }
     void remove_child(SceneObject *child) { children.erase(std::remove(children.begin(), children.end(), child), children.end()); }
-    std::vector<SceneObject *> get_children() const { return children; }
+    std::vector<SceneObject *> get_children() { return children; }
 
     template <typename T>
     void set_collider(Collider<T> *collider)

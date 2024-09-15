@@ -4,8 +4,27 @@
 #include "../colliders/AABB.h"
 #include "Node.h"
 
+class OcTreeBase
+{
+private:
+    AABB boundary;
+    bool leaf;
+
+public:
+    void set_bounds(const glm::vec3 &center, const glm::vec3 &extent)
+    {
+        boundary.center = center;
+        boundary.extent = extent;
+    };
+
+    AABB get_bounds() const { return boundary; }
+    virtual void draw_debug(Line *line, bool draw_bounds = true);
+    bool is_leaf() const { return leaf; }
+    void set_leaf(bool vleaf) { leaf = vleaf; }
+};
+
 template <typename T>
-class OcTree
+class OcTree : public OcTreeBase
 {
 private:
     OcTree *northWestUpper;
@@ -18,15 +37,14 @@ private:
     OcTree *southEastLower;
     OcTree *parent;
 
-    AABB boundary;
     bool recalculated = false;
 
     Node<T> *node = nullptr;
 
     void subdivide()
     {
-        glm::vec3 center = boundary.center;
-        glm::vec3 extent = boundary.extent;
+        glm::vec3 center = get_bounds().center;
+        glm::vec3 extent = get_bounds().extent;
         glm::vec3 extentDivide = extent / 2.0f;
 
         glm::vec3 nwu_center = center + glm::vec3(-extent.x / 2, extent.y / 2, extent.z / 2);
@@ -62,6 +80,7 @@ private:
         northEastLower->parent = this;
         southWestLower->parent = this;
         southEastLower->parent = this;
+        set_leaf(false);
 
         if (northWestUpper->insert(node->data))
         {
@@ -112,7 +131,7 @@ private:
 
     bool unsubdivide()
     {
-        if (northWestUpper != nullptr)
+        if (!is_leaf())
         {
             northWestUpper->unsubdivide();
             northEastUpper->unsubdivide();
@@ -141,6 +160,7 @@ private:
                 northEastLower = nullptr;
                 southWestLower = nullptr;
                 southEastLower = nullptr;
+                set_leaf(true);
                 return true;
             }
         }
@@ -149,8 +169,10 @@ private:
 
 public:
     OcTree() : northWestUpper(nullptr), northEastUpper(nullptr), southWestUpper(nullptr), southEastUpper(nullptr),
-               northWestLower(nullptr), northEastLower(nullptr), southWestLower(nullptr), southEastLower(nullptr) {
-               };
+               northWestLower(nullptr), northEastLower(nullptr), southWestLower(nullptr), southEastLower(nullptr)
+    {
+        set_leaf(true);
+    };
     ~OcTree()
     {
         delete northWestUpper;
@@ -163,10 +185,9 @@ public:
         delete southEastLower;
     };
 
-    bool is_leaf() const { return northWestUpper == nullptr; }
     bool insert(T point)
     {
-        if (!boundary.contains(point))
+        if (!get_bounds().contains(point))
             return false;
 
         if (node == nullptr && is_leaf())
@@ -235,7 +256,7 @@ public:
     }
     void query_range(const AABB &range, std::vector<T> &found)
     {
-        if (!boundary.contains(range))
+        if (!get_bounds().contains(range))
             return;
 
         if (node != nullptr && range.contains(node->data))
@@ -256,7 +277,7 @@ public:
 
     void query_range(const AABB &range, std::vector<T> &found, std::function<bool(const T &)> filter)
     {
-        if (!boundary.contains(range))
+        if (!get_bounds().contains(range))
             return;
 
         if (node != nullptr && range.contains(node->data) && filter(node->data))
@@ -275,27 +296,19 @@ public:
         southEastLower->query_range(range, found, filter);
     };
 
-    void draw_debug(Line *line)
+    void recalculate();
+    void draw_debug(Line *line, bool draw_bounds = true) override
     {
-        boundary.draw_debug(line);
-
+        OcTreeBase::draw_debug(line, draw_bounds);
         if (is_leaf())
             return;
-
-        northWestUpper->draw_debug(line);
-        northEastUpper->draw_debug(line);
-        southWestUpper->draw_debug(line);
-        southEastUpper->draw_debug(line);
-        northWestLower->draw_debug(line);
-        northEastLower->draw_debug(line);
-        southWestLower->draw_debug(line);
-        southEastLower->draw_debug(line);
-    };
-    AABB get_bounds() const { return boundary; }
-    void set_bounds(const glm::vec3 &center, const glm::vec3 &extent)
-    {
-        boundary.center = center;
-        boundary.extent = extent;
-    };
-    void recalculate();
+        northWestUpper->draw_debug(line, false);
+        northEastUpper->draw_debug(line, false);
+        southWestUpper->draw_debug(line, false);
+        southEastUpper->draw_debug(line, false);
+        northWestLower->draw_debug(line, false);
+        northEastLower->draw_debug(line, false);
+        southWestLower->draw_debug(line, false);
+        southEastLower->draw_debug(line, false);
+    }
 };

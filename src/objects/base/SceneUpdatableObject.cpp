@@ -9,10 +9,16 @@
 /// @param b the object normal to retreive the new vector from
 glm::vec3 get_new_collision_vector(const glm::vec3 a, const glm::vec3 b)
 {
-    auto w = glm::cross(a, b) / sqrtf(powf(glm::length(a) * glm::length(b), 2));
-    auto theta = acos(glm::dot(a, b) / (glm::length(a) * glm::length(b)));
-    auto q = glm::rotate(glm::mat4(1.0f), theta, w);
-    return {q * glm::vec4(b, 1.0f)};
+    auto angle = glm::acos(glm::dot(a, b));
+    auto axis = glm::normalize(glm::cross(a, b));
+    auto axisNan = glm::isnan(axis);
+    if (axisNan.x || axisNan.y || axisNan.z)
+    {
+        // a and b are parallel and therefor the new vector should be the negative of a
+        return -a;
+    }
+    auto q = glm::angleAxis(angle, axis);
+    return glm::normalize(q * -b);
 }
 
 constexpr float restitution = 1.0f;
@@ -50,7 +56,7 @@ std::tuple<glm::vec3, glm::vec3> get_new_velocity(Physics *a, Physics *b)
         auto p2 = b->get_parent()->get_position();
 
         auto n = (p1 - p2) / glm::length(p1 - p2);
-        auto vr = v1 - v2;
+        auto vr = glm::abs(v1) - glm::abs(v2);
         auto vn = (vr * n) * n;
 
         // auto n = normalize(p2 - p1);
@@ -63,7 +69,7 @@ std::tuple<glm::vec3, glm::vec3> get_new_velocity(Physics *a, Physics *b)
         // auto v2n = v2 + vd2;
 
         auto v1n = (m1 - m2) / (m1 + m2) * v1 + (2 * m2) / (m1 + m2) * v2;
-        auto v2n = (m2 - m1) / (m1 + m2) * v1 + (2 * m1) / (m1 + m2) * v2;
+        auto v2n = (m2 - m1) / (m1 + m2) * v2 + (2 * m1) / (m1 + m2) * v1;
         new_velocity = std::make_tuple(v1n - vn, v2n + vn);
     }
 
@@ -80,6 +86,6 @@ void Physics::apply_collision(Physics *other)
 void Physics::apply_collision(glm::vec3 normal)
 {
     auto v = get_velocity();
-    v = get_new_collision_vector(v, normal) * length(v);
+    v = get_new_collision_vector(normalize(v), normal) * length(v);
     set_velocity(v);
 }

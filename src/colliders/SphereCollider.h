@@ -8,13 +8,12 @@
 class SphereCollider : public Collider<SphereCollider>
 {
 public:
-    glm::vec3 center;
     float radius;
 
-    SphereCollider() : center(glm::vec3(0.0f)), radius(0.0f), Collider() {}
-    SphereCollider(SceneObject *parent) : center(glm::vec3(0.0f)), radius(0.0f), Collider(parent) {}
-    SphereCollider(glm::vec3 center, float radius) : center(center), radius(radius), Collider() {}
-    SphereCollider(SceneObject *parent, glm::vec3 center, float radius) : center(center), radius(radius), Collider(parent) {}
+    SphereCollider() : radius(0.0f), Collider() {}
+    SphereCollider(SceneObject *parent) : radius(0.0f), Collider(parent) {}
+    SphereCollider(float radius) : radius(radius), Collider() {}
+    SphereCollider(SceneObject *parent, float radius) : radius(radius), Collider(parent) {}
     ~SphereCollider() {}
 
     /// @brief Fallback for unsupported types
@@ -34,7 +33,7 @@ public:
     template <>
     bool contains<glm::vec3>(const glm::vec3 &point) const
     {
-        return glm::distance(center, point) <= radius;
+        return glm::distance(const_cast<SphereCollider *>(this)->get_center(), point) <= radius;
     }
 
     /// @brief Finds if a sphere collider intersects with another sphere collider
@@ -42,7 +41,7 @@ public:
     /// @return true if the spheres intersect, false otherwise
     bool contains(const SphereCollider &other) const override
     {
-        return glm::distance(center, other.center) <= radius + other.radius;
+        return glm::distance(const_cast<SphereCollider *>(this)->get_center(), const_cast<SphereCollider &>(other).get_center()) <= radius + other.radius;
     }
 
     /// @brief Finds if a sphere collider intersects with an AABB
@@ -51,8 +50,8 @@ public:
     template <>
     bool contains<AABB>(const AABB &aabb) const
     {
-        auto distance = glm::distance(center, aabb.center);
-        auto vec = center - aabb.center;
+        auto distance = glm::distance(const_cast<SphereCollider *>(this)->get_center(), aabb.center);
+        auto vec = const_cast<SphereCollider *>(this)->get_center() - aabb.center;
         float x = glm::max(0.0f, vec.x - aabb.extent.x);
         float y = glm::max(0.0f, vec.y - aabb.extent.y);
         float z = glm::max(0.0f, vec.z - aabb.extent.z);
@@ -63,4 +62,7 @@ public:
     }
 
     void update(SceneObject *object) override;
+
+    float get_radius() override { return radius; }
+    glm::vec3 get_center() override;
 };
