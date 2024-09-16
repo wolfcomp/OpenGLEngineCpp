@@ -244,10 +244,6 @@ void Window::init_listeners()
         { move_character(glm::vec3(0, -1, 0)); },
         true);
     input.attach_keyboard_listener(
-        GLFW_KEY_R, []()
-        { spawn_random(); },
-        false);
-    input.attach_keyboard_listener(
         GLFW_KEY_ESCAPE, [&]()
         { 
             if(mouseActive)
@@ -304,6 +300,7 @@ void Window::update() const
         ImGui::ShowDemoWindow();
 
     ImGui::Begin("Debug");
+    ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
     ImGui::Text("FPS: %.1f", fps);
     ImGui::Separator();
     auto spawnCountRef = &spawnCount;
@@ -320,6 +317,13 @@ void Window::update() const
     {
         world->clear();
     }
+    ImGui::Separator();
+    ImGui::TextUnformatted("w, a, s, d, space, ctrl - move camera");
+    ImGui::TextUnformatted("  * forward, left, back, right, up, down");
+    ImGui::TextUnformatted("f - toggle wireframe");
+    ImGui::TextUnformatted("q - toggle debug");
+    ImGui::TextUnformatted("esc - toggle camera control");
+    ImGui::TextUnformatted("Mouse - rotate camera");
     ImGui::End();
 }
 
