@@ -85,11 +85,12 @@ void World::update(float delta_time)
                     // find out how much the ball went out of bounds by in delta
                     auto col_delta = glm::clamp(pos, -bounds.extent, bounds.extent);
                     auto pos_delta = col_delta - pos;
-                    object->set_position(col_delta + pos_delta);
                     // find which side the ball is closest to
                     auto normal = ColliderHandler::get_collision_normal(&bounds, object->get_collider());
                     // apply the collision
                     object->apply_collision(normal);
+                    // move the ball back to the bounds based on delta
+                    object->set_position(col_delta + pos_delta);
                 }
             }
         }
