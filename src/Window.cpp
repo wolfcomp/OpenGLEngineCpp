@@ -63,6 +63,8 @@ static void glfw_error_callback(int error, const char *description)
 
 void move_character(const glm::vec3 &direction)
 {
+    if (!mouseActive)
+        return;
     auto pos = camera.get_pos();
     pos += camera.get_movement(direction) * (float)(CAMERA_SPEED * deltaTime);
     camera.set_position(pos);
@@ -147,6 +149,8 @@ int Window::init()
         return -1;
     }
     glfwMakeContextCurrent(window);
+    // disable vsync
+    glfwSwapInterval(0);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
