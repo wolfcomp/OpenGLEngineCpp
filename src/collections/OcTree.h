@@ -311,4 +311,54 @@ public:
         southWestLower->draw_debug(line, false);
         southEastLower->draw_debug(line, false);
     }
+
+    void clear()
+    {
+        if (node != nullptr)
+        {
+            delete node;
+            node = nullptr;
+        }
+        if (northWestUpper != nullptr)
+        {
+            delete northWestUpper;
+            northWestUpper = nullptr;
+        }
+        if (northEastUpper != nullptr)
+        {
+            delete northEastUpper;
+            northEastUpper = nullptr;
+        }
+        if (southWestUpper != nullptr)
+        {
+            delete southWestUpper;
+            southWestUpper = nullptr;
+        }
+        if (southEastUpper != nullptr)
+        {
+            delete southEastUpper;
+            southEastUpper = nullptr;
+        }
+        if (northWestLower != nullptr)
+        {
+            delete northWestLower;
+            northWestLower = nullptr;
+        }
+        if (northEastLower != nullptr)
+        {
+            delete northEastLower;
+            northEastLower = nullptr;
+        }
+        if (southWestLower != nullptr)
+        {
+            delete southWestLower;
+            southWestLower = nullptr;
+        }
+        if (southEastLower != nullptr)
+        {
+            delete southEastLower;
+            southEastLower = nullptr;
+        }
+        set_leaf(true);
+    }
 };

@@ -8,25 +8,20 @@ float ColliderBase::collision_delta<SphereCollider>(SphereCollider *collider, fl
     if (dynamic_cast<SphereCollider *>(this) == nullptr)
         return -1;
     auto th = dynamic_cast<SphereCollider *>(this);
-    auto v1 = dynamic_cast<SceneUpdatableObject *>(th->get_parent())->get_velocity();
-    auto v2 = dynamic_cast<SceneUpdatableObject *>(collider->get_parent())->get_velocity();
+    auto r1 = th->get_radius();
+    auto r2 = collider->get_radius();
     auto p1 = th->get_center();
     auto p2 = collider->get_center();
-    auto p0 = p1 - v1;
-    auto q0 = p2 - v2;
-    auto A = p0 - q0;
-    auto B = v1 - v2;
-    auto AB = glm::dot(A, B);
-    auto AA = glm::dot(A, A);
-    auto BB = glm::dot(B, B);
-    auto d = th->radius + collider->radius;
-    auto rot = AB * AB - BB * (AA - d * d);
-    float t = -1;
-    if (rot >= 0)
-        t = -AB - sqrtf(rot);
-    if (BB > glm::epsilon<float>())
-        t /= BB;
-    return t;
+    auto r = r1 + r2;
+    auto d2 = glm::distance2(p1, p2);
+    auto r2d2 = r * r - d2;
+    if (r2d2 > 0)
+    {
+        auto d = glm::sqrt(d2);
+        auto t = (r - d) / d;
+        return t;
+    }
+    return -1;
 }
 
 template <>

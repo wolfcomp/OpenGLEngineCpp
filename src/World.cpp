@@ -77,22 +77,19 @@ void World::update(float delta_time)
                     object->pre_update(delta_time);
                     object->update(delta_time);
                 }
-                if (!tree.get_bounds().contains(object->get_position()))
+                while (!tree.get_bounds().contains(object->get_position()))
                 {
-                    // ball went out of bounds the last frame revert
+                    // ball went out of bounds the last frame
                     auto pos = object->get_position();
-                    object->update(-delta_time);
-                    auto new_pos = object->get_position();
                     bounds = tree.get_bounds();
                     // find out how much the ball went out of bounds by in delta
                     auto col_delta = glm::clamp(pos, -bounds.extent, bounds.extent);
-                    pos = pos - col_delta;
+                    auto pos_delta = col_delta - pos;
+                    object->set_position(col_delta + pos_delta);
                     // find which side the ball is closest to
                     auto normal = ColliderHandler::get_collision_normal(&bounds, object->get_collider());
                     // apply the collision
                     object->apply_collision(normal);
-                    // update the object
-                    object->update(delta_time);
                 }
             }
         }

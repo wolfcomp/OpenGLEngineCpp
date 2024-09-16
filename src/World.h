@@ -18,12 +18,7 @@ public:
     World() {}
     ~World()
     {
-        std::vector<SceneUpdatableObject *> objects;
-        tree.query_range(tree.get_bounds(), objects);
-        for (auto &object : objects)
-        {
-            delete object;
-        }
+        clear();
     }
 
     void insert(SceneUpdatableObject *object);
@@ -35,4 +30,9 @@ public:
     void set_bounds(const glm::vec3 &center, const glm::vec3 &extent);
 
     void update(float delta_time);
+
+    void clear()
+    {
+        tree.clear();
+    }
 };

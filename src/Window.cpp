@@ -32,6 +32,7 @@ constexpr double minDeltaTime = 1 / 60.0;
 float fps = 0.0f;
 float fpsAvg[100] = {0};
 std::chrono::time_point<std::chrono::high_resolution_clock> lastFrame = std::chrono::high_resolution_clock::now();
+int spawnCount = 50;
 
 Camera camera = Camera(glm::vec3(1.5f, 3.0f, 11.5f), glm::vec3(0.0f, 1.0f, 0.0f), -101.0f, -14.5f);
 InputProcessing input;
@@ -85,14 +86,14 @@ static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
     prev_scroll_callback(window, xoffset, yoffset);
 }
 
-IcoSphere *create_new(glm::vec3 position, glm::vec3 velocity, glm::vec3 color, float mass = 1)
+IcoSphere *create_new(glm::vec3 position, glm::vec3 velocity, glm::vec3 color, float mass = 10)
 {
     IcoSphere *sphere;
     world->insert(sphere = new IcoSphere(position));
     sphere->create(3);
     sphere->set_shader(ShaderStore::get_shader("noLight"));
     sphere->set_material(new ColorMaterial());
-    sphere->set_scale(glm::vec3(mass / 10));
+    sphere->set_scale(glm::vec3(mass / 100));
     dynamic_cast<ColorMaterial *>(sphere->get_material())->color = glm::vec4(color, 1);
     sphere->set_velocity(velocity);
     sphere->set_mass(mass);
@@ -118,19 +119,14 @@ void spawn_random()
     auto vel = glm::vec3(0, 0, 0);
     auto color = glm::vec3(0, 0, 0);
     auto mass = 1.0f;
-    for (int i = 0; i < 50; i++)
+    for (int i = 0; i < spawnCount; i++)
     {
         pos = glm::vec3(rand() % 2000, rand() % 2000, rand() % 2000) / 100.0f - glm::vec3(10, 10, 10);
         vel = glm::vec3(rand() % 1000, rand() % 1000, rand() % 1000) / 100.0f;
         color = hsl(rand() % 360, (rand() % 255) / 255.0f, (rand() % 128 + 127) / 255.0f).get_rgb_vec3();
-        mass = (rand() % 25) / 10.0f;
-        if (mass < 0.5f)
-            create_new(pos, vel, color, 0.5f);
-        else
-            create_new(pos, vel, color, mass);
+        mass = (rand() % 25);
+        create_new(pos, vel, color, mass);
     }
-    // create_new(glm::vec3(2, 0, 0), glm::vec3(2, 0, 1), glm::vec3(1, 0, 0), 1);
-    // create_new(glm::vec3(-2, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), 1);
 }
 
 int Window::init()
@@ -305,6 +301,21 @@ void Window::update() const
 
     ImGui::Begin("Debug");
     ImGui::Text("FPS: %.1f", fps);
+    ImGui::Separator();
+    auto spawnCountRef = &spawnCount;
+    ImGui::SetNextItemWidth(100);
+    if (ImGui::InputInt("Number of objects to spawn", spawnCountRef))
+    {
+        spawnCount = std::max(std::min(*spawnCountRef, 999), 1);
+    }
+    if (ImGui::Button("Spawn balls in scene"))
+    {
+        spawn_random();
+    }
+    if (ImGui::Button("Clear scene"))
+    {
+        world->clear();
+    }
     ImGui::End();
 }
 
