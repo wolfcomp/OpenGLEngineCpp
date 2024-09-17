@@ -55,22 +55,9 @@ std::tuple<glm::vec3, glm::vec3> get_new_velocity(Physics *a, Physics *b)
         auto p1 = a->get_parent()->get_position();
         auto p2 = b->get_parent()->get_position();
 
-        auto n = (p1 - p2) / glm::length(p1 - p2);
-        auto vr = glm::abs(v1) - glm::abs(v2);
-        auto vn = (vr * n) * n;
-
-        // auto n = normalize(p2 - p1);
-        // auto mEff = 1 / (1 / m1 + 1 / m2);
-        // auto vImp = n * dot(glm::normalize(v1 - v2), glm::normalize(v1 - v2));
-        // auto j = (1 + restitution) * mEff * vImp;
-        // auto vd1 = -j / m1 * n;
-        // auto vd2 = j / m2 * n;
-        // auto v1n = v1 + vd1;
-        // auto v2n = v2 + vd2;
-
-        auto v1n = (m1 - m2) / (m1 + m2) * v1 + (2 * m2) / (m1 + m2) * v2;
-        auto v2n = (m2 - m1) / (m1 + m2) * v2 + (2 * m1) / (m1 + m2) * v1;
-        new_velocity = std::make_tuple(v1n - vn, v2n + vn);
+        auto v1n = v1 - (m2 * 2 / (m1 + m2)) * (dot(v1 - v2, p1 - p2) / powf(length(p1 - p2), 2)) * (p1 - p2);
+        auto v2n = v2 - (m1 * 2 / (m2 + m1)) * (dot(v2 - v1, p2 - p1) / powf(length(p2 - p1), 2)) * (p2 - p1);
+        new_velocity = std::make_tuple(v1n, v2n);
     }
 
     return new_velocity;
