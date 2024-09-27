@@ -4,8 +4,10 @@
 #include <vector>
 #include <functional>
 #include <glm/vec3.hpp>
+#include "../culling/Frustum.h"
+#include "../objects/base/Transform.h"
 
-class SceneObject;
+class GameObject;
 
 enum CollisionResponse
 {
@@ -23,26 +25,27 @@ enum CollisionChannel
 class ColliderBase
 {
 private:
-    SceneObject *parent;
+    GameObject *parent;
     CollisionResponse response;
     CollisionChannel channel;
 
 public:
-    ColliderBase(SceneObject *parent) : parent(parent), response(CollisionResponse::COLLIDE), channel(CollisionChannel::DYNAMIC) {}
+    ColliderBase(GameObject *parent) : parent(parent), response(CollisionResponse::COLLIDE), channel(CollisionChannel::DYNAMIC) {}
     ColliderBase() : parent(nullptr) {}
     virtual ~ColliderBase() {}
 
-    SceneObject *get_parent() { return parent; }
+    GameObject *get_parent() { return parent; }
     CollisionResponse get_response() { return response; }
     CollisionChannel get_channel() { return channel; }
 
     void set_response(CollisionResponse response) { this->response = response; }
     void set_channel(CollisionChannel channel) { this->channel = channel; }
-    void set_parent(SceneObject *parent) { this->parent = parent; }
+    void set_parent(GameObject *parent) { this->parent = parent; }
 
-    virtual void update(SceneObject *object) = 0;
+    virtual void update(GameObject *object) = 0;
     virtual float get_radius() { return 0.0f; }
     virtual glm::vec3 get_center() { return glm::vec3(0.0f); }
+    virtual bool is_on_frustum(Frustum *frustum) { return true; }
     template <typename T>
     float collision_delta(T *collider, float delta_time);
 };
@@ -54,7 +57,7 @@ protected:
     std::vector<std::function<void(Collider *)>> onCollisionCallbacks;
 
 public:
-    Collider(SceneObject *parent) : ColliderBase(parent) {}
+    Collider(GameObject *parent) : ColliderBase(parent) {}
     Collider() : ColliderBase() {}
     virtual ~Collider() {}
     void add_callback(std::function<void(Collider *)> callback) { onCollisionCallbacks.push_back(callback); }

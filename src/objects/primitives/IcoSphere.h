@@ -1,21 +1,21 @@
 #pragma once
 
-#include "../base/SceneUpdatableObject.h"
+#include "../base/GameObject.h"
 #include "../../colliders/SphereCollider.h"
 
-class IcoSphere : public SceneUpdatableObject
+class IcoSphere : public GameObject
 {
 private:
     const float H_ANGLE = glm::pi<float>() / 180 * 72;
     const float V_ANGLE = atanf(1.0f / 2);
 
 public:
-    IcoSphere(glm::vec3 position) : SceneUpdatableObject({}, {})
+    IcoSphere(glm::vec3 position) : GameObject({}, {})
     {
         set_position(position);
         set_collider(new SphereCollider(this));
     };
-    IcoSphere() : SceneUpdatableObject({}, {}) {};
+    IcoSphere() : GameObject({}, {}) {};
     ~IcoSphere() {};
     void create(int subdivisions)
     {
@@ -129,8 +129,8 @@ public:
         set_velocity(speed);
         pos += speed * delta_time;
         set_position(pos);
-        SceneUpdatableObject::update(delta_time);
+        GameObject::update(delta_time);
     }
 
-    SphereCollider *get_collider() override { return dynamic_cast<SphereCollider *>(SceneObject::get_collider()); }
+    SphereCollider *get_collider() override { return dynamic_cast<SphereCollider *>(GameObject::get_collider()); }
 };

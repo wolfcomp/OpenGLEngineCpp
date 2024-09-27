@@ -1,24 +1,34 @@
 #include "World.h"
-#include "objects/base/SceneObject.h"
-#include "objects/base/SceneUpdatableObject.h"
+#include "objects/base/GameObject.h"
+#include "objects/base/GameObject.h"
 #include "collections/QuadTree.h"
 #include "objects/debug/Line.h"
 #include "objects/debug/Arrow.h"
 #include "colliders/ColliderHandler.h"
 
-void World::insert(SceneUpdatableObject *object)
+glm::vec3 checkLoc = glm::vec3(0, 0, 0);
+
+void World::insert(GameObject *object)
 {
     tree.insert(object);
 }
 
-void World::draw()
+DrawCounts World::draw(Frustum *frustum)
 {
-    std::vector<SceneUpdatableObject *> objects;
-    tree.query_range(tree.get_bounds(), objects);
+    std::vector<GameObject *> objects;
+    DrawCounts counts = {0, 0, 0};
+    auto tuple = tree.query_range(tree.get_bounds(), objects);
+    counts.objects_total = std::get<0>(tuple);
+    counts.objects_filtered = std::get<1>(tuple);
     for (auto &object : objects)
     {
-        object->draw();
+        if (object->get_collider()->is_on_frustum(frustum))
+        {
+            counts.objects_drawn++;
+            object->draw();
+        }
     }
+    return counts;
 }
 
 void World::draw_debug(Line *line, Arrow *arrow)
@@ -33,7 +43,7 @@ void World::set_bounds(const glm::vec3 &center, const glm::vec3 &extent)
 
 void World::update(float delta_time)
 {
-    std::vector<SceneUpdatableObject *> objects;
+    std::vector<GameObject *> objects;
     AABB bounds = tree.get_bounds();
     tree.query_range(bounds, objects);
     unsigned index = 0;
@@ -46,7 +56,7 @@ void World::update(float delta_time)
                 auto model = object->get_model_matrix();
                 auto minVertex = glm::vec3(model * glm::vec4(object->get_min_vertex().position, 1));
                 auto maxVertex = glm::vec3(model * glm::vec4(object->get_max_vertex().position, 1));
-                std::vector<SceneUpdatableObject *> in_range_objects;
+                std::vector<GameObject *> in_range_objects;
                 bounds.center = (minVertex + maxVertex) / 2.0f; // center of the object
                 bounds.extent = (maxVertex - minVertex) * 2.0f; // double the size of the object
                 tree.query_range(bounds, in_range_objects);
@@ -58,18 +68,6 @@ void World::update(float delta_time)
                         // TODO: figure out why recalculating when balls overlap doesn't work properly (balls get stuck together for a few seconds before separating)
                         if (ColliderHandler::contains(in_range_object->get_collider(), object->get_collider()))
                             object->apply_collision(in_range_object);
-                        // auto cd = object->get_collider()->collision_delta(in_range_object->get_collider(), delta_time);
-                        // if (cd < 1)
-                        // {
-                        //     auto colliding_delta_time = cd * delta_time;
-                        //     object->pre_update(-colliding_delta_time);
-                        //     object->update(-colliding_delta_time);
-                        //     object->apply_collision(in_range_object);
-                        //     object->pre_update(delta_time + colliding_delta_time);
-                        //     object->update(delta_time + colliding_delta_time);
-                        //     collided = true;
-                        //     break;
-                        // }
                     }
                 }
                 if (!collided)

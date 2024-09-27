@@ -1,11 +1,11 @@
 #include "ConvexHull.h"
-#include "../ShaderStore.h"
-#include "../Material.h"
-#include "../objects/base/SceneObject.h"
+#include "../shaders/ShaderStore.h"
+#include "../shaders/Material.h"
+#include "../objects/base/GameObject.h"
 
-ConvexHull::ConvexHull(AABB bounds, Renderable *parent) : parent(parent)
+ConvexHull::ConvexHull(AABB bounds, GameObjectBase *parent) : parent(parent)
 {
-    hull = new Renderable();
+    hull = new GameObjectBase();
     hull->set_shader(ShaderStore::get_shader("noLight"));
     hull->set_mode(GL_LINE);
     hull->set_material(new ColorMaterial());
@@ -42,12 +42,12 @@ ConvexHull::ConvexHull(AABB bounds, Renderable *parent) : parent(parent)
     hull->update_indices(indices);
 }
 
-void ConvexHull::gift_wrap(Renderable *renderable)
+void ConvexHull::gift_wrap(GameObjectBase *GameObjectBase)
 {
     // TODO implement gift wrapping algorithm
 }
 
-void ConvexHull::quick_hull(Renderable *renderable)
+void ConvexHull::quick_hull(GameObjectBase *GameObjectBase)
 {
     // TODO implement quick hull algorithm
 }

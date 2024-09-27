@@ -2,7 +2,7 @@
 #include "AABB.h"
 #include "ConvexHull.h"
 #include "SphereCollider.h"
-#include "../objects/base/SceneUpdatableObject.h"
+#include "../objects/base/GameObject.h"
 
 static glm::vec3 get_collision_normal(AABB *a, AABB *b)
 {

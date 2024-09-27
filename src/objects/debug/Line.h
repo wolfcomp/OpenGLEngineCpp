@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../base/Renderable.h"
+#include "../base/GameObjectBase.h"
 
-class Line : public Renderable
+class Line : public GameObjectBase
 {
 private:
 public:
-    Line() : Renderable({Vertex(), Vertex()}, {0, 1})
+    Line() : GameObjectBase({Vertex(), Vertex()}, {0, 1})
     {
         set_mode(GL_LINES);
     };
@@ -22,7 +22,7 @@ public:
 
     void pre_render() const override
     {
-        Renderable::pre_render();
+        GameObjectBase::pre_render();
         get_shader()->set_mat4("model", glm::mat4x4(1.0f));
         glLineWidth(5);
     }
@@ -30,6 +30,6 @@ public:
     void post_render() const override
     {
         glLineWidth(1);
-        Renderable::post_render();
+        GameObjectBase::post_render();
     }
 };

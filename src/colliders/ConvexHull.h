@@ -5,33 +5,33 @@
 #include "AABB.h"
 #include "Collider.h"
 
-class Renderable;
+class GameObjectBase;
 
 /// @brief Not implemented yet
 class ConvexHull : public Collider<ConvexHull>
 {
 private:
-    Renderable *hull;
-    Renderable *parent;
+    GameObjectBase *hull;
+    GameObjectBase *parent;
 
 public:
     /// @brief Default constructor
     ConvexHull() : hull(nullptr), parent(nullptr) {};
     /// @brief Constructor that creates a convex hull based on AABB bounds
     /// @param bounds The bounds of the convex hull
-    /// @param parent The renderable that is the parent of the convex hull
-    ConvexHull(AABB bounds, Renderable *parent);
+    /// @param parent The GameObjectBase that is the parent of the convex hull
+    ConvexHull(AABB bounds, GameObjectBase *parent);
     ~ConvexHull()
     {
         delete hull;
     };
 
-    /// @brief Uses the gift wrapping algorithm to create a convex hull around the renderable in 2d space (x,z) and expands it to 3d space with the highest and lowest y values of the renderable
-    /// @param renderable The renderable to create a convex hull around
-    void gift_wrap(Renderable *renderable);
-    /// @brief Uses the quick hull algorithm to create a convex hull around the renderable in 3d space
-    /// @param renderable The renderable to create a convex hull around
-    void quick_hull(Renderable *renderable);
+    /// @brief Uses the gift wrapping algorithm to create a convex hull around the GameObjectBase in 2d space (x,z) and expands it to 3d space with the highest and lowest y values of the GameObjectBase
+    /// @param GameObjectBase The GameObjectBase to create a convex hull around
+    void gift_wrap(GameObjectBase *GameObjectBase);
+    /// @brief Uses the quick hull algorithm to create a convex hull around the GameObjectBase in 3d space
+    /// @param GameObjectBase The GameObjectBase to create a convex hull around
+    void quick_hull(GameObjectBase *GameObjectBase);
     /// @brief Draws the convex hull in debug mode
     void draw_debug();
     /// @brief Checks if the convex hull intersects with another collider and if so returns true

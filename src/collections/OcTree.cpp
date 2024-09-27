@@ -1,6 +1,6 @@
 #include "OcTree.h"
-#include "../objects/base/SceneObject.h"
-#include "../objects/base/SceneUpdatableObject.h"
+#include "../objects/base/GameObject.h"
+#include "../objects/base/GameObject.h"
 #include "../objects/debug/Line.h"
 #include <vector>
 
@@ -11,28 +11,11 @@ void OcTree<T>::recalculate()
 }
 
 template <>
-void OcTree<SceneUpdatableObject *>::recalculate()
+void OcTree<GameObject *>::recalculate()
 {
-    std::vector<SceneUpdatableObject *> all_objects;
-    query_range(get_bounds(), all_objects, [](const SceneUpdatableObject *object)
-                { return object->get_has_updated(); });
-
-    for (auto &object : all_objects)
-    {
-        pop(object);
-    }
-    unsubdivide();
-    for (auto &object : all_objects)
-    {
-        insert(object);
-    }
-}
-
-template <>
-void OcTree<SceneObject *>::recalculate()
-{
-    std::vector<SceneObject *> all_objects;
-    query_range(get_bounds(), all_objects);
+    std::vector<GameObject *> all_objects;
+    query_range<GameObject *>(get_bounds(), all_objects, [](const GameObject *object)
+                              { return object->get_has_updated(); });
 
     for (auto &object : all_objects)
     {

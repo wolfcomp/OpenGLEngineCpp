@@ -6,13 +6,21 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "collections/QuadTree.h"
 #include "collections/OcTree.h"
+#include "culling/Frustum.h"
 
-class SceneUpdatableObject;
+class GameObject;
 class Arrow;
+
+struct DrawCounts
+{
+    unsigned objects_total;
+    unsigned objects_filtered;
+    unsigned objects_drawn;
+};
 
 class World
 {
-    OcTree<SceneUpdatableObject *> tree;
+    OcTree<GameObject *> tree;
 
 public:
     World() {}
@@ -21,9 +29,9 @@ public:
         clear();
     }
 
-    void insert(SceneUpdatableObject *object);
+    void insert(GameObject *object);
 
-    void draw();
+    DrawCounts draw(Frustum *frustum);
 
     void draw_debug(Line *line, Arrow *arrow);
 

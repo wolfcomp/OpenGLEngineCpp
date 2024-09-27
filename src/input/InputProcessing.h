@@ -4,7 +4,7 @@
 #include <functional>
 
 #include "Camera.h"
-#include "Shader.h"
+#include "../shaders/Shader.h"
 #include "glfw/glfw3.h"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -47,4 +47,8 @@ public:
     glm::mat4 get_projection() const;
     glm::vec2 get_screen_size() const;
     void cleanup();
+    float get_aspect_ratio() const;
+    float get_fov_y() const;
+    float get_near_z() const;
+    float get_far_z() const;
 };

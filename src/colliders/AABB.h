@@ -6,8 +6,8 @@
 #include "../objects/base/Vertex.h"
 #include "Collider.h"
 
-class SceneObject;
-class SceneUpdatableObject;
+class GameObject;
+class GameObject;
 class Line;
 
 class AABB : public Collider<AABB>
@@ -51,10 +51,11 @@ public:
     }
 
     template <>
-    bool contains<SceneObject *>(SceneObject *const &point) const;
+    bool contains<GameObject *>(GameObject *const &point) const;
 
-    template <>
-    bool contains<SceneUpdatableObject *>(SceneUpdatableObject *const &point) const;
+    void update(GameObject *object) override;
 
-    void update(SceneObject *object) override;
+    bool is_on_frustum(Frustum *frustum) override;
+
+    bool is_on_or_forward_plane(Plane *plane);
 };

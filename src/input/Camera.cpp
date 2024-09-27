@@ -105,8 +105,3 @@ glm::vec3 Camera::get_movement(glm::vec3 direction) const
 {
     return glm::vec3(glm::vec4(direction, 1) * viewMatrix);
 }
-
-glm::vec3 Camera::get_front() const
-{
-    return front;
-}

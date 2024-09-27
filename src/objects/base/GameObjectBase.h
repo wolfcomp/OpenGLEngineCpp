@@ -2,11 +2,11 @@
 
 #include <vector>
 #include "Vertex.h"
-#include "../../Shader.h"
-#include "../../Material.h"
+#include "../../shaders/Shader.h"
+#include "../../shaders/Material.h"
 #include <glad/glad.h>
 
-class Renderable
+class GameObjectBase
 {
 private:
     std::vector<Vertex> vertices;
@@ -19,9 +19,9 @@ private:
     Vertex bounding_box[2];
 
 public:
-    Renderable(std::vector<Vertex> vertices, std::vector<unsigned> indices) : vertices(vertices), indices(indices) {};
-    Renderable() {};
-    ~Renderable()
+    GameObjectBase(std::vector<Vertex> vertices, std::vector<unsigned> indices) : vertices(vertices), indices(indices) {};
+    GameObjectBase() {};
+    ~GameObjectBase()
     {
         vertices.clear();
         indices.clear();

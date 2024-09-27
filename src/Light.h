@@ -1,8 +1,8 @@
 #pragma once
 #include <glm/vec3.hpp>
 #include "HSL.h"
-#include "Shader.h"
-#include "Shadow.h"
+#include "shaders/Shader.h"
+#include "shaders/Shadow.h"
 #include <vector>
 
 struct Light

@@ -1,9 +1,9 @@
 #include "AABB.h"
 #include "../objects/debug/Line.h"
-#include "../ShaderStore.h"
-#include "../Material.h"
-#include "../objects/base/SceneObject.h"
-#include "../objects/base/SceneUpdatableObject.h"
+#include "../shaders/ShaderStore.h"
+#include "../shaders/Material.h"
+#include "../objects/base/GameObject.h"
+#include "../objects/base/GameObject.h"
 
 AABB::AABB(glm::vec3 center, glm::vec3 extent) : center(center), extent(extent)
 {
@@ -46,18 +46,28 @@ void AABB::draw_debug(Line *line)
 }
 
 template <>
-bool AABB::contains<SceneObject *>(SceneObject *const &point) const
+bool AABB::contains<GameObject *>(GameObject *const &point) const
 {
     return contains(point->get_position());
 }
 
-template <>
-bool AABB::contains<SceneUpdatableObject *>(SceneUpdatableObject *const &point) const
-{
-    return contains(point->get_position());
-}
-
-void AABB::update(SceneObject *object)
+void AABB::update(GameObject *object)
 {
     center = object->get_position();
+}
+
+bool AABB::is_on_frustum(Frustum *frustum)
+{
+    return is_on_or_forward_plane(&frustum->left_face) &&
+           is_on_or_forward_plane(&frustum->right_face) &&
+           is_on_or_forward_plane(&frustum->top_face) &&
+           is_on_or_forward_plane(&frustum->bottom_face) &&
+           is_on_or_forward_plane(&frustum->near_face) &&
+           is_on_or_forward_plane(&frustum->far_face);
+}
+
+bool AABB::is_on_or_forward_plane(Plane *plane)
+{
+    const float r = extent.x * abs(plane->normal.x) + extent.y * abs(plane->normal.y) + extent.z * abs(plane->normal.z);
+    return -r <= plane->getSignedDistanceToPlane(center);
 }

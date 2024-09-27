@@ -1,4 +1,4 @@
-#include "SceneUpdatableObject.h"
+#include "GameObject.h"
 #include <glm/geometric.hpp>
 
 #include "../../colliders/ColliderHandler.h"

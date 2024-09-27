@@ -11,9 +11,8 @@ public:
     float radius;
 
     SphereCollider() : radius(0.0f), Collider() {}
-    SphereCollider(SceneObject *parent) : radius(0.0f), Collider(parent) {}
-    SphereCollider(float radius) : radius(radius), Collider() {}
-    SphereCollider(SceneObject *parent, float radius) : radius(radius), Collider(parent) {}
+    SphereCollider(GameObject *parent) : radius(0.0f), Collider(parent) {}
+    SphereCollider(GameObject *parent, float radius) : radius(radius), Collider(parent) {}
     ~SphereCollider() {}
 
     /// @brief Fallback for unsupported types
@@ -61,8 +60,10 @@ public:
         return closest <= radius;
     }
 
-    void update(SceneObject *object) override;
+    void update(GameObject *object) override;
 
     float get_radius() override { return radius; }
     glm::vec3 get_center() override;
+    bool is_on_frustum(Frustum *frustum) override;
+    bool is_on_or_forward_plane(Plane *plane);
 };

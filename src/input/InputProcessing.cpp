@@ -120,3 +120,23 @@ glm::vec2 InputProcessing::get_screen_size() const
 {
     return {width, height};
 }
+
+float InputProcessing::get_aspect_ratio() const
+{
+    return aspect;
+}
+
+float InputProcessing::get_fov_y() const
+{
+    return zoom;
+}
+
+float InputProcessing::get_near_z() const
+{
+    return 0.1f;
+}
+
+float InputProcessing::get_far_z() const
+{
+    return 100.0f;
+}

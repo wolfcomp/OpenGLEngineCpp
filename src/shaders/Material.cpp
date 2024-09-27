@@ -4,7 +4,7 @@
 #include <glad/glad.h>
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "../stb_image.h"
 
 unsigned int create_texture(const char *path, bool gamma_correct, bool silent_error)
 {

@@ -1,10 +1,10 @@
 #include "Window.h"
-#include "Camera.h"
-#include "InputProcessing.h"
-#include "Shadow.h"
+#include "input/Camera.h"
+#include "input/InputProcessing.h"
+#include "shaders/Shadow.h"
 #include "Light.h"
-#include "ShaderStore.h"
-#include "objects/base/Renderable.h"
+#include "shaders/ShaderStore.h"
+#include "objects/base/GameObjectBase.h"
 #include "objects/primitives/IcoSphere.h"
 #include "objects/primitives/Cube.h"
 #include "objects/debug/Line.h"
@@ -19,6 +19,7 @@
 #include <GLFW/glfw3.h>
 #include <chrono>
 #include "HSL.h"
+#include "culling/Frustum.h"
 
 #define CAMERA_SPEED 2.5f
 
@@ -38,6 +39,8 @@ Camera camera = Camera(glm::vec3(1.5f, 3.0f, 11.5f), glm::vec3(0.0f, 1.0f, 0.0f)
 InputProcessing input;
 ShadowProcessor shadowProcessor;
 LightManager lightManager;
+Frustum frustum;
+DrawCounts drawCounts;
 
 World *world;
 Line *debugLine;
@@ -187,7 +190,7 @@ int Window::init()
                                        shadowProcessor.set_shader(shader);
                                        input.set_shader(shader); });
     ShaderStore::load_shaders();
-    Renderable::setup();
+    GameObjectBase::setup();
     world = new World();
     world->set_bounds(glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
     debugLine = new Line();
@@ -325,6 +328,22 @@ void Window::update() const
     ImGui::TextUnformatted("esc - toggle camera control");
     ImGui::TextUnformatted("Mouse - rotate camera");
     ImGui::End();
+
+    ImGui::Begin("Camera");
+    ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
+    ImGui::Text("Position: (%.2f, %.2f, %.2f)", camera.get_pos().x, camera.get_pos().y, camera.get_pos().z);
+    ImGui::Text("Front: (%.2f, %.2f, %.2f)", camera.get_front().x, camera.get_front().y, camera.get_front().z);
+    ImGui::Text("Up: (%.2f, %.2f, %.2f)", camera.get_up().x, camera.get_up().y, camera.get_up().z);
+    ImGui::Text("Right: (%.2f, %.2f, %.2f)", camera.get_right().x, camera.get_right().y, camera.get_right().z);
+    ImGui::End();
+
+    ImGui::Begin("World");
+    ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
+    ImGui::Text("Objects in scene: %d", drawCounts.objects_total);
+    ImGui::Text("Objects filtered: %d", drawCounts.objects_filtered);
+    ImGui::Text("Objects drawn: %d", drawCounts.objects_drawn);
+    ImGui::End();
+    frustum = Frustum::create_from_camera_and_input(&camera, &input);
 }
 
 void Window::render() const
@@ -340,7 +359,7 @@ void Window::render() const
         debugSphere->draw();
     }
 
-    world->draw();
+    drawCounts = world->draw(&frustum);
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

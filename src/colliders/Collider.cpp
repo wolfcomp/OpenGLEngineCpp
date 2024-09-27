@@ -1,6 +1,6 @@
 #include "Collider.h"
 #include "SphereCollider.h"
-#include "../objects/base/SceneUpdatableObject.h"
+#include "../objects/base/GameObject.h"
 
 template <>
 float ColliderBase::collision_delta<SphereCollider>(SphereCollider *collider, float delta_time)

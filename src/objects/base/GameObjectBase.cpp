@@ -1,8 +1,8 @@
-#include "Renderable.h"
+#include "GameObjectBase.h"
 
 unsigned VBO, VAO, EBO;
 
-void Renderable::draw() const
+void GameObjectBase::draw() const
 {
     pre_render();
     glBindVertexArray(VAO);
@@ -11,7 +11,7 @@ void Renderable::draw() const
     glBindVertexArray(0);
 }
 
-void Renderable::setup()
+void GameObjectBase::setup()
 {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -34,7 +34,7 @@ void Renderable::setup()
     glBindVertexArray(0);
 }
 
-Vertex Renderable::get_min_vertex() const
+Vertex GameObjectBase::get_min_vertex() const
 {
     Vertex min = vertices[0];
     for (auto &vertex : vertices)
@@ -55,7 +55,7 @@ Vertex Renderable::get_min_vertex() const
     return min;
 }
 
-Vertex Renderable::get_max_vertex() const
+Vertex GameObjectBase::get_max_vertex() const
 {
     Vertex max = vertices[0];
     for (auto &vertex : vertices)

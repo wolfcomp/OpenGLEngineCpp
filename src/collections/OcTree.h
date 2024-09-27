@@ -254,34 +254,66 @@ public:
         result = southEastLower->pop(point);
         return result;
     }
-    void query_range(const AABB &range, std::vector<T> &found)
+    template <typename F>
+    std::tuple<unsigned, unsigned> query_range(const AABB &range, std::vector<F> &found)
     {
+        auto total = 1;
+        auto found_count = 0;
         if (!get_bounds().contains(range))
-            return;
+            return std::make_tuple(total, found_count);
 
-        if (node != nullptr && range.contains(node->data))
-            found.push_back(node->data);
+        F data = nullptr;
+        if (node != nullptr)
+            data = dynamic_cast<F>(node->data);
+
+        if (data != nullptr && range.contains(data))
+        {
+            found_count++;
+            found.push_back(data);
+        }
 
         if (is_leaf())
-            return;
+            return std::make_tuple(total, found_count);
 
-        northWestUpper->query_range(range, found);
-        northEastUpper->query_range(range, found);
-        southWestUpper->query_range(range, found);
-        southEastUpper->query_range(range, found);
-        northWestLower->query_range(range, found);
-        northEastLower->query_range(range, found);
-        southWestLower->query_range(range, found);
-        southEastLower->query_range(range, found);
+        auto tmp_tuple = northWestUpper->query_range(range, found);
+        total += std::get<0>(tmp_tuple);
+        found_count += std::get<1>(tmp_tuple);
+        tmp_tuple = northEastUpper->query_range(range, found);
+        total += std::get<0>(tmp_tuple);
+        found_count += std::get<1>(tmp_tuple);
+        tmp_tuple = southWestUpper->query_range(range, found);
+        total += std::get<0>(tmp_tuple);
+        found_count += std::get<1>(tmp_tuple);
+        tmp_tuple = southEastUpper->query_range(range, found);
+        total += std::get<0>(tmp_tuple);
+        found_count += std::get<1>(tmp_tuple);
+        tmp_tuple = northWestLower->query_range(range, found);
+        total += std::get<0>(tmp_tuple);
+        found_count += std::get<1>(tmp_tuple);
+        tmp_tuple = northEastLower->query_range(range, found);
+        total += std::get<0>(tmp_tuple);
+        found_count += std::get<1>(tmp_tuple);
+        tmp_tuple = southWestLower->query_range(range, found);
+        total += std::get<0>(tmp_tuple);
+        found_count += std::get<1>(tmp_tuple);
+        tmp_tuple = southEastLower->query_range(range, found);
+        total += std::get<0>(tmp_tuple);
+        found_count += std::get<1>(tmp_tuple);
+        return std::make_tuple(total, found_count);
     };
 
-    void query_range(const AABB &range, std::vector<T> &found, std::function<bool(const T &)> filter)
+    template <typename F>
+    void query_range(const AABB &range, std::vector<F> &found, std::function<bool(const F)> filter)
     {
         if (!get_bounds().contains(range))
             return;
 
-        if (node != nullptr && range.contains(node->data) && filter(node->data))
-            found.push_back(node->data);
+        F data = nullptr;
+        if (node != nullptr)
+            data = dynamic_cast<F>(node->data);
+
+        if (data != nullptr && range.contains(data) && filter(data))
+            found.push_back(data);
 
         if (is_leaf())
             return;

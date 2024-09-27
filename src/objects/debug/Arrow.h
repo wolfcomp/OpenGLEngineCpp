@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../base/SceneObject.h"
+#include "../base/GameObject.h"
 #include <vector>
 #include <glm/gtx/vector_angle.hpp>
 
@@ -39,24 +39,24 @@ const std::vector<unsigned> vindices = { // base
 
     10, 11, 12, 11, 8, 12};
 
-class Arrow : public SceneObject
+class Arrow : public GameObject
 {
     glm::mat4 model;
 
 public:
-    Arrow() : SceneObject(vertexes, vindices)
+    Arrow() : GameObject(vertexes, vindices)
     {
     }
 
     void pre_render() const override
     {
-        SceneObject::pre_render();
+        GameObject::pre_render();
         glLineWidth(5);
     }
 
     void post_render() const override
     {
         glLineWidth(1);
-        SceneObject::post_render();
+        GameObject::post_render();
     }
 };
