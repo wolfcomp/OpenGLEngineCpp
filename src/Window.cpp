@@ -20,6 +20,8 @@
 #include <chrono>
 #include "HSL.h"
 #include "culling/Frustum.h"
+#include "objects/curves/Bezier.h"
+#include "objects/curves/BSpline.h"
 
 #define CAMERA_SPEED 2.5f
 
@@ -207,6 +209,26 @@ int Window::init()
     debugSphere->set_material(new ColorMaterial());
     debugSphere->set_scale(glm::vec3(0.1f));
     dynamic_cast<ColorMaterial *>(debugSphere->get_material())->color = glm::vec4(0.0f, 0.0f, 1.0f, 0.5f);
+    auto curve = new Bezier(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1));
+    curve->set_shader(ShaderStore::get_shader("noLight"));
+    curve->set_material(new ColorMaterial());
+    dynamic_cast<ColorMaterial *>(curve->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    world->insert(curve);
+    auto bspline = new BSpline(std::vector<glm::vec3>{glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1)}, 3);
+    bspline->set_shader(ShaderStore::get_shader("noLight"));
+    bspline->set_material(new ColorMaterial());
+    dynamic_cast<ColorMaterial *>(bspline->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    world->insert(bspline);
+    bspline = new BSpline(std::vector<glm::vec3>{glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1)}, 2);
+    bspline->set_shader(ShaderStore::get_shader("noLight"));
+    bspline->set_material(new ColorMaterial());
+    dynamic_cast<ColorMaterial *>(bspline->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    world->insert(bspline);
+    bspline = new BSpline(std::vector<glm::vec3>{glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1)}, 1);
+    bspline->set_shader(ShaderStore::get_shader("noLight"));
+    bspline->set_material(new ColorMaterial());
+    dynamic_cast<ColorMaterial *>(bspline->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    world->insert(bspline);
     return 0;
 }
 

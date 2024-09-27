@@ -90,7 +90,8 @@ private:
     Physics physics;
 
 public:
-    GameObject(std::vector<Vertex> vertices, std::vector<unsigned> indices) : GameObjectBase(vertices, indices), transform({glm::vec3(0), glm::vec3(0), glm::quat(1, 0, 0, 0)}), collider(nullptr), physics(this), is_active(true), has_updated(false), parent(nullptr) {}
+    GameObject(std::vector<Vertex> vertices, std::vector<unsigned> indices) : GameObjectBase(vertices, indices), transform({glm::vec3(0), glm::vec3(1), glm::quat(1, 0, 0, 0)}), collider(nullptr), physics(this), is_active(true), has_updated(false), parent(nullptr) {}
+    GameObject() : GameObject(std::vector<Vertex>(), std::vector<unsigned>()) {}
     ~GameObject()
     {
         if (collider != nullptr)

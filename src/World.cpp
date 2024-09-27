@@ -10,6 +10,11 @@ glm::vec3 checkLoc = glm::vec3(0, 0, 0);
 
 void World::insert(GameObject *object)
 {
+    if (object->get_collider() == nullptr)
+    {
+        objects_non_colliders.push_back(object);
+        return;
+    }
     tree.insert(object);
 }
 
@@ -27,6 +32,11 @@ DrawCounts World::draw(Frustum *frustum)
             counts.objects_drawn++;
             object->draw();
         }
+    }
+    for (auto &object : objects_non_colliders)
+    {
+        counts.objects_drawn++;
+        object->draw();
     }
     return counts;
 }

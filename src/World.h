@@ -21,6 +21,7 @@ struct DrawCounts
 class World
 {
     OcTree<GameObject *> tree;
+    std::vector<GameObject *> objects_non_colliders;
 
 public:
     World() {}
