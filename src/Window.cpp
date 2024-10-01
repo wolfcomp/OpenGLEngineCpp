@@ -178,7 +178,9 @@ int Window::init()
     init_listeners();
 
     glViewport(0, 0, width, height);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -361,7 +363,7 @@ void Window::update() const
 
     ImGui::Begin("World");
     ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
-    ImGui::Text("Objects in scene: %d", drawCounts.objects_total);
+    ImGui::Text("Objects after culling: %d", drawCounts.objects_culled);
     ImGui::Text("Objects filtered: %d", drawCounts.objects_filtered);
     ImGui::Text("Objects drawn: %d", drawCounts.objects_drawn);
     ImGui::End();

@@ -22,8 +22,8 @@ DrawCounts World::draw(Frustum *frustum)
 {
     std::vector<GameObject *> objects;
     DrawCounts counts = {0, 0, 0};
-    auto tuple = tree.query_range(tree.get_bounds(), objects);
-    counts.objects_total = std::get<0>(tuple);
+    auto tuple = tree.query_range(tree.get_bounds(), objects, frustum);
+    counts.objects_culled = std::get<0>(tuple);
     counts.objects_filtered = std::get<1>(tuple);
     for (auto &object : objects)
     {

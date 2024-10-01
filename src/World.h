@@ -13,7 +13,7 @@ class Arrow;
 
 struct DrawCounts
 {
-    unsigned objects_total;
+    unsigned objects_culled;
     unsigned objects_filtered;
     unsigned objects_drawn;
 };

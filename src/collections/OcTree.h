@@ -3,6 +3,7 @@
 #include <vector>
 #include "../colliders/AABB.h"
 #include "Node.h"
+#include "../culling/Frustum.h"
 
 class OcTreeBase
 {
@@ -255,12 +256,21 @@ public:
         return result;
     }
     template <typename F>
-    std::tuple<unsigned, unsigned> query_range(const AABB &range, std::vector<F> &found)
+    std::tuple<unsigned, unsigned> query_range(const AABB &range, std::vector<F> &found, Frustum *frustum = nullptr)
     {
         auto total = 1;
         auto found_count = 0;
-        if (!get_bounds().contains(range))
-            return std::make_tuple(total, found_count);
+        auto bounds = get_bounds();
+        if (frustum == nullptr)
+        {
+            if (!bounds.contains(range))
+                return std::make_tuple(total, found_count);
+        }
+        else
+        {
+            if (!bounds.contains(range) || !bounds.is_on_frustum(frustum))
+                return std::make_tuple(total, found_count);
+        }
 
         F data = nullptr;
         if (node != nullptr)
@@ -275,28 +285,28 @@ public:
         if (is_leaf())
             return std::make_tuple(total, found_count);
 
-        auto tmp_tuple = northWestUpper->query_range(range, found);
+        auto tmp_tuple = northWestUpper->query_range(range, found, frustum);
         total += std::get<0>(tmp_tuple);
         found_count += std::get<1>(tmp_tuple);
-        tmp_tuple = northEastUpper->query_range(range, found);
+        tmp_tuple = northEastUpper->query_range(range, found, frustum);
         total += std::get<0>(tmp_tuple);
         found_count += std::get<1>(tmp_tuple);
-        tmp_tuple = southWestUpper->query_range(range, found);
+        tmp_tuple = southWestUpper->query_range(range, found, frustum);
         total += std::get<0>(tmp_tuple);
         found_count += std::get<1>(tmp_tuple);
-        tmp_tuple = southEastUpper->query_range(range, found);
+        tmp_tuple = southEastUpper->query_range(range, found, frustum);
         total += std::get<0>(tmp_tuple);
         found_count += std::get<1>(tmp_tuple);
-        tmp_tuple = northWestLower->query_range(range, found);
+        tmp_tuple = northWestLower->query_range(range, found, frustum);
         total += std::get<0>(tmp_tuple);
         found_count += std::get<1>(tmp_tuple);
-        tmp_tuple = northEastLower->query_range(range, found);
+        tmp_tuple = northEastLower->query_range(range, found, frustum);
         total += std::get<0>(tmp_tuple);
         found_count += std::get<1>(tmp_tuple);
-        tmp_tuple = southWestLower->query_range(range, found);
+        tmp_tuple = southWestLower->query_range(range, found, frustum);
         total += std::get<0>(tmp_tuple);
         found_count += std::get<1>(tmp_tuple);
-        tmp_tuple = southEastLower->query_range(range, found);
+        tmp_tuple = southEastLower->query_range(range, found, frustum);
         total += std::get<0>(tmp_tuple);
         found_count += std::get<1>(tmp_tuple);
         return std::make_tuple(total, found_count);
