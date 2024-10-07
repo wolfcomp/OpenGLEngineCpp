@@ -3,10 +3,11 @@
 #include "Curve.h"
 
 template <typename T>
-class BSpline : public Curve<T>
+class BSplineBase : public CurveBase<T>
 {
 private:
     std::vector<T> points;
+    std::vector<float> knot_vector;
     int degree;
     // Helper function to generate a uniform knot vector
     std::vector<float> generate_knot_vector(int num_points, int degree) const
@@ -59,15 +60,14 @@ private:
     }
 
 public:
-    BSpline(std::vector<T> points, int degree) : points(points), degree(degree), Curve<T>()
-    {
-        this->generate_curve();
-    }
+    BSplineBase() : points({}), degree(0) {}
+    BSplineBase(std::vector<T> points, int degree) : points(points), degree(degree) {}
+    BSplineBase(std::vector<T> points, int degree, std::vector<float> knot_vector) : points(points), degree(degree), knot_vector(knot_vector) {}
 
     /// @brief Get a point on the curve at a given time
     /// @param t The delta time to get the point at (0-1)
     /// @return The point on the curve at the given time
-    T get_point(float t) const override
+    T get_point(float t) override
     {
         int num_points = points.size();
         if (num_points == 0)
@@ -75,7 +75,8 @@ public:
             throw std::runtime_error("No control points defined.");
         }
 
-        std::vector<float> knot_vector = generate_knot_vector(num_points, degree);
+        if (knot_vector.empty())
+            knot_vector = generate_knot_vector(num_points, degree);
         int span = find_knot_span(t, knot_vector);
 
         std::vector<T> de_boor_points(degree + 1);
@@ -94,5 +95,15 @@ public:
         }
 
         return de_boor_points[degree];
+    }
+};
+
+template <typename T>
+class BSpline : public Curve<T>
+{
+public:
+    BSpline(std::vector<T> points, int degree) : Curve<T>(BSplineBase<T>(points, degree))
+    {
+        this->generate_curve();
     }
 };

@@ -22,6 +22,7 @@
 #include "culling/Frustum.h"
 #include "objects/curves/Bezier.h"
 #include "objects/curves/BSpline.h"
+#include "objects/curves/BSplineSurface.h"
 
 #define CAMERA_SPEED 2.5f
 
@@ -211,26 +212,31 @@ int Window::init()
     debugSphere->set_material(new ColorMaterial());
     debugSphere->set_scale(glm::vec3(0.1f));
     dynamic_cast<ColorMaterial *>(debugSphere->get_material())->color = glm::vec4(0.0f, 0.0f, 1.0f, 0.5f);
-    auto curve = new Bezier(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1));
-    curve->set_shader(ShaderStore::get_shader("noLight"));
-    curve->set_material(new ColorMaterial());
-    dynamic_cast<ColorMaterial *>(curve->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    world->insert(curve);
-    auto bspline = new BSpline(std::vector<glm::vec3>{glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1)}, 3);
-    bspline->set_shader(ShaderStore::get_shader("noLight"));
-    bspline->set_material(new ColorMaterial());
-    dynamic_cast<ColorMaterial *>(bspline->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    world->insert(bspline);
-    bspline = new BSpline(std::vector<glm::vec3>{glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1)}, 2);
-    bspline->set_shader(ShaderStore::get_shader("noLight"));
-    bspline->set_material(new ColorMaterial());
-    dynamic_cast<ColorMaterial *>(bspline->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    world->insert(bspline);
-    bspline = new BSpline(std::vector<glm::vec3>{glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1)}, 1);
-    bspline->set_shader(ShaderStore::get_shader("noLight"));
-    bspline->set_material(new ColorMaterial());
-    dynamic_cast<ColorMaterial *>(bspline->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    world->insert(bspline);
+    // auto curve = new Bezier(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1));
+    // curve->set_shader(ShaderStore::get_shader("noLight"));
+    // curve->set_material(new ColorMaterial());
+    // dynamic_cast<ColorMaterial *>(curve->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    // world->insert(curve);
+    // auto bspline = new BSpline(std::vector<glm::vec3>{glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1)}, 2);
+    // bspline->set_shader(ShaderStore::get_shader("noLight"));
+    // bspline->set_material(new ColorMaterial());
+    // dynamic_cast<ColorMaterial *>(bspline->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    // world->insert(bspline);
+    // bspline = new BSpline(std::vector<glm::vec3>{glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1)}, 2);
+    // bspline->set_shader(ShaderStore::get_shader("noLight"));
+    // bspline->set_material(new ColorMaterial());
+    // dynamic_cast<ColorMaterial *>(bspline->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    // world->insert(bspline);
+    // bspline = new BSpline(std::vector<glm::vec3>{glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1)}, 1);
+    // bspline->set_shader(ShaderStore::get_shader("noLight"));
+    // bspline->set_material(new ColorMaterial());
+    // dynamic_cast<ColorMaterial *>(bspline->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    // world->insert(bspline);
+    auto bsplineSurface = new BSplineSurface(2, 2, 4, 3, {}, {}, {{glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(2, 0, 0), glm::vec3(3, 0, 0)}, {glm::vec3(0, 0, 1), glm::vec3(1, 2, 1), glm::vec3(2, 2, 1), glm::vec3(3, 0, 1)}, {glm::vec3(0, 0, 2), glm::vec3(1, 0, 2), glm::vec3(2, 0, 2), glm::vec3(3, 0, 1)}});
+    bsplineSurface->set_shader(ShaderStore::get_shader("noLight"));
+    bsplineSurface->set_material(new ColorMaterial());
+    dynamic_cast<ColorMaterial *>(bsplineSurface->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    world->insert(bsplineSurface);
     return 0;
 }
 

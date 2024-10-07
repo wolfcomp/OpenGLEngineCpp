@@ -3,17 +3,28 @@
 #include "../base/GameObject.h"
 
 template <typename T>
+class CurveBase
+{
+public:
+    virtual T get_point(float t) { return T(); };
+};
+
+template <typename T>
 class Curve : public GameObject
 {
+private:
+    CurveBase<T> curve;
+
 public:
     Curve() : GameObject()
     {
         set_mode(GL_LINES);
     }
-    /// @brief Get a point on the curve at a given time
-    /// @param t The delta time to get the point at
-    /// @return The point on the curve at the given time
-    virtual T get_point(float t) const { return T(); }
+
+    Curve(CurveBase<T> curve) : Curve()
+    {
+        this->curve = curve;
+    }
 
     virtual void generate_curve()
     {
@@ -24,8 +35,8 @@ public:
         {
             float t = i / 100.0f;
             float t2 = (i + 1) / 100.0f;
-            T p0 = get_point(t);
-            T p1 = get_point(t2);
+            T p0 = curve.get_point(t);
+            T p1 = curve.get_point(t2);
             // Add line from p0 to p1
             vertices.push_back(Vertex{p0, glm::vec3(0, 0, 0), glm::vec2(0, 0)});
             vertices.push_back(Vertex{p1, glm::vec3(0, 0, 0), glm::vec2(0, 0)});

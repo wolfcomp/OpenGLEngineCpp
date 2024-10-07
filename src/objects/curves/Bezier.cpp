@@ -1,10 +1,10 @@
 #include "Bezier.h"
 
 template <typename T>
-T Bezier<T>::get_point(float t) const { return T(); }
+T BezierBase<T>::get_point(float t) { return T(); }
 
 template <>
-glm::vec3 Bezier<glm::vec3>::get_point(float t) const
+glm::vec3 BezierBase<glm::vec3>::get_point(float t)
 {
     const auto one_minus_t = 1.0f - t;
 
@@ -14,4 +14,4 @@ glm::vec3 Bezier<glm::vec3>::get_point(float t) const
            p3 * powf(t, 3);
 }
 
-template class Bezier<glm::vec3>;
+template class BezierBase<glm::vec3>;
