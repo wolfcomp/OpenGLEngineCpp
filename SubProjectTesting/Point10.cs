@@ -24,9 +24,9 @@ public struct Point10
     public override string ToString()
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"X: {X:X8}");
+        sb.AppendLine($"X: {X}");
         sb.AppendLine($"Y: {Y}");
-        sb.AppendLine($"Z: {Z:X8}");
+        sb.AppendLine($"Z: {Z}");
         sb.AppendLine($"Intensity: {Intensity}");
         sb.AppendLine($"ReturnNumber: {ReturnNumber}");
         sb.AppendLine($"NumberOfReturns: {NumberOfReturns}");
