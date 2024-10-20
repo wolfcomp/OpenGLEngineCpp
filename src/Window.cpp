@@ -23,6 +23,7 @@
 #include "objects/curves/Bezier.h"
 #include "objects/curves/BSpline.h"
 #include "objects/curves/BSplineSurface.h"
+#include "objects/surface/PointCloud.h"
 
 #define CAMERA_SPEED 2.5f
 
@@ -239,6 +240,11 @@ int Window::init()
     bsplineSurface->set_material(new ColorMaterial());
     dynamic_cast<ColorMaterial *>(bsplineSurface->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     world->insert(bsplineSurface);
+    // auto pointCloud = new PointCloud("./pointcloud/medium.las");
+    // pointCloud->set_shader(ShaderStore::get_shader("noLight"));
+    // pointCloud->set_material(new ColorMaterial());
+    // dynamic_cast<ColorMaterial *>(pointCloud->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    // world->insert(pointCloud);
     return 0;
 }
 

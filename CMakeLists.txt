@@ -25,3 +25,4 @@ target_link_options(OpenGLEngineCpp PRIVATE "/NODEFAULTLIB:library")
 
 add_custom_command(TARGET OpenGLEngineCpp POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:OpenGLEngineCpp>/shaders)
 add_custom_command(TARGET OpenGLEngineCpp POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/textures $<TARGET_FILE_DIR:OpenGLEngineCpp>/textures)
+add_custom_command(TARGET OpenGLEngineCpp POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/pointcloud $<TARGET_FILE_DIR:OpenGLEngineCpp>/pointcloud)

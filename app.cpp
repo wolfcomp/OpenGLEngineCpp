@@ -1,6 +1,7 @@
 // Enable SIMD optimizations for glm
 #define GLM_FORCE_PURE
 #include "src/Window.h"
+#include "src/fileformats/las.h"
 
 #include <iostream>
 

@@ -22,27 +22,35 @@ private:
 
         float bu_1_2 = 0, bu_3_2 = 0, bv_1_2 = 0, bv_3_2 = 0;
 
-        if (tu > 1)
-        {
-            bu_1_2 = (knot_vector_u[iu + 1] - tu) / (knot_vector_u[iu + 1] - knot_vector_u[iu]) * (knot_vector_u[iu + 1] - tu) / (knot_vector_u[iu + 1] - knot_vector_u[iu]);
-            bu_3_2 = (tu - knot_vector_u[iu]) / (knot_vector_u[iu + 1] - knot_vector_u[iu]) * (tu - knot_vector_u[iu + 2]) / (knot_vector_u[iu + 1] - knot_vector_u[iu]);
-        }
-        else
-        {
-            bu_1_2 = powf(1 - tu, 2);
-            bu_3_2 = powf(tu, 2);
-        }
+        while (tu > 1)
+            tu -= 1;
 
-        if (tv > 1)
-        {
-            bv_1_2 = (knot_vector_v[iv + 1] - tv) / (knot_vector_v[iv + 1] - knot_vector_v[iv]) * (knot_vector_v[iv + 1] - tv) / (knot_vector_v[iv + 1] - knot_vector_v[iv]);
-            bv_3_2 = (tv - knot_vector_v[iv]) / (knot_vector_v[iv + 1] - knot_vector_v[iv]) * (tv - knot_vector_v[iv + 2]) / (knot_vector_v[iv + 1] - knot_vector_v[iv]);
-        }
-        else
-        {
-            bv_1_2 = powf(1 - tv, 2);
-            bv_3_2 = powf(tv, 2);
-        }
+        // TODO: figure out why this math doesn't work but is the correct math from the theory
+        // if (tu > 1)
+        // {
+        //     bu_1_2 = (knot_vector_u[iu + 1] - tu) / (knot_vector_u[iu + 1] - knot_vector_u[iu]) * (knot_vector_u[iu + 1] - tu) / (knot_vector_u[iu + 1] - knot_vector_u[iu]);
+        //     bu_3_2 = (tu - knot_vector_u[iu]) / (knot_vector_u[iu + 1] - knot_vector_u[iu]) * (tu - knot_vector_u[iu + 2]) / (knot_vector_u[iu + 1] - knot_vector_u[iu]);
+        // }
+        // else
+        // {
+        bu_1_2 = powf(1 - tu, 2);
+        bu_3_2 = powf(tu, 2);
+        // }
+
+        while (tv > 1)
+            tv -= 1;
+
+        // TODO: see todo above
+        // if (tv > 1)
+        // {
+        //     bv_1_2 = (knot_vector_v[iv + 1] - tv) / (knot_vector_v[iv + 1] - knot_vector_v[iv]) * (knot_vector_v[iv + 1] - tv) / (knot_vector_v[iv + 1] - knot_vector_v[iv]);
+        //     bv_3_2 = (tv - knot_vector_v[iv]) / (knot_vector_v[iv + 1] - knot_vector_v[iv]) * (tv - knot_vector_v[iv + 2]) / (knot_vector_v[iv + 1] - knot_vector_v[iv]);
+        // }
+        // else
+        // {
+        bv_1_2 = powf(1 - tv, 2);
+        bv_3_2 = powf(tv, 2);
+        // }
 
         if (isinf(bu_1_2))
             bu_1_2 = 0;
@@ -121,8 +129,8 @@ public:
                 float u = i * spacing;
                 float v = j * spacing;
 
-                auto iu = find_knot_interval(u, degree_u, num_points_u, knot_vector_u);
-                auto iv = find_knot_interval(v, degree_v, num_points_v, knot_vector_v);
+                auto iu = find_knot_interval(u - 0.0001, degree_u, num_points_u, knot_vector_u);
+                auto iv = find_knot_interval(v - 0.0001, degree_v, num_points_v, knot_vector_v);
 
                 auto coeff_pair = b2(u, v, iu, iv);
 
