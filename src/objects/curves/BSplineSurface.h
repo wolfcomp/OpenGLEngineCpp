@@ -20,50 +20,21 @@ private:
         glm::vec3 bv;
         glm::vec3 bu;
 
-        float bu_1_2 = 0, bu_3_2 = 0, bv_1_2 = 0, bv_3_2 = 0;
+        auto w12 = (tu - knot_vector_u[iu - 1]) / (knot_vector_u[iu + 1] - knot_vector_u[iu - 1]);
+        auto w22 = (tu - knot_vector_u[iu]) / (knot_vector_u[iu + 2] - knot_vector_u[iu]);
+        auto w11 = (tu - knot_vector_u[iu]) / (knot_vector_u[iu + 1] - knot_vector_u[iu]);
 
-        while (tu > 1)
-            tu -= 1;
+        bu.x = (1 - w11) * (1 - w12);
+        bu.z = w11 * w22;
+        bu.y = 1 - bu.x - bu.z;
 
-        // TODO: figure out why this math doesn't work but is the correct math from the theory
-        // if (tu > 1)
-        // {
-        //     bu_1_2 = (knot_vector_u[iu + 1] - tu) / (knot_vector_u[iu + 1] - knot_vector_u[iu]) * (knot_vector_u[iu + 1] - tu) / (knot_vector_u[iu + 1] - knot_vector_u[iu]);
-        //     bu_3_2 = (tu - knot_vector_u[iu]) / (knot_vector_u[iu + 1] - knot_vector_u[iu]) * (tu - knot_vector_u[iu + 2]) / (knot_vector_u[iu + 1] - knot_vector_u[iu]);
-        // }
-        // else
-        // {
-        bu_1_2 = powf(1 - tu, 2);
-        bu_3_2 = powf(tu, 2);
-        // }
+        w12 = (tv - knot_vector_v[iv - 1]) / (knot_vector_v[iv + 1] - knot_vector_v[iv - 1]);
+        w22 = (tv - knot_vector_v[iv]) / (knot_vector_v[iv + 2] - knot_vector_v[iv]);
+        w11 = (tv - knot_vector_v[iv]) / (knot_vector_v[iv + 1] - knot_vector_v[iv]);
 
-        while (tv > 1)
-            tv -= 1;
-
-        // TODO: see todo above
-        // if (tv > 1)
-        // {
-        //     bv_1_2 = (knot_vector_v[iv + 1] - tv) / (knot_vector_v[iv + 1] - knot_vector_v[iv]) * (knot_vector_v[iv + 1] - tv) / (knot_vector_v[iv + 1] - knot_vector_v[iv]);
-        //     bv_3_2 = (tv - knot_vector_v[iv]) / (knot_vector_v[iv + 1] - knot_vector_v[iv]) * (tv - knot_vector_v[iv + 2]) / (knot_vector_v[iv + 1] - knot_vector_v[iv]);
-        // }
-        // else
-        // {
-        bv_1_2 = powf(1 - tv, 2);
-        bv_3_2 = powf(tv, 2);
-        // }
-
-        if (isinf(bu_1_2))
-            bu_1_2 = 0;
-        if (isinf(bu_3_2))
-            bu_3_2 = 0;
-
-        if (isinf(bv_1_2))
-            bv_1_2 = 0;
-        if (isinf(bv_3_2))
-            bv_3_2 = 0;
-
-        bu = glm::vec3(bu_1_2, 1 - bu_1_2 - bu_3_2, bu_3_2);
-        bv = glm::vec3(bv_1_2, 1 - bv_1_2 - bv_3_2, bv_3_2);
+        bv.x = (1 - w11) * (1 - w12);
+        bv.z = w11 * w22;
+        bv.y = 1 - bv.x - bv.z;
 
         return std::make_pair(bu, bv);
     }
