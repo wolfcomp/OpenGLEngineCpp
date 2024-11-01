@@ -2,6 +2,7 @@
 #define GLM_FORCE_PURE
 #include "src/Window.h"
 #include "src/fileformats/las.h"
+#include "src/LuaState.h"
 
 #include <iostream>
 
@@ -9,6 +10,9 @@ Window *window;
 
 int main()
 {
+    LuaState();
+    LuaState::open_libs();
+
     window = new Window();
     auto initCode = window->init();
     if (initCode != 0)
@@ -24,6 +28,8 @@ int main()
     }
 
     delete window;
+
+    LuaState::close();
 
     return 0;
 }

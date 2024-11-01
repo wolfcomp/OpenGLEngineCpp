@@ -106,4 +106,19 @@ public:
     {
         this->generate_curve();
     }
+
+    /// @brief Get the control points of the curve in b2 format
+    /// @param num_points The number of control points to generate
+    /// @return The control points of the curve in b2 format
+    static std::vector<float> get_knot_vector(int num_points)
+    {
+        std::vector<float> knot_vector(num_points + 5);
+        knot_vector[0] = knot_vector[1] = knot_vector[2] = 0;
+        for (int i = 3; i < num_points + 2; i++)
+        {
+            knot_vector[i] = i - 2;
+        }
+        knot_vector[num_points + 2] = knot_vector[num_points + 3] = knot_vector[num_points + 4] = num_points;
+        return knot_vector;
+    }
 };

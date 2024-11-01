@@ -12,6 +12,7 @@
 #include "colliders/SphereCollider.h"
 #include "World.h"
 #include <iostream>
+#include <algorithm>
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
@@ -213,38 +214,21 @@ int Window::init()
     debugSphere->set_material(new ColorMaterial());
     debugSphere->set_scale(glm::vec3(0.1f));
     dynamic_cast<ColorMaterial *>(debugSphere->get_material())->color = glm::vec4(0.0f, 0.0f, 1.0f, 0.5f);
-    // auto curve = new Bezier(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1));
-    // curve->set_shader(ShaderStore::get_shader("noLight"));
-    // curve->set_material(new ColorMaterial());
-    // dynamic_cast<ColorMaterial *>(curve->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    // world->insert(curve);
-    // auto bspline = new BSpline(std::vector<glm::vec3>{glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1)}, 2);
-    // bspline->set_shader(ShaderStore::get_shader("noLight"));
-    // bspline->set_material(new ColorMaterial());
-    // dynamic_cast<ColorMaterial *>(bspline->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    // world->insert(bspline);
-    // bspline = new BSpline(std::vector<glm::vec3>{glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1)}, 2);
-    // bspline->set_shader(ShaderStore::get_shader("noLight"));
-    // bspline->set_material(new ColorMaterial());
-    // dynamic_cast<ColorMaterial *>(bspline->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    // world->insert(bspline);
-    // bspline = new BSpline(std::vector<glm::vec3>{glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(2, 0, 0), glm::vec3(3, 1, 1)}, 1);
-    // bspline->set_shader(ShaderStore::get_shader("noLight"));
-    // bspline->set_material(new ColorMaterial());
-    // dynamic_cast<ColorMaterial *>(bspline->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    // world->insert(bspline);
-    auto bsplineSurface = new BSplineSurface(2, 2, 4, 3,
-                                             {0, 0, 0, 1, 2, 2, 2},
-                                             {0, 0, 0, 1, 1, 1}, {{glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(2, 0, 0), glm::vec3(3, 0, 0), glm::vec3(0, 0, 1), glm::vec3(1, 2, 1), glm::vec3(2, 2, 1), glm::vec3(3, 0, 1), glm::vec3(0, 0, 2), glm::vec3(1, 0, 2), glm::vec3(2, 0, 2), glm::vec3(3, 0, 2)}});
+    auto pointCloud = new PointCloud("./pointcloud/small.las");
+    std::vector<glm::vec3> points = {};
+    points.resize(pointCloud->get_vertices().size());
+    for (auto &v : pointCloud->get_vertices())
+    {
+        points.push_back(v.position);
+    }
+    auto bsplineSurface = new BSplineSurface(2, 2, pointCloud->get_points_x(), pointCloud->get_points_z(),
+                                             BSpline<glm::vec3>::get_knot_vector(pointCloud->get_points_x()), BSpline<glm::vec3>::get_knot_vector(pointCloud->get_points_z()),
+                                             points);
+    delete pointCloud;
     bsplineSurface->set_shader(ShaderStore::get_shader("noLight"));
     bsplineSurface->set_material(new ColorMaterial());
     dynamic_cast<ColorMaterial *>(bsplineSurface->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     world->insert(bsplineSurface);
-    // auto pointCloud = new PointCloud("./pointcloud/medium.las");
-    // pointCloud->set_shader(ShaderStore::get_shader("noLight"));
-    // pointCloud->set_material(new ColorMaterial());
-    // dynamic_cast<ColorMaterial *>(pointCloud->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    // world->insert(pointCloud);
     return 0;
 }
 

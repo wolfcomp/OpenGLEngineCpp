@@ -30,6 +30,8 @@ public:
 
     void update_vertices(std::vector<Vertex> vertices) { this->vertices = vertices; }
     void update_indices(std::vector<unsigned> indices) { this->indices = indices; }
+    std::vector<Vertex> get_vertices() const { return vertices; }
+    std::vector<unsigned> get_indices() const { return indices; }
     void set_shader(Shader *shader) { this->shader = shader; }
     void set_mode(GLenum mode) { this->mode = mode; }
     void set_material(Material *material) { this->material = material; }
