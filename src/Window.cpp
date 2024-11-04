@@ -215,15 +215,7 @@ int Window::init()
     debugSphere->set_scale(glm::vec3(0.1f));
     dynamic_cast<ColorMaterial *>(debugSphere->get_material())->color = glm::vec4(0.0f, 0.0f, 1.0f, 0.5f);
     auto pointCloud = new PointCloud("./pointcloud/small.las");
-    std::vector<glm::vec3> points = {};
-    points.resize(pointCloud->get_vertices().size());
-    for (auto &v : pointCloud->get_vertices())
-    {
-        points.push_back(v.position);
-    }
-    auto bsplineSurface = new BSplineSurface(2, 2, pointCloud->get_points_x(), pointCloud->get_points_z(),
-                                             BSpline<glm::vec3>::get_knot_vector(pointCloud->get_points_x()), BSpline<glm::vec3>::get_knot_vector(pointCloud->get_points_z()),
-                                             points);
+    auto bsplineSurface = pointCloud->convert_to_surface();
     delete pointCloud;
     bsplineSurface->set_shader(ShaderStore::get_shader("noLight"));
     bsplineSurface->set_material(new ColorMaterial());

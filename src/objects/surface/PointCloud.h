@@ -105,4 +105,5 @@ public:
     ~PointCloud() {}
     int get_points_x() { return points_x; }
     int get_points_z() { return points_z; }
+    GameObject *convert_to_surface();
 };

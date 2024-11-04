@@ -73,7 +73,7 @@ private:
     }
 
 public:
-    BSplineSurface(int degree_u, int degree_v, int num_points_u, int num_points_v, std::vector<float> knot_vector_u, std::vector<float> knot_vector_v, std::vector<glm::vec3> points) : GameObject()
+    BSplineSurface(int degree_u, int degree_v, int num_points_u, int num_points_v, std::vector<float> knot_vector_u, std::vector<float> knot_vector_v, std::vector<glm::vec3> points, float spacing = 0.1f) : GameObject()
     {
         this->degree_u = degree_u;
         this->degree_v = degree_v;
@@ -83,7 +83,7 @@ public:
         this->knot_vector_v = knot_vector_v;
         this->points = points;
 
-        computeSurface();
+        computeSurface(spacing);
     }
 
     void computeSurface(float spacing = 0.1f)
@@ -100,8 +100,8 @@ public:
                 float u = i * spacing;
                 float v = j * spacing;
 
-                auto iu = find_knot_interval(u - 0.0001, degree_u, num_points_u, knot_vector_u);
-                auto iv = find_knot_interval(v - 0.0001, degree_v, num_points_v, knot_vector_v);
+                auto iu = find_knot_interval(u, degree_u, num_points_u, knot_vector_u);
+                auto iv = find_knot_interval(v, degree_v, num_points_v, knot_vector_v);
 
                 auto coeff_pair = b2(u, v, iu, iv);
 
