@@ -4,11 +4,13 @@
 #include "Vertex.h"
 #include "../../shaders/Shader.h"
 #include "../../shaders/Material.h"
+#include "../../uuid.h"
 #include <glad/glad.h>
 
 class GameObjectBase
 {
 private:
+    UUID uuid = UUID::generate_v4();
     std::vector<Vertex> vertices;
     std::vector<unsigned> indices;
     // Shaders can be shared between objects
