@@ -16,8 +16,6 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <chrono>
 #include "HSL.h"
 #include "culling/Frustum.h"
@@ -149,14 +147,14 @@ int Window::init()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(width, height, "OpenGLEngineCpp", nullptr, nullptr);
-    if (window == nullptr)
+    glfWindow = glfwCreateWindow(width, height, "OpenGLEngineCpp", nullptr, nullptr);
+    if (glfWindow == nullptr)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(glfWindow);
     // disable vsync
     glfwSwapInterval(0);
 
@@ -167,6 +165,8 @@ int Window::init()
         return -1;
     }
 
+    glfwSetWindowTitle(glfWindow, "Starting up ImGui context");
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
@@ -175,29 +175,39 @@ int Window::init()
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
     ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(glfWindow, true);
     ImGui_ImplOpenGL3_Init("#version 410");
 
+    glfwSetWindowTitle(glfWindow, "Initializing listeners");
     init_listeners();
 
+    glfwSetWindowTitle(glfWindow, "Setting up OpenGL");
     glViewport(0, 0, width, height);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    prev_framebuffer_size_callback = glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    prev_cursor_position_callback = glfwSetCursorPosCallback(window, cursor_position_callback);
-    prev_mouse_button_callback = glfwSetMouseButtonCallback(window, mouse_button_callback);
-    prev_scroll_callback = glfwSetScrollCallback(window, scroll_callback);
+    glfwSetInputMode(glfWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+    glfwSetWindowTitle(glfWindow, "Setting up internal callbacks");
+    prev_framebuffer_size_callback = glfwSetFramebufferSizeCallback(glfWindow, framebuffer_size_callback);
+    prev_cursor_position_callback = glfwSetCursorPosCallback(glfWindow, cursor_position_callback);
+    prev_mouse_button_callback = glfwSetMouseButtonCallback(glfWindow, mouse_button_callback);
+    prev_scroll_callback = glfwSetScrollCallback(glfWindow, scroll_callback);
+
+    glfwSetWindowTitle(glfWindow, "Loading shaders");
     ShaderStore::add_params_callback([](const Shader *shader)
                                      { camera.set_shader(shader);
                                        lightManager.set_shader(shader);
                                        shadowProcessor.set_shader(shader);
                                        input.set_shader(shader); });
     ShaderStore::load_shaders();
+
+    glfwSetWindowTitle(glfWindow, "Setting up buffers");
     GameObjectBase::setup();
+
+    glfwSetWindowTitle(glfWindow, "Setting up world and debug objects");
     world = new World();
     world->set_bounds(glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
     debugLine = new Line();
@@ -214,13 +224,17 @@ int Window::init()
     debugSphere->set_material(new ColorMaterial());
     debugSphere->set_scale(glm::vec3(0.1f));
     dynamic_cast<ColorMaterial *>(debugSphere->get_material())->color = glm::vec4(0.0f, 0.0f, 1.0f, 0.5f);
-    auto pointCloud = new PointCloud("./pointcloud/small.las");
+
+    glfwSetWindowTitle(glfWindow, "Setting up point cloud surface");
+    auto pointCloud = new PointCloud("./pointcloud/medium.las");
     auto bsplineSurface = pointCloud->convert_to_surface();
     delete pointCloud;
     bsplineSurface->set_shader(ShaderStore::get_shader("noLight"));
     bsplineSurface->set_material(new ColorMaterial());
     dynamic_cast<ColorMaterial *>(bsplineSurface->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     world->insert(bsplineSurface);
+
+    glfwSetWindowTitle(glfWindow, "OpenGLEngineCpp");
     return 0;
 }
 
@@ -264,13 +278,13 @@ void Window::init_listeners()
         GLFW_KEY_ESCAPE, [&]()
         { 
             if(mouseActive)
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                glfwSetInputMode(glfWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             else
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                glfwSetInputMode(glfWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
             double xpos, ypos;
-            glfwGetCursorPos(window, &xpos, &ypos);
-            input.process_mouse_move(window, xpos, ypos, true);
+            glfwGetCursorPos(glfWindow, &xpos, &ypos);
+            input.process_mouse_move(glfWindow, xpos, ypos, true);
             mouseActive = !mouseActive; },
         false);
     input.attach_mouse_listener([](MouseInput input)
@@ -298,7 +312,7 @@ void Window::update() const
     }
     fps = sum / 100;
     glfwPollEvents();
-    input.process_keyboard(window, deltaTime);
+    input.process_keyboard(glfWindow, deltaTime);
     if (lastWorldUpdate >= minDeltaTime)
     {
         world->update(minDeltaTime);
@@ -377,12 +391,12 @@ void Window::render() const
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-    glfwSwapBuffers(window);
+    glfwSwapBuffers(glfWindow);
 }
 
 bool Window::should_close() const
 {
-    return glfwWindowShouldClose(window);
+    return glfwWindowShouldClose(glfWindow);
 }
 
 Window::~Window()
@@ -390,6 +404,6 @@ Window::~Window()
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(glfWindow);
     glfwTerminate();
 }

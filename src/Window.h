@@ -1,10 +1,10 @@
 #pragma once
-
-struct GLFWwindow;
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 struct Window
 {
-    GLFWwindow *window;
+    static inline GLFWwindow *glfWindow = nullptr;
 
     ~Window();
 

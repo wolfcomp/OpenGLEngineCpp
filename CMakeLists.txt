@@ -18,11 +18,11 @@ include_directories(deps/includes)
 
 add_executable(OpenGLEngineCpp "app.cpp" "glad.c" ${SOURCES} ${HEADERS} ${IMGUI_SOURCES} ${IMGUI_HEADERS})
 
+target_link_options(OpenGLEngineCpp PRIVATE "/NODEFAULTLIB:library")
 target_link_directories(OpenGLEngineCpp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/deps/libs)
 target_link_libraries(OpenGLEngineCpp PRIVATE "glfw3.lib")
 target_link_libraries(OpenGLEngineCpp PRIVATE "opengl32.lib")
 target_link_libraries(OpenGLEngineCpp PRIVATE "lua54.lib")
-target_link_options(OpenGLEngineCpp PRIVATE "/NODEFAULTLIB:library")
 
 add_custom_command(TARGET OpenGLEngineCpp POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:OpenGLEngineCpp>/shaders)
 add_custom_command(TARGET OpenGLEngineCpp POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/textures $<TARGET_FILE_DIR:OpenGLEngineCpp>/textures)
