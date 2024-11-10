@@ -87,7 +87,9 @@ GameObject *PointCloud::convert_to_surface()
         }
         glfwSetWindowTitle(Window::glfWindow, std::format("Processing point cloud to surface: {:.2f}%", (float)(i * size) / (size * size) * 100).c_str());
     }
+    glfwSetWindowTitle(Window::glfWindow, "Generating knot vector for surface");
     std::vector<float> knot_vector = BSpline<glm::vec3>::get_knot_vector(size - 1);
+    glfwSetWindowTitle(Window::glfWindow, "Creating surface from point cloud");
     auto surface = new BSplineSurface(2, 2, size, size, knot_vector, knot_vector, points, 0.5);
     return surface;
 }

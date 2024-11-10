@@ -1,8 +1,10 @@
 #pragma once
 
 #include "../base/GameObject.h"
+#include "../../Window.h"
 #include "BSpline.h"
 #include <map>
+#include <format>
 
 class BSplineSurface : public GameObject
 {
@@ -109,6 +111,7 @@ public:
 
                 vertices.push_back(Vertex{p, glm::vec3(0, 1, 0), glm::vec2(0, 0)});
             }
+            glfwSetWindowTitle(Window::glfWindow, std::format("Processing BSplineSurface vertexes: {:.2f}%", (float)(i * num_v) / (num_v * num_v) * 100).c_str());
         }
 
         for (int i = 0; i < num_u - 1; i++)
@@ -135,6 +138,7 @@ public:
                 vertices[p2].normal = glm::normalize(n2 + vertices[p2].normal);
                 vertices[p3].normal = n2;
             }
+            glfwSetWindowTitle(Window::glfWindow, std::format("Processing BSplineSurface indices: {:.2f}%", (float)(i * num_v) / (num_v * num_v) * 100).c_str());
         }
 
         update_vertices(vertices);
