@@ -94,49 +94,6 @@ static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
     prev_scroll_callback(window, xoffset, yoffset);
 }
 
-IcoSphere *create_new(glm::vec3 position, glm::vec3 velocity, glm::vec3 color, float mass = 10)
-{
-    IcoSphere *sphere;
-    world->insert(sphere = new IcoSphere(position));
-    sphere->create(3);
-    sphere->set_shader(ShaderStore::get_shader("noLight"));
-    sphere->set_material(new ColorMaterial());
-    sphere->set_scale(glm::vec3(mass / 100));
-    dynamic_cast<ColorMaterial *>(sphere->get_material())->color = glm::vec4(color, 1);
-    sphere->set_velocity(velocity);
-    sphere->set_mass(mass);
-    return sphere;
-}
-
-Cube *create_new_cube(glm::vec3 postion, glm::vec3 velocity, glm::vec3 color)
-{
-    Cube *cube;
-    world->insert(cube = new Cube(postion));
-    cube->set_shader(ShaderStore::get_shader("noLight"));
-    cube->set_material(new ColorMaterial());
-    cube->set_scale(glm::vec3(0.1f));
-    dynamic_cast<ColorMaterial *>(cube->get_material())->color = glm::vec4(color, 1);
-    cube->set_velocity(velocity);
-    cube->get_collider()->set_channel(CollisionChannel::STATIC);
-    return cube;
-}
-
-void spawn_random()
-{
-    auto pos = glm::vec3(0, 0, 0);
-    auto vel = glm::vec3(0, 0, 0);
-    auto color = glm::vec3(0, 0, 0);
-    auto mass = 1.0f;
-    for (int i = 0; i < spawnCount; i++)
-    {
-        pos = glm::vec3(rand() % 2000, rand() % 2000, rand() % 2000) / 100.0f - glm::vec3(10, 10, 10);
-        vel = glm::vec3(rand() % 1000, rand() % 1000, rand() % 1000) / 100.0f;
-        color = hsl(rand() % 360, (rand() % 255) / 255.0f, (rand() % 128 + 127) / 255.0f).get_rgb_vec3();
-        mass = (rand() % 25);
-        create_new(pos, vel, color, mass);
-    }
-}
-
 int Window::init()
 {
     srand(time(NULL));
@@ -226,7 +183,7 @@ int Window::init()
     dynamic_cast<ColorMaterial *>(debugSphere->get_material())->color = glm::vec4(0.0f, 0.0f, 1.0f, 0.5f);
 
     glfwSetWindowTitle(glfWindow, "Setting up point cloud surface");
-    auto pointCloud = new PointCloud("./pointcloud/medium.las");
+    auto pointCloud = new PointCloud("./pointcloud/small.las");
     auto bsplineSurface = pointCloud->convert_to_surface();
     delete pointCloud;
     bsplineSurface->set_shader(ShaderStore::get_shader("noLight"));
@@ -333,21 +290,6 @@ void Window::update() const
     ImGui::Begin("Debug");
     ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
     ImGui::Text("FPS: %.1f", fps);
-    ImGui::Separator();
-    auto spawnCountRef = &spawnCount;
-    ImGui::SetNextItemWidth(100);
-    if (ImGui::InputInt("Number of objects to spawn", spawnCountRef))
-    {
-        spawnCount = std::max(std::min(*spawnCountRef, 999), 1);
-    }
-    if (ImGui::Button("Spawn balls in scene"))
-    {
-        spawn_random();
-    }
-    if (ImGui::Button("Clear scene"))
-    {
-        world->clear();
-    }
     ImGui::Separator();
     ImGui::TextUnformatted("w, a, s, d, space, ctrl - move camera");
     ImGui::TextUnformatted("  * forward, left, back, right, up, down");
