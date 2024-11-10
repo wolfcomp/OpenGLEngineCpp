@@ -115,13 +115,25 @@ public:
         {
             for (int j = 0; j < num_v - 1; j++)
             {
-                indices.push_back(i * num_v + j);
-                indices.push_back(i * num_v + j + 1);
-                indices.push_back((i + 1) * num_v + j + 1);
+                auto p0 = i * num_v + j;
+                auto p1 = i * num_v + j + 1;
+                auto p2 = (i + 1) * num_v + j + 1;
+                auto p3 = (i + 1) * num_v + j;
+                auto n1 = glm::normalize(glm::cross(vertices[p1].position - vertices[p0].position, vertices[p2].position - vertices[p0].position));
+                auto n2 = glm::normalize(glm::cross(vertices[p2].position - vertices[p0].position, vertices[p3].position - vertices[p0].position));
+                indices.push_back(p0);
+                indices.push_back(p1);
+                indices.push_back(p2);
+                vertices[p0].normal = n1;
+                vertices[p1].normal = n1;
+                vertices[p2].normal = n1;
 
-                indices.push_back(i * num_v + j);
-                indices.push_back((i + 1) * num_v + j + 1);
-                indices.push_back((i + 1) * num_v + j);
+                indices.push_back(p0);
+                indices.push_back(p2);
+                indices.push_back(p3);
+                vertices[p0].normal = glm::normalize(n2 + vertices[p0].normal);
+                vertices[p2].normal = glm::normalize(n2 + vertices[p2].normal);
+                vertices[p3].normal = n2;
             }
         }
 
