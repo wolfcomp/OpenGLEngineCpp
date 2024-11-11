@@ -175,11 +175,11 @@ int Window::init()
     debugArrow->set_shader(ShaderStore::get_shader("noLight"));
     debugArrow->set_material(new ColorMaterial());
     dynamic_cast<ColorMaterial *>(debugArrow->get_material())->color = glm::vec4(0.0f, 1.0f, 0.0f, 0.5f);
-    debugSphere = new IcoSphere(glm::vec3(0, 0, 0));
+    debugSphere = new IcoSphere();
     debugSphere->create(3);
     debugSphere->set_shader(ShaderStore::get_shader("noLight"));
     debugSphere->set_material(new ColorMaterial());
-    debugSphere->set_scale(glm::vec3(0.1f));
+    // debugSphere->set_scale(glm::vec3(0.1f));
     dynamic_cast<ColorMaterial *>(debugSphere->get_material())->color = glm::vec4(0.0f, 0.0f, 1.0f, 0.5f);
 
     glfwSetWindowTitle(glfWindow, "Setting up point cloud surface");

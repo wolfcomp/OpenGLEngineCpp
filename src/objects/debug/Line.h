@@ -6,7 +6,7 @@ class Line : public GameObjectBase
 {
 private:
 public:
-    Line() : GameObjectBase({Vertex(), Vertex()}, {0, 1})
+    Line() : GameObjectBase({Vertex(), Vertex()}, {0, 1}, nullptr)
     {
         set_mode(GL_LINES);
     };

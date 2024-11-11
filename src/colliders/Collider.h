@@ -5,7 +5,6 @@
 #include <functional>
 #include <glm/vec3.hpp>
 #include "../culling/Frustum.h"
-#include "../objects/base/Transform.h"
 
 class GameObject;
 

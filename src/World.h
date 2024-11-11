@@ -8,6 +8,7 @@
 #include "collections/OcTree.h"
 #include "culling/Frustum.h"
 #include "Light.h"
+#include "ecs/ecs_map.h"
 
 class GameObject;
 class Arrow;
@@ -26,6 +27,7 @@ class World
     PointLight *pointLights[4];
     DirectionalLight *directionalLight;
     SpotLight *spotLight;
+    ECSGlobalMap ecs;
 
 public:
     World() {}
@@ -49,6 +51,8 @@ public:
     void update_point_light(unsigned index, std::function<void(PointLight *)> update);
     void update_directional_light(std::function<void(DirectionalLight *)> update);
     void update_spot_light(std::function<void(SpotLight *)> update);
+
+    ECSGlobalMap *get_ecs() { return &ecs; }
 
     void clear()
     {

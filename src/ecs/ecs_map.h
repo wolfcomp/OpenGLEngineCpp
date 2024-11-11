@@ -75,13 +75,13 @@ public:
         delete[] data;
     }
 
-    void insert(UUID id, T value)
+    void insert(UUID id, T *value)
     {
         if (size >= capacity)
         {
             expand();
         }
-        data[size++] = {id, value};
+        data[size++] = {id, *value};
     }
 
     T *get(UUID id)
@@ -94,6 +94,15 @@ public:
             }
         }
         return nullptr;
+    }
+
+    T *get(int index)
+    {
+        if (index < 0 || index >= size)
+        {
+            return nullptr;
+        }
+        return &data[index].value;
     }
 
     template <typename U>
@@ -177,7 +186,7 @@ public:
 struct ECSGlobalMap
 {
 private:
-    ECSMap<BaseComponent *> *data;
+    ECSMap<BaseComponent> *data;
     typename_info *types;
     int size;
     int capacity;
@@ -185,7 +194,7 @@ private:
     void expand()
     {
         capacity *= 2;
-        ECSMap<BaseComponent *> *new_data = new ECSMap<BaseComponent *>[capacity];
+        ECSMap<BaseComponent> *new_data = new ECSMap<BaseComponent>[capacity];
         typename_info *new_types = new typename_info[capacity];
         for (int i = 0; i < size; i++)
         {
@@ -203,7 +212,7 @@ public:
     {
         this->capacity = capacity;
         this->size = 0;
-        this->data = new ECSMap<BaseComponent *>[capacity];
+        this->data = new ECSMap<BaseComponent>[capacity];
     }
 
     ~ECSGlobalMap()
@@ -212,7 +221,7 @@ public:
     }
 
     template <typename T>
-    void insert(UUID id, T value)
+    void insert(UUID id, T *value)
     {
         for (int i = 0; i < size; i++)
         {
@@ -230,6 +239,25 @@ public:
         data[size++].insert(id, value);
     }
 
+    template <>
+    void insert<BaseComponent>(UUID id, BaseComponent *value)
+    {
+        for (int i = 0; i < size; i++)
+        {
+            if (types[i] == typeid(*value).name())
+            {
+                data[i].insert(id, value);
+                return;
+            }
+        }
+        if (size >= capacity)
+        {
+            expand();
+        }
+        types[size] = typeid(*value).name();
+        data[size++].insert(id, value);
+    }
+
     template <typename T>
     T *get(UUID id)
     {
@@ -238,7 +266,7 @@ public:
             if (types[i] != typeid(T).name())
                 continue;
 
-            return data[i].get(id);
+            return dynamic_cast<T *>(data[i].get(id));
         }
         return nullptr;
     }
@@ -254,6 +282,32 @@ public:
                 return;
             }
         }
+    }
+
+    template <>
+    void remove<BaseComponent>(UUID id)
+    {
+        for (int i = 0; i < size; i++)
+        {
+            if (types[i].name == typeid(BaseComponent).name())
+            {
+                data[i].remove(id);
+                return;
+            }
+        }
+    }
+
+    template <typename T>
+    ECSMap<BaseComponent> *get()
+    {
+        for (int i = 0; i < size; i++)
+        {
+            if (types[i] == typeid(T).name())
+            {
+                return &data[i];
+            }
+        }
+        return nullptr;
     }
 
     int get_size()

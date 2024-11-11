@@ -44,7 +44,7 @@ class Arrow : public GameObject
     glm::mat4 model;
 
 public:
-    Arrow() : GameObject(vertexes, vindices)
+    Arrow() : GameObject(vertexes, vindices, nullptr)
     {
     }
 

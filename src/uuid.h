@@ -27,4 +27,19 @@ public:
         uuid.data4 = (uuid.data4 & 0x3FFF) | 0x8000;
         return uuid;
     }
+
+    bool operator==(const UUID &other) const
+    {
+        return data1 == other.data1 && data2 == other.data2 && data3 == other.data3 && data4 == other.data4 && data5[0] == other.data5[0] && data5[1] == other.data5[1] && data5[2] == other.data5[2] && data5[3] == other.data5[3] && data5[4] == other.data5[4] && data5[5] == other.data5[5];
+    }
+
+    bool operator!=(const UUID &other) const
+    {
+        return !(*this == other);
+    }
+
+    bool equals(const UUID &other) const
+    {
+        return *this == other;
+    }
 };

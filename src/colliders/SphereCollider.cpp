@@ -3,12 +3,12 @@
 
 void SphereCollider::update(GameObject *object)
 {
-    auto scale = object->get_scale();
-    auto max_scale = glm::max(scale.x, glm::max(scale.y, scale.z));
-    radius = max_scale;
+    // auto scale = object->get_scale();
+    // auto max_scale = glm::max(scale.x, glm::max(scale.y, scale.z));
+    // radius = max_scale;
 }
 
-glm::vec3 SphereCollider::get_center() { return get_parent()->get_position(); }
+glm::vec3 SphereCollider::get_center() { return get_parent()->get_component<TransformComponent>()->position; }
 
 bool SphereCollider::is_on_frustum(Frustum *frustum)
 {
@@ -22,5 +22,6 @@ bool SphereCollider::is_on_frustum(Frustum *frustum)
 
 bool SphereCollider::is_on_or_forward_plane(Plane *plane)
 {
-    return plane->getSignedDistanceToPlane(get_parent()->get_world_position()) > -radius;
+    return false;
+    // return plane->getSignedDistanceToPlane(get_parent()->get_component<TransformComponent>()->get_world_position()) > -radius;
 }

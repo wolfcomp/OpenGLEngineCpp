@@ -55,7 +55,7 @@ private:
     }
 
 public:
-    PointCloud(std::string file) : GameObject({}, {})
+    PointCloud(std::string file) : GameObject()
     {
         load_las_file(file.c_str(), data);
         parse_las_file(data.data(), data.size(), &lasFile);

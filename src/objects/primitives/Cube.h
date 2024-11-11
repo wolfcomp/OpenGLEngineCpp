@@ -47,13 +47,10 @@ public:
                          // face 5
                          16, 17, 18, 18, 19, 16,
                          // face 6
-                         20, 21, 22, 22, 23, 20})
+                         20, 21, 22, 22, 23, 20},
+                        nullptr)
     {
         set_collider(new AABB());
-    }
-    Cube(glm::vec3 position) : Cube()
-    {
-        set_position(position);
     }
     ~Cube() {}
 

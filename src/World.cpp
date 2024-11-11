@@ -71,35 +71,35 @@ void World::update(float delta_time)
                 bounds.extent = (maxVertex - minVertex) * 2.0f; // double the size of the object
                 tree.query_range(bounds, in_range_objects);
                 bool collided = false;
-                for (auto &in_range_object : in_range_objects)
-                {
-                    if (in_range_object->get_active() && in_range_object != object)
-                    {
-                        // TODO: figure out why recalculating when balls overlap doesn't work properly (balls get stuck together for a few seconds before separating)
-                        if (ColliderHandler::contains(in_range_object->get_collider(), object->get_collider()))
-                            object->apply_collision(in_range_object);
-                    }
-                }
-                if (!collided)
-                {
-                    object->pre_update(delta_time);
-                    object->update(delta_time);
-                }
-                while (!tree.get_bounds().contains(object->get_position()))
-                {
-                    // ball went out of bounds the last frame
-                    auto pos = object->get_position();
-                    bounds = tree.get_bounds();
-                    // find out how much the ball went out of bounds by in delta
-                    auto col_delta = glm::clamp(pos, -bounds.extent, bounds.extent);
-                    auto pos_delta = col_delta - pos;
-                    // find which side the ball is closest to
-                    auto normal = ColliderHandler::get_collision_normal(&bounds, object->get_collider());
-                    // apply the collision
-                    object->apply_collision(normal);
-                    // move the ball back to the bounds based on delta
-                    object->set_position(col_delta + pos_delta);
-                }
+                // for (auto &in_range_object : in_range_objects)
+                // {
+                //     if (in_range_object->get_active() && in_range_object != object)
+                //     {
+                //         // TODO: figure out why recalculating when balls overlap doesn't work properly (balls get stuck together for a few seconds before separating)
+                //         if (ColliderHandler::contains(in_range_object->get_collider(), object->get_collider()))
+                //             object->apply_collision(in_range_object);
+                //     }
+                // }
+                // if (!collided)
+                // {
+                //     object->pre_update(delta_time);
+                //     object->update(delta_time);
+                // }
+                // while (!tree.get_bounds().contains(object->get_position()))
+                // {
+                //     // ball went out of bounds the last frame
+                //     auto pos = object->get_position();
+                //     bounds = tree.get_bounds();
+                //     // find out how much the ball went out of bounds by in delta
+                //     auto col_delta = glm::clamp(pos, -bounds.extent, bounds.extent);
+                //     auto pos_delta = col_delta - pos;
+                //     // find which side the ball is closest to
+                //     auto normal = ColliderHandler::get_collision_normal(&bounds, object->get_collider());
+                //     // apply the collision
+                //     object->apply_collision(normal);
+                //     // move the ball back to the bounds based on delta
+                //     object->set_position(col_delta + pos_delta);
+                // }
             }
         }
         index++;

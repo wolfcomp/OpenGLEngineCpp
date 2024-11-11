@@ -6,6 +6,9 @@
 #include "../../shaders/Material.h"
 #include "../../uuid.h"
 #include <glad/glad.h>
+#include "../../ecs/ecs_map.h"
+#include "../../ecs/components/transform.h"
+#include "../../World.h"
 
 class GameObjectBase
 {
@@ -19,10 +22,11 @@ private:
     Material *material = nullptr;
     GLenum mode = GL_TRIANGLES;
     Vertex bounding_box[2];
+    World *world;
 
 public:
-    GameObjectBase(std::vector<Vertex> vertices, std::vector<unsigned> indices) : vertices(vertices), indices(indices) {};
-    GameObjectBase() {};
+    GameObjectBase(std::vector<Vertex> vertices, std::vector<unsigned> indices, World *world) : vertices(vertices), indices(indices), world(world) {};
+    GameObjectBase() : vertices({}), indices({}), world(nullptr) {};
     ~GameObjectBase()
     {
         vertices.clear();
@@ -55,4 +59,14 @@ public:
     static void setup();
     Vertex get_min_vertex() const;
     Vertex get_max_vertex() const;
+    virtual void register_ecs(ECSGlobalMap *ecs)
+    {
+        auto transform = TransformComponent{glm::vec3(0), glm::quat(1, 0, 0, 0), glm::vec3(1)};
+        ecs->insert<TransformComponent>(uuid, &transform);
+    };
+    template <typename T>
+    T *get_component() const
+    {
+        return world->get_ecs()->get<T>(uuid);
+    }
 };
