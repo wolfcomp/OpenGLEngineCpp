@@ -46,6 +46,14 @@ DrawCounts World::draw(Frustum *frustum)
 void World::draw_debug(Line *line, Arrow *arrow)
 {
     tree.draw_debug(line);
+    if (directionalLight != nullptr)
+    {
+        auto dir = directionalLight->direction;
+        arrow->get_component<TransformComponent>()->set_position(glm::vec3(0));
+        arrow->get_component<TransformComponent>()->set_rotation(glm::quatLookAt(dir, glm::vec3(0, 1, 0)));
+        dynamic_cast<ColorMaterial *>(arrow->get_material())->color = glm::vec4(directionalLight->ambient.get_rgb_vec3(), 1.0f);
+        arrow->draw();
+    }
 }
 
 void World::set_bounds(const glm::vec3 &center, const glm::vec3 &extent)

@@ -166,27 +166,41 @@ int Window::init()
 
     glfwSetWindowTitle(glfWindow, "Setting up world and debug objects");
     world = new World();
-    world->set_bounds(glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
+    ShaderStore::add_params_callback([](const Shader *shader)
+                                     { world->set_shader(shader); });
+    world->set_directional_light(new DirectionalLight());
+    world->update_directional_light([](DirectionalLight *light)
+                                    {
+                                        light->direction = glm::normalize(glm::vec3(0.2f, -1.0f, -0.3f));
+                                        light->ambient = hsl(0, 0, 0.2f);
+                                        light->diffuse = hsl(0, 0, 0.8f);
+                                        light->specular = glm::vec3(0.5f); });
     debugLine = new Line();
     debugLine->set_shader(ShaderStore::get_shader("noLight"));
     debugLine->set_material(new ColorMaterial());
+    debugLine->attatch_to_world(world);
+    debugLine->register_ecs(world->get_ecs());
     dynamic_cast<ColorMaterial *>(debugLine->get_material())->color = glm::vec4(1.0f, 0.0f, 0.0f, 0.5f);
     debugArrow = new Arrow();
     debugArrow->set_shader(ShaderStore::get_shader("noLight"));
     debugArrow->set_material(new ColorMaterial());
+    debugArrow->attatch_to_world(world);
+    debugArrow->register_ecs(world->get_ecs());
     dynamic_cast<ColorMaterial *>(debugArrow->get_material())->color = glm::vec4(0.0f, 1.0f, 0.0f, 0.5f);
     debugSphere = new IcoSphere();
     debugSphere->create(3);
     debugSphere->set_shader(ShaderStore::get_shader("noLight"));
     debugSphere->set_material(new ColorMaterial());
-    // debugSphere->set_scale(glm::vec3(0.1f));
+    debugSphere->attatch_to_world(world);
+    debugSphere->register_ecs(world->get_ecs());
+    debugSphere->get_component<TransformComponent>()->set_scale(glm::vec3(.1f));
     dynamic_cast<ColorMaterial *>(debugSphere->get_material())->color = glm::vec4(0.0f, 0.0f, 1.0f, 0.5f);
 
     glfwSetWindowTitle(glfWindow, "Setting up point cloud surface");
     auto pointCloud = new PointCloud("./pointcloud/small.las");
     auto bsplineSurface = pointCloud->convert_to_surface();
     delete pointCloud;
-    bsplineSurface->set_shader(ShaderStore::get_shader("noLight"));
+    bsplineSurface->set_shader(ShaderStore::get_shader("default"));
     bsplineSurface->set_material(new ColorMaterial());
     dynamic_cast<ColorMaterial *>(bsplineSurface->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     world->insert(bsplineSurface);

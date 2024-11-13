@@ -13,7 +13,7 @@
 class GameObjectBase
 {
 private:
-    UUID uuid = UUID::generate_v4();
+    UUID uuid;
     std::vector<Vertex> vertices;
     std::vector<unsigned> indices;
     // Shaders can be shared between objects
@@ -25,7 +25,7 @@ private:
     World *world;
 
 public:
-    GameObjectBase(std::vector<Vertex> vertices, std::vector<unsigned> indices, World *world) : vertices(vertices), indices(indices), world(world) {};
+    GameObjectBase(std::vector<Vertex> vertices, std::vector<unsigned> indices, World *world) : vertices(vertices), indices(indices), world(world), uuid(UUID::generate_v4()) {};
     GameObjectBase() : vertices({}), indices({}), world(nullptr) {};
     ~GameObjectBase()
     {

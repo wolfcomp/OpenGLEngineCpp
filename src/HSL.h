@@ -34,7 +34,7 @@ public:
     {
     }
 
-    hsl(float h, float s, float l) : h(h), s(s), l(l), rgb{0, 0, 0}
+    hsl(int h, float s, float l) : h(h), s(s), l(l), rgb{0, 0, 0}
     {
     }
 
@@ -59,6 +59,13 @@ public:
 
     float *get_rgb()
     {
+        if (s <= glm::epsilon<float>())
+        {
+            rgb[0] = l;
+            rgb[1] = l;
+            rgb[2] = l;
+            return rgb;
+        }
         float c = (1.0f - abs(2.0f * l - 1.0f)) * s;
         float x = c * (1.0f - abs(mod(h / 60.0f, 2) - 1.0f));
         float m = l - c / 2;
