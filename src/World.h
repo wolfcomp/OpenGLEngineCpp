@@ -22,15 +22,25 @@ struct DrawCounts
 
 class World
 {
+public:
+    static constexpr unsigned MAX_POINT_LIGHTS = 4;
+
+private:
     OcTree<GameObject *> tree;
     std::vector<GameObject *> objects_non_colliders;
-    PointLight *pointLights[4];
-    DirectionalLight *directionalLight;
-    SpotLight *spotLight;
+    PointLight *pointLights[MAX_POINT_LIGHTS];
+    DirectionalLight *directionalLight = nullptr;
+    SpotLight *spotLight = nullptr;
     ECSGlobalMap ecs;
 
 public:
-    World() {}
+    World()
+    {
+        for (int i = 0; i < MAX_POINT_LIGHTS; i++)
+        {
+            pointLights[i] = nullptr;
+        }
+    }
     ~World()
     {
         clear();
@@ -51,8 +61,23 @@ public:
     void update_point_light(unsigned index, std::function<void(PointLight *)> update);
     void update_directional_light(std::function<void(DirectionalLight *)> update);
     void update_spot_light(std::function<void(SpotLight *)> update);
-
+    DirectionalLight *get_directional_light() { return directionalLight; }
+    PointLight *get_point_light(unsigned index) { return pointLights[index]; }
+    SpotLight *get_spot_light() { return spotLight; }
     ECSGlobalMap *get_ecs() { return &ecs; }
+
+    void set_shader(const Shader *shader)
+    {
+        for (auto light : pointLights)
+        {
+            if (light != nullptr)
+                light->set_shader(shader);
+        }
+        if (directionalLight != nullptr)
+            directionalLight->set_shader(shader);
+        if (spotLight != nullptr)
+            spotLight->set_shader(shader);
+    }
 
     void clear()
     {

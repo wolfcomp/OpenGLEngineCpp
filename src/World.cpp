@@ -10,6 +10,8 @@ glm::vec3 checkLoc = glm::vec3(0, 0, 0);
 
 void World::insert(GameObject *object)
 {
+    object->attatch_to_world(this);
+    object->register_ecs(&ecs);
     if (object->get_collider() == nullptr)
     {
         objects_non_colliders.push_back(object);
@@ -105,4 +107,38 @@ void World::update(float delta_time)
         index++;
     }
     tree.recalculate();
+}
+
+void World::set_directional_light(DirectionalLight *light)
+{
+    directionalLight = light;
+}
+
+void World::set_spot_light(SpotLight *light)
+{
+    spotLight = light;
+}
+
+void World::set_point_light(PointLight *light, unsigned index)
+{
+    if (index >= MAX_POINT_LIGHTS)
+        throw std::runtime_error("Index out of bounds");
+    pointLights[index] = light;
+}
+
+void World::update_point_light(unsigned index, std::function<void(PointLight *)> update)
+{
+    if (index >= MAX_POINT_LIGHTS)
+        throw std::runtime_error("Index out of bounds");
+    update(pointLights[index]);
+}
+
+void World::update_directional_light(std::function<void(DirectionalLight *)> update)
+{
+    update(directionalLight);
+}
+
+void World::update_spot_light(std::function<void(SpotLight *)> update)
+{
+    update(spotLight);
 }

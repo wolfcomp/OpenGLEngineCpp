@@ -7,37 +7,7 @@ template <typename T>
 struct ECSValuePair
 {
     UUID id;
-    T value;
-};
-
-struct typename_info
-{
-    const char *name;
-
-    typename_info() : name("") {}
-    typename_info(const char *name) : name(name) {}
-
-    bool operator==(const char *other)
-    {
-        return strcmp(name, other) == 0;
-    }
-
-    bool operator==(const typename_info &other)
-    {
-        return strcmp(name, other.name) == 0;
-    }
-
-    typename_info &operator=(const char *other)
-    {
-        name = other;
-        return *this;
-    }
-
-    typename_info &operator=(const typename_info &other)
-    {
-        name = other.name;
-        return *this;
-    }
+    T *value;
 };
 
 template <typename T>
@@ -81,7 +51,7 @@ public:
         {
             expand();
         }
-        data[size++] = {id, *value};
+        data[size++] = {id, value};
     }
 
     T *get(UUID id)
@@ -90,7 +60,7 @@ public:
         {
             if (data[i].id == id)
             {
-                return &data[i].value;
+                return data[i].value;
             }
         }
         return nullptr;
@@ -102,7 +72,7 @@ public:
         {
             return nullptr;
         }
-        return &data[index].value;
+        return data[index].value;
     }
 
     template <typename U>
@@ -112,7 +82,7 @@ public:
         {
             if (data[i].id == id && dynamic_cast<U *>(&data[i].value) != nullptr)
             {
-                return dynamic_cast<U *>(&data[i].value);
+                return dynamic_cast<U *>(data[i].value);
             }
         }
         return nullptr;
@@ -124,6 +94,7 @@ public:
         {
             if (data[i].id == id)
             {
+                delete data[i].value;
                 for (int j = i; j < size - 1; j++)
                 {
                     data[j] = data[j + 1];
@@ -187,7 +158,7 @@ struct ECSGlobalMap
 {
 private:
     ECSMap<BaseComponent> *data;
-    typename_info *types;
+    std::string *types;
     int size;
     int capacity;
 
@@ -195,7 +166,7 @@ private:
     {
         capacity *= 2;
         ECSMap<BaseComponent> *new_data = new ECSMap<BaseComponent>[capacity];
-        typename_info *new_types = new typename_info[capacity];
+        std::string *new_types = new std::string[capacity];
         for (int i = 0; i < size; i++)
         {
             new_data[i] = data[i];
@@ -203,6 +174,8 @@ private:
         }
         delete[] data;
         data = new_data;
+        delete[] types;
+        types = new_types;
     }
 
 public:
@@ -213,11 +186,13 @@ public:
         this->capacity = capacity;
         this->size = 0;
         this->data = new ECSMap<BaseComponent>[capacity];
+        this->types = new std::string[capacity];
     }
 
     ~ECSGlobalMap()
     {
         delete[] data;
+        delete[] types;
     }
 
     template <typename T>
@@ -236,25 +211,6 @@ public:
             expand();
         }
         types[size] = typeid(T).name();
-        data[size++].insert(id, value);
-    }
-
-    template <>
-    void insert<BaseComponent>(UUID id, BaseComponent *value)
-    {
-        for (int i = 0; i < size; i++)
-        {
-            if (types[i] == typeid(*value).name())
-            {
-                data[i].insert(id, value);
-                return;
-            }
-        }
-        if (size >= capacity)
-        {
-            expand();
-        }
-        types[size] = typeid(*value).name();
         data[size++].insert(id, value);
     }
 
@@ -277,19 +233,6 @@ public:
         for (int i = 0; i < size; i++)
         {
             if (data[i].get(id))
-            {
-                data[i].remove(id);
-                return;
-            }
-        }
-    }
-
-    template <>
-    void remove<BaseComponent>(UUID id)
-    {
-        for (int i = 0; i < size; i++)
-        {
-            if (types[i].name == typeid(BaseComponent).name())
             {
                 data[i].remove(id);
                 return;
