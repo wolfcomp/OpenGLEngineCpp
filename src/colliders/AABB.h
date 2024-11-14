@@ -6,8 +6,6 @@
 #include "../objects/base/Vertex.h"
 #include "Collider.h"
 
-class GameObject;
-class GameObject;
 class Line;
 
 class AABB : public Collider<AABB>

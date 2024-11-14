@@ -3,7 +3,6 @@
 #include "../shaders/ShaderStore.h"
 #include "../shaders/Material.h"
 #include "../objects/base/GameObject.h"
-#include "../objects/base/GameObject.h"
 
 AABB::AABB(glm::vec3 center, glm::vec3 extent) : center(center), extent(extent)
 {
@@ -48,13 +47,12 @@ void AABB::draw_debug(Line *line)
 template <>
 bool AABB::contains<GameObject *>(GameObject *const &point) const
 {
-    return false;
-    // return contains(point->get_position());
+    return contains(point->get_component<TransformComponent>()->get_position());
 }
 
 void AABB::update(GameObject *object)
 {
-    // center = object->get_position();
+    center = object->get_component<TransformComponent>()->get_position();
 }
 
 bool AABB::is_on_frustum(Frustum *frustum)
