@@ -9,6 +9,7 @@
 #include "culling/Frustum.h"
 #include "Light.h"
 #include "ecs/ecs_map.h"
+#include "ecs/system/base.h"
 
 class GameObject;
 class Arrow;
@@ -32,6 +33,7 @@ private:
     DirectionalLight *directionalLight = nullptr;
     SpotLight *spotLight = nullptr;
     ECSGlobalMap ecs;
+    std::vector<BaseSystem *> systems;
 
 public:
     World()
@@ -65,6 +67,7 @@ public:
     PointLight *get_point_light(unsigned index) { return pointLights[index]; }
     SpotLight *get_spot_light() { return spotLight; }
     ECSGlobalMap *get_ecs() { return &ecs; }
+    void register_system(BaseSystem *system) { systems.push_back(system); }
 
     void set_shader(const Shader *shader)
     {

@@ -26,4 +26,9 @@ struct ColorMaterial : public Material
 {
     glm::vec4 color;
     void use(Shader *shader) override;
+    ColorMaterial() : color(glm::vec4(1.0f)) {};
+    ColorMaterial(glm::vec4 color)
+    {
+        this->color = color;
+    }
 };

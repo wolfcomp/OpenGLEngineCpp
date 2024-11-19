@@ -1,5 +1,6 @@
 #include "physics.h"
 #include "../components/physcis.h"
+#include "../components/transform.h"
 
 void PhysicsSystem::update(float delta_time)
 {
@@ -9,9 +10,15 @@ void PhysicsSystem::update(float delta_time)
         return;
     for (int i = 0; i < physics->get_size(); i++)
     {
-        auto component = physics->get(i);
+        auto component = physics->get_value_pair<PhysicsComponent>(i);
         if (component == nullptr)
             continue;
-        dynamic_cast<PhysicsComponent *>(component)->update(delta_time);
+        component->value->update(delta_time);
+        component->value->apply_gravity(9.8f);
+        auto position = ecs->get<TransformComponent>(component->id);
+        if (position != nullptr)
+        {
+            position->position += component->value->velocity * delta_time;
+        }
     }
 }

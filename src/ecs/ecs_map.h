@@ -88,6 +88,33 @@ public:
         return nullptr;
     }
 
+    template <typename U>
+    ECSValuePair<U> *get_value_pair(UUID id)
+    {
+        for (int i = 0; i < size; i++)
+        {
+            if (data[i].id == id && dynamic_cast<U *>(&data[i].value) != nullptr)
+            {
+                return dynamic_cast<ECSValuePair<U> *>(&data[i]);
+            }
+        }
+        return nullptr;
+    }
+
+    template <typename U>
+    ECSValuePair<U> *get_value_pair(int i)
+    {
+        if (i < 0 || i >= size)
+        {
+            return nullptr;
+        }
+        if (dynamic_cast<U *>(&data[i].value) != nullptr)
+        {
+            return dynamic_cast<ECSValuePair<U> *>(&data[i]);
+        }
+        return nullptr;
+    }
+
     void remove(UUID id)
     {
         for (int i = 0; i < size; i++)

@@ -96,16 +96,21 @@ public:
 
         return de_boor_points[degree];
     }
+
+    void add_point(T point) override
+    {
+        points.push_back(point);
+        if (points.size() > degree)
+            knot_vector = generate_knot_vector(points.size(), degree);
+    }
 };
 
 template <typename T>
 class BSpline : public Curve<T>
 {
 public:
-    BSpline(std::vector<T> points, int degree) : Curve<T>(BSplineBase<T>(points, degree))
-    {
-        this->generate_curve();
-    }
+    BSpline(std::vector<T> points, int degree) : Curve<T>(BSplineBase<T>(points, degree)) {};
+    BSpline(std::vector<T> points, int degree, float resolution) : Curve<T>(BSplineBase<T>(points, degree), resolution) {};
 
     /// @brief Get the control points of the curve in b2 format
     /// @param num_points The number of control points to generate

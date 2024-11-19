@@ -63,6 +63,10 @@ void World::set_bounds(const glm::vec3 &center, const glm::vec3 &extent)
 
 void World::update(float delta_time)
 {
+    for (auto &system : systems)
+    {
+        system->update(delta_time);
+    }
     std::vector<GameObject *> objects;
     AABB bounds = tree.get_bounds();
     tree.query_range(bounds, objects);
