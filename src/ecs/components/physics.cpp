@@ -1,4 +1,4 @@
-#include "physcis.h"
+#include "physics.h"
 
 template <>
 void ECSGlobalMap::insert<PhysicsComponent>(UUID id, PhysicsComponent *value)

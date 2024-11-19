@@ -69,4 +69,5 @@ public:
     {
         return world->get_ecs()->get<T>(uuid);
     }
+    UUID get_uuid() const { return uuid; }
 };

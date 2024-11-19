@@ -1,5 +1,5 @@
 #include "physics.h"
-#include "../components/physcis.h"
+#include "../components/physics.h"
 #include "../components/transform.h"
 
 void PhysicsSystem::update(float delta_time)
@@ -20,5 +20,6 @@ void PhysicsSystem::update(float delta_time)
         {
             position->position += component->value->velocity * delta_time;
         }
+        delete component;
     }
 }

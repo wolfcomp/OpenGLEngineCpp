@@ -9,7 +9,7 @@
 #include "culling/Frustum.h"
 #include "Light.h"
 #include "ecs/ecs_map.h"
-#include "ecs/system/base.h"
+#include "ecs/systems/base.h"
 
 class GameObject;
 class Arrow;

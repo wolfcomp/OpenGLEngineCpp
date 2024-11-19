@@ -18,6 +18,7 @@ public:
         curve = new BSpline<glm::vec3>({}, 2);
         curve->set_material(new ColorMaterial(glm::vec4(1, 0, 0, 1)));
         curve->set_shader(ShaderStore::get_shader("no_light"));
+        create(3);
     }
 
     virtual void update(float delta_time) override

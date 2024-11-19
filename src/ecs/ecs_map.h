@@ -8,6 +8,24 @@ struct ECSValuePair
 {
     UUID id;
     T *value;
+    ECSValuePair() : id(UUID::empty()), value(nullptr) {}
+    ECSValuePair(UUID id, T *value) : id(id), value(value) {}
+    virtual bool operator==(const ECSValuePair<T> &other)
+    {
+        return id == other.id && value == other.value;
+    }
+    virtual bool operator==(const type_info &other)
+    {
+        return typeid(T) == other;
+    }
+    virtual bool operator!=(const ECSValuePair<T> &other)
+    {
+        return !(*this == other);
+    }
+    virtual bool operator!=(const type_info &other)
+    {
+        return !(*this == other);
+    }
 };
 
 template <typename T>
@@ -51,7 +69,7 @@ public:
         {
             expand();
         }
-        data[size++] = {id, value};
+        data[size++] = ECSValuePair{id, value};
     }
 
     T *get(UUID id)
@@ -108,9 +126,9 @@ public:
         {
             return nullptr;
         }
-        if (dynamic_cast<U *>(&data[i].value) != nullptr)
+        if (dynamic_cast<U *>(data[i].value) != nullptr)
         {
-            return dynamic_cast<ECSValuePair<U> *>(&data[i]);
+            return new ECSValuePair<U>(data[i].id, dynamic_cast<U *>(data[i].value));
         }
         return nullptr;
     }

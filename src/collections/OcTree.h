@@ -8,7 +8,7 @@
 class OcTreeBase
 {
 private:
-    AABB boundary;
+    AABB boundary = AABB();
     bool leaf;
 
 public:
@@ -337,6 +337,52 @@ public:
         southWestLower->query_range(range, found, filter);
         southEastLower->query_range(range, found, filter);
     };
+
+    template <typename F>
+    void query(std::vector<F> &found)
+    {
+        F data = nullptr;
+        if (node != nullptr)
+            data = dynamic_cast<F>(node->data);
+
+        if (data != nullptr)
+            found.push_back(data);
+
+        if (is_leaf())
+            return;
+
+        northWestUpper->query(found);
+        northEastUpper->query(found);
+        southWestUpper->query(found);
+        southEastUpper->query(found);
+        northWestLower->query(found);
+        northEastLower->query(found);
+        southWestLower->query(found);
+        southEastLower->query(found);
+    }
+
+    template <typename F>
+    void query(std::vector<F> &found, std::function<bool(const F)> filter)
+    {
+        F data = nullptr;
+        if (node != nullptr)
+            data = dynamic_cast<F>(node->data);
+
+        if (data != nullptr && filter(data))
+            found.push_back(data);
+
+        if (is_leaf())
+            return;
+
+        northWestUpper->query(found, filter);
+        northEastUpper->query(found, filter);
+        southWestUpper->query(found, filter);
+        southEastUpper->query(found, filter);
+        northWestLower->query(found, filter);
+        northEastLower->query(found, filter);
+        southWestLower->query(found, filter);
+        southEastLower->query(found, filter);
+    }
 
     void recalculate();
     void draw_debug(Line *line, bool draw_bounds = true) override

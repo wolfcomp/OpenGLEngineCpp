@@ -7,9 +7,9 @@
 
 struct PhysicsComponent : public BaseComponent
 {
-    glm::vec3 velocity;
-    glm::vec3 acceleration;
-    float mass;
+    glm::vec3 velocity = glm::vec3(0);
+    glm::vec3 acceleration = glm::vec3(0);
+    float mass = 1.0f;
     float dragCoefficient = 0.1f;
 
     void update(float delta_time)
@@ -30,7 +30,7 @@ struct PhysicsComponent : public BaseComponent
 
     void apply_friction(float friction)
     {
-        auto friction_force = glm::normalize(velocity) * friction;
+        auto friction_force = velocity * friction;
         apply_force(-friction_force);
     }
 
@@ -41,18 +41,20 @@ struct PhysicsComponent : public BaseComponent
 
     void apply_gravity(float gravity)
     {
-        apply_force(glm::vec3(0, -gravity, 0));
+        apply_force(glm::vec3(0, -gravity * mass, 0));
     }
 
     void apply_drag(glm::vec3 drag)
     {
-        auto drag_force = glm::normalize(velocity) * drag;
+        auto drag_force = velocity * drag;
         apply_force(-drag_force);
     }
 
     void apply_drag(float drag)
     {
-        auto drag_force = glm::normalize(velocity) * drag;
+        auto drag_force = velocity * drag;
+        if (isnan(drag_force.x) || isnan(drag_force.y) || isnan(drag_force.z))
+            return;
         apply_force(-drag_force);
     }
 

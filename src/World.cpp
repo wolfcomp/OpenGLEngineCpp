@@ -17,7 +17,19 @@ void World::insert(GameObject *object)
         objects_non_colliders.push_back(object);
         return;
     }
-    tree.insert(object);
+    if (!tree.insert(object))
+    {
+        // object is out of bounds correct the bounds and try again
+        auto bounds = tree.get_bounds();
+        auto pos = object->get_component<TransformComponent>()->position;
+        auto min = bounds.center - bounds.extent;
+        auto max = bounds.center + bounds.extent;
+        min = glm::min(min, pos);
+        max = glm::max(max, pos);
+        auto center = (min + max) / 2.0f;
+        auto extent = (max - min) / 2.0f;
+        tree.set_bounds(center, extent);
+    }
 }
 
 DrawCounts World::draw(Frustum *frustum)

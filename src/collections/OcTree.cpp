@@ -14,13 +14,25 @@ template <>
 void OcTree<GameObject *>::recalculate()
 {
     std::vector<GameObject *> all_objects;
-    query_range<GameObject *>(get_bounds(), all_objects, [](const GameObject *object)
-                              { return object->get_has_updated(); });
+    query<GameObject *>(all_objects);
 
+    glm::vec3 min = glm::vec3(FLT_MAX);
+    glm::vec3 max = glm::vec3(FLT_MIN);
     for (auto &object : all_objects)
     {
         pop(object);
+        auto transform = object->get_component<TransformComponent>();
+        if (transform == nullptr)
+            continue;
+        auto position = transform->position;
+        min = glm::min(min, position);
+        max = glm::max(max, position);
     }
+    if (min == glm::vec3(FLT_MAX) || max == glm::vec3(FLT_MIN))
+        return;
+    auto center = (min + max) / 2.0f;
+    auto extent = (max - min) / 2.0f;
+    set_bounds(center, extent);
     unsubdivide();
     for (auto &object : all_objects)
     {

@@ -23,6 +23,9 @@
 #include "objects/curves/BSpline.h"
 #include "objects/curves/BSplineSurface.h"
 #include "objects/surface/PointCloud.h"
+#include "objects/combined/TrackedBall.h"
+#include "ecs/components/physics.h"
+#include "ecs/systems/physics.h"
 
 #define CAMERA_SPEED 2.5f
 
@@ -67,7 +70,7 @@ static void glfw_error_callback(int error, const char *description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-void move_character(const glm::vec3 &direction)
+void move_camera(const glm::vec3 &direction)
 {
     if (!mouseActive)
         return;
@@ -92,6 +95,17 @@ static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 {
     input.process_mouse_scroll(window, xoffset, yoffset);
     prev_scroll_callback(window, xoffset, yoffset);
+}
+
+void spawn_on_camera()
+{
+    auto pos = camera.get_pos();
+    auto ball = new TrackedBall();
+    ball->set_shader(ShaderStore::get_shader("default"));
+    ball->set_material(new ColorMaterial(glm::vec4(1)));
+    world->insert(ball);
+    world->get_ecs()->insert<PhysicsComponent>(ball->get_uuid(), new PhysicsComponent{});
+    ball->get_component<TransformComponent>()->set_position(pos);
 }
 
 int Window::init()
@@ -175,6 +189,7 @@ int Window::init()
                                         light->ambient = hsl(0, 0, 0.2f);
                                         light->diffuse = hsl(0, 0, 0.8f);
                                         light->specular = glm::vec3(0.5f); });
+    world->register_system(new PhysicsSystem(world->get_ecs(), world));
     debugLine = new Line();
     debugLine->set_shader(ShaderStore::get_shader("noLight"));
     debugLine->set_material(new ColorMaterial());
@@ -223,27 +238,27 @@ void Window::init_listeners()
         false);
     input.attach_keyboard_listener(
         GLFW_KEY_W, []()
-        { move_character(glm::vec3(0, 0, -1)); },
+        { move_camera(glm::vec3(0, 0, -1)); },
         true);
     input.attach_keyboard_listener(
         GLFW_KEY_S, []()
-        { move_character(glm::vec3(0, 0, 1)); },
+        { move_camera(glm::vec3(0, 0, 1)); },
         true);
     input.attach_keyboard_listener(
         GLFW_KEY_A, []()
-        { move_character(glm::vec3(-1, 0, 0)); },
+        { move_camera(glm::vec3(-1, 0, 0)); },
         true);
     input.attach_keyboard_listener(
         GLFW_KEY_D, []()
-        { move_character(glm::vec3(1, 0, 0)); },
+        { move_camera(glm::vec3(1, 0, 0)); },
         true);
     input.attach_keyboard_listener(
         GLFW_KEY_SPACE, []()
-        { move_character(glm::vec3(0, 1, 0)); },
+        { move_camera(glm::vec3(0, 1, 0)); },
         true);
     input.attach_keyboard_listener(
         GLFW_KEY_LEFT_CONTROL, []()
-        { move_character(glm::vec3(0, -1, 0)); },
+        { move_camera(glm::vec3(0, -1, 0)); },
         true);
     input.attach_keyboard_listener(
         GLFW_KEY_ESCAPE, [&]()
@@ -304,6 +319,11 @@ void Window::update() const
     ImGui::Begin("Debug");
     ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
     ImGui::Text("FPS: %.1f", fps);
+    ImGui::Separator();
+    if (ImGui::Button("Spawn on camera"))
+    {
+        spawn_on_camera();
+    }
     ImGui::Separator();
     ImGui::TextUnformatted("w, a, s, d, space, ctrl - move camera");
     ImGui::TextUnformatted("  * forward, left, back, right, up, down");

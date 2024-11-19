@@ -1,6 +1,7 @@
 #pragma once
 #include "../ecs_map.h"
-#include "../../World.h"
+
+class World;
 
 class BaseSystem
 {

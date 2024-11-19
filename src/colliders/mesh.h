@@ -24,11 +24,11 @@ public:
     template <>
     bool contains<GameObject *>(GameObject *const &point) const;
 
-    template <>
-    bool contains<AABB *>(AABB *const &point) const;
+    // template <>
+    // bool contains<AABB *>(AABB *const &point) const;
 
-    template <>
-    bool contains<SphereCollider *>(SphereCollider *const &point) const;
+    // template <>
+    // bool contains<SphereCollider *>(SphereCollider *const &point) const;
 
     void update(GameObject *object) override;
 

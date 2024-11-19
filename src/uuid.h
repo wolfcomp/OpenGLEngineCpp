@@ -12,6 +12,11 @@ public:
     unsigned short data4;
     unsigned char data5[6];
 
+    static UUID empty()
+    {
+        return UUID{0, 0, 0, 0, {0, 0, 0, 0, 0, 0}};
+    }
+
     static UUID generate_v4()
     {
         UUID uuid;

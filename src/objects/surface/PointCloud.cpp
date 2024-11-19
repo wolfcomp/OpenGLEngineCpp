@@ -45,7 +45,6 @@ GameObject *PointCloud::convert_to_surface()
         std::sort(pair.second.begin(), pair.second.end(), [](glm::vec3 a, glm::vec3 b)
                   { return a.x < b.x; });
     }
-    // TODO: Make this average the height of the points in the same row between each step to make the surface smoother and more accurate
     // X Size step is the min and maximum point value in all rows
     // Z Size step is the index of the itteration in the map
     auto size = point_map.size();
