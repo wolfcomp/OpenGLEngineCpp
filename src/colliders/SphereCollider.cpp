@@ -22,6 +22,5 @@ bool SphereCollider::is_on_frustum(Frustum *frustum)
 
 bool SphereCollider::is_on_or_forward_plane(Plane *plane)
 {
-    return false;
-    // return plane->getSignedDistanceToPlane(get_parent()->get_component<TransformComponent>()->get_world_position()) > -radius;
+    return plane->getSignedDistanceToPlane(get_parent()->get_component<TransformComponent>()->position) > -radius;
 }

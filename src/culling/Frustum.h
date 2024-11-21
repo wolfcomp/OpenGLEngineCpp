@@ -34,4 +34,14 @@ struct Frustum
     {
         return create_from_camera(camera, input->get_aspect_ratio(), input->get_fov_y(), input->get_near_z(), input->get_far_z());
     }
+
+    bool contains(const glm::vec3 &point) const
+    {
+        return top_face.getSignedDistanceToPlane(point) >= 0 &&
+               bottom_face.getSignedDistanceToPlane(point) >= 0 &&
+               right_face.getSignedDistanceToPlane(point) >= 0 &&
+               left_face.getSignedDistanceToPlane(point) >= 0 &&
+               far_face.getSignedDistanceToPlane(point) >= 0 &&
+               near_face.getSignedDistanceToPlane(point) >= 0;
+    }
 };

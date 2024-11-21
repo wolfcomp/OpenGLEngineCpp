@@ -219,6 +219,17 @@ int Window::init()
     bsplineSurface->set_material(new ColorMaterial());
     dynamic_cast<ColorMaterial *>(bsplineSurface->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     world->insert(bsplineSurface);
+    auto vertices = bsplineSurface->get_vertices();
+    auto min = glm::vec3(FLT_MAX);
+    auto max = glm::vec3(-FLT_MAX);
+    for (auto &vertex : vertices)
+    {
+        min = glm::min(min, vertex.position);
+        max = glm::max(max, vertex.position);
+    }
+    auto center = (min + max) / 2.0f;
+    auto extent = (max - min) / 2.0f;
+    world->set_bounds(center, extent);
 
     glfwSetWindowTitle(glfWindow, "OpenGLEngineCpp");
     return 0;

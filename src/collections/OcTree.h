@@ -258,7 +258,7 @@ public:
     template <typename F>
     std::tuple<unsigned, unsigned> query_range(const AABB &range, std::vector<F> &found, Frustum *frustum = nullptr)
     {
-        auto total = 1;
+        auto total = 0;
         auto found_count = 0;
         auto bounds = get_bounds();
         if (frustum == nullptr)
@@ -274,7 +274,10 @@ public:
 
         F data = nullptr;
         if (node != nullptr)
+        {
             data = dynamic_cast<F>(node->data);
+            total++;
+        }
 
         if (data != nullptr && range.contains(data))
         {
@@ -380,8 +383,53 @@ public:
         southEastUpper->query(found, filter);
         northWestLower->query(found, filter);
         northEastLower->query(found, filter);
-        southWestLower->query(found, filter);
-        southEastLower->query(found, filter);
+    }
+
+    template <typename F>
+    std::tuple<unsigned, unsigned> query(std::vector<F> &found, Frustum *frustum, std::function<glm::vec3(const F)> get_position)
+    {
+        auto total = 0;
+        auto found_count = 0;
+        F data = nullptr;
+        if (node != nullptr)
+        {
+            data = dynamic_cast<F>(node->data);
+            total++;
+        }
+        if (data != nullptr && frustum->contains(get_position(data)))
+        {
+            found.push_back(data);
+            found_count++;
+        }
+
+        if (is_leaf())
+            return std::make_tuple(total, found_count);
+
+        auto tmp = northWestUpper->query(found, frustum, get_position);
+        total += std::get<0>(tmp);
+        found_count += std::get<1>(tmp);
+        tmp = northEastUpper->query(found, frustum, get_position);
+        total += std::get<0>(tmp);
+        found_count += std::get<1>(tmp);
+        tmp = southWestUpper->query(found, frustum, get_position);
+        total += std::get<0>(tmp);
+        found_count += std::get<1>(tmp);
+        tmp = southEastUpper->query(found, frustum, get_position);
+        total += std::get<0>(tmp);
+        found_count += std::get<1>(tmp);
+        tmp = northWestLower->query(found, frustum, get_position);
+        total += std::get<0>(tmp);
+        found_count += std::get<1>(tmp);
+        tmp = northEastLower->query(found, frustum, get_position);
+        total += std::get<0>(tmp);
+        found_count += std::get<1>(tmp);
+        tmp = southWestLower->query(found, frustum, get_position);
+        total += std::get<0>(tmp);
+        found_count += std::get<1>(tmp);
+        tmp = southEastLower->query(found, frustum, get_position);
+        total += std::get<0>(tmp);
+        found_count += std::get<1>(tmp);
+        return std::make_tuple(total, found_count);
     }
 
     void recalculate();
