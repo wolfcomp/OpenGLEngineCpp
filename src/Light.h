@@ -9,13 +9,13 @@ struct Light
 {
     hsl ambient;
     hsl diffuse;
-    glm::vec3 specular;
+    hsl specular;
 
     virtual void set_shader(const Shader *shader)
     {
         shader->set_vec3(get_name() + ".ambient", ambient.get_rgb_vec3());
         shader->set_vec3(get_name() + ".diffuse", diffuse.get_rgb_vec3());
-        shader->set_vec3(get_name() + ".specular", specular);
+        shader->set_vec3(get_name() + ".specular", specular.get_rgb_vec3());
     }
 
     virtual std::string get_name()

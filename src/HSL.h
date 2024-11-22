@@ -3,6 +3,28 @@
 
 #include <glm/vec3.hpp>
 
+struct hsv
+{
+    float h;
+    float s;
+    float v;
+
+    operator float *()
+    {
+        return &h;
+    }
+
+    operator const float *() const
+    {
+        return &h;
+    }
+
+    explicit operator const float *()
+    {
+        return &h;
+    }
+};
+
 class hsl
 {
     template <typename T>
@@ -38,23 +60,43 @@ public:
     {
     }
 
-    int h;
+    float h;
     float s;
     float l;
     float rgb[3];
 
     void blend(int h, float s, float l, float amount = 0.5f)
     {
-        this->h = static_cast<int>(this->h + (h - this->h) * amount) % 360;
+        this->h = this->h + (h - this->h) * amount;
         this->s = this->s + (s - this->s) * amount;
         this->l = this->l + (l - this->l) * amount;
     }
 
     void blend(hsl &other, float amount = 0.5f)
     {
-        h = static_cast<int>(h + (other.h - h) * amount) % 360;
+        h = h + (other.h - h) * amount;
         s = s + (other.s - s) * amount;
         l = l + (other.l - l) * amount;
+    }
+
+    hsv get_hsv()
+    {
+        float h = this->h;
+        float v = this->l + this->s * std::min(this->l, 1 - this->l);
+        float s = v > 0 ? 2 * (1 - this->l / v) : 0;
+        return {h, s, v};
+    }
+
+    void set_from_hsv(hsv hsv)
+    {
+        h = hsv.h;
+        l = hsv.v * (1 - hsv.s / 2);
+        if (l < glm::epsilon<float>() || abs(l - 1) < glm::epsilon<float>())
+        {
+            s = 0;
+            return;
+        }
+        s = (hsv.v - l) / std::min(l, 1 - l);
     }
 
     float *get_rgb()
@@ -66,6 +108,7 @@ public:
             rgb[2] = l;
             return rgb;
         }
+        int h = static_cast<int>(this->h * 360);
         float c = (1.0f - abs(2.0f * l - 1.0f)) * s;
         float x = c * (1.0f - abs(mod(h / 60.0f, 2) - 1.0f));
         float m = l - c / 2;

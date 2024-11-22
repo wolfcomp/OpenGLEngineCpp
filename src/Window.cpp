@@ -44,7 +44,6 @@ int spawnCount = 50;
 Camera camera = Camera(glm::vec3(1.5f, 3.0f, 11.5f), glm::vec3(0.0f, 1.0f, 0.0f), -101.0f, -14.5f);
 InputProcessing input;
 ShadowProcessor shadowProcessor;
-LightManager lightManager;
 Frustum frustum;
 DrawCounts drawCounts;
 
@@ -170,7 +169,6 @@ int Window::init()
     glfwSetWindowTitle(glfWindow, "Loading shaders");
     ShaderStore::add_params_callback([](const Shader *shader)
                                      { camera.set_shader(shader);
-                                       lightManager.set_shader(shader);
                                        shadowProcessor.set_shader(shader);
                                        input.set_shader(shader); });
     ShaderStore::load_shaders();
@@ -188,7 +186,7 @@ int Window::init()
                                         light->direction = glm::normalize(glm::vec3(0.2f, -1.0f, -0.3f));
                                         light->ambient = hsl(0, 0, 0.2f);
                                         light->diffuse = hsl(0, 0, 0.8f);
-                                        light->specular = glm::vec3(0.5f); });
+                                        light->specular = hsl(0, 0, 0.5f); });
     world->register_system(new PhysicsSystem(world->get_ecs(), world));
     debugLine = new Line();
     debugLine->set_shader(ShaderStore::get_shader("noLight"));
@@ -344,19 +342,27 @@ void Window::update() const
     ImGui::TextUnformatted("Mouse - rotate camera");
     ImGui::End();
 
-    ImGui::Begin("Camera");
-    ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
-    ImGui::Text("Position: (%.2f, %.2f, %.2f)", camera.get_pos().x, camera.get_pos().y, camera.get_pos().z);
-    ImGui::Text("Front: (%.2f, %.2f, %.2f)", camera.get_front().x, camera.get_front().y, camera.get_front().z);
-    ImGui::Text("Up: (%.2f, %.2f, %.2f)", camera.get_up().x, camera.get_up().y, camera.get_up().z);
-    ImGui::Text("Right: (%.2f, %.2f, %.2f)", camera.get_right().x, camera.get_right().y, camera.get_right().z);
-    ImGui::End();
+    if (drawDebug)
+    {
+        ImGui::Begin("Camera");
+        ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
+        ImGui::Text("Position: (%.2f, %.2f, %.2f)", camera.get_pos().x, camera.get_pos().y, camera.get_pos().z);
+        ImGui::Text("Front: (%.2f, %.2f, %.2f)", camera.get_front().x, camera.get_front().y, camera.get_front().z);
+        ImGui::Text("Up: (%.2f, %.2f, %.2f)", camera.get_up().x, camera.get_up().y, camera.get_up().z);
+        ImGui::Text("Right: (%.2f, %.2f, %.2f)", camera.get_right().x, camera.get_right().y, camera.get_right().z);
+        ImGui::End();
 
-    ImGui::Begin("World");
+        ImGui::Begin("World");
+        ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
+        ImGui::Text("Objects after culling: %d", drawCounts.objects_culled);
+        ImGui::Text("Objects filtered: %d", drawCounts.objects_filtered);
+        ImGui::Text("Objects drawn: %d", drawCounts.objects_drawn);
+        ImGui::End();
+    }
+
+    ImGui::Begin("Light");
     ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
-    ImGui::Text("Objects after culling: %d", drawCounts.objects_culled);
-    ImGui::Text("Objects filtered: %d", drawCounts.objects_filtered);
-    ImGui::Text("Objects drawn: %d", drawCounts.objects_drawn);
+    world->draw_light_editor();
     ImGui::End();
     frustum = Frustum::create_from_camera_and_input(&camera, &input);
 }
