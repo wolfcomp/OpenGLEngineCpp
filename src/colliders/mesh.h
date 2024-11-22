@@ -13,7 +13,7 @@ public:
     ~Mesh() {};
 
     template <typename T>
-    bool contains(const T &point) const
+    bool contains(const T &point)
     {
         std::string message = "Not implemented on type of ";
         throw message + typeid(T).name();
@@ -22,13 +22,13 @@ public:
     bool contains(const Mesh &other) const override;
 
     template <>
-    bool contains<GameObject *>(GameObject *const &point) const;
+    bool contains<GameObject *>(GameObject *const &point);
 
-    // template <>
-    // bool contains<AABB *>(AABB *const &point) const;
+    template <>
+    bool contains<AABB *>(AABB *const &point);
 
-    // template <>
-    // bool contains<SphereCollider *>(SphereCollider *const &point) const;
+    template <>
+    bool contains<SphereCollider *>(SphereCollider *const &point);
 
     void update(GameObject *object) override;
 

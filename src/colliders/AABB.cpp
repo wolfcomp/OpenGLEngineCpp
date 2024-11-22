@@ -70,3 +70,17 @@ bool AABB::is_on_or_forward_plane(Plane *plane)
     const float r = extent.x * abs(plane->normal.x) + extent.y * abs(plane->normal.y) + extent.z * abs(plane->normal.z);
     return -r <= plane->getSignedDistanceToPlane(center);
 }
+
+glm::vec3 AABB::find_furthest_point(glm::vec3 direction)
+{
+    auto max = center + extent;
+    auto min = center - extent;
+    glm::vec3 result = min;
+    if (direction.x >= 0)
+        result.x = max.x;
+    if (direction.y >= 0)
+        result.y = max.y;
+    if (direction.z >= 0)
+        result.z = max.z;
+    return result;
+}

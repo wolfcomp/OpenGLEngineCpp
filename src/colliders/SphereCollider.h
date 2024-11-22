@@ -66,4 +66,5 @@ public:
     glm::vec3 get_center() override;
     bool is_on_frustum(Frustum *frustum) override;
     bool is_on_or_forward_plane(Plane *plane);
+    glm::vec3 find_furthest_point(glm::vec3 direction) override;
 };

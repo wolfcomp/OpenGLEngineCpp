@@ -24,3 +24,8 @@ bool SphereCollider::is_on_or_forward_plane(Plane *plane)
 {
     return plane->getSignedDistanceToPlane(get_parent()->get_component<TransformComponent>()->position) > -radius;
 }
+
+glm::vec3 SphereCollider::find_furthest_point(glm::vec3 direction)
+{
+    return get_center() + glm::normalize(direction) * radius;
+}

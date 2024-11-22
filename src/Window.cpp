@@ -322,8 +322,7 @@ void Window::update() const
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    if (drawDebug)
-        ImGui::ShowDemoWindow();
+    // ImGui::ShowDemoWindow();
 
     ImGui::Begin("Debug");
     ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);

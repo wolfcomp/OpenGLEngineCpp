@@ -23,9 +23,19 @@ struct PhysicsComponent : public BaseComponent
         acceleration += force / mass;
     }
 
+    void apply_force_no_mass(glm::vec3 force)
+    {
+        acceleration += force;
+    }
+
     void apply_impulse(glm::vec3 impulse)
     {
         velocity += impulse / mass;
+    }
+
+    void apply_impulse_no_mass(glm::vec3 impulse)
+    {
+        velocity += impulse;
     }
 
     void apply_friction(float friction)
