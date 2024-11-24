@@ -42,7 +42,7 @@ DrawCounts World::draw(Frustum *frustum)
     counts.objects_filtered = std::get<1>(tuple);
     for (auto &object : objects)
     {
-        if (object->get_collider()->is_on_frustum(frustum))
+        if (object->get_collider()->is_on_frustum(frustum) && object->should_render())
         {
             counts.objects_drawn++;
             object->draw();
@@ -50,8 +50,11 @@ DrawCounts World::draw(Frustum *frustum)
     }
     for (auto &object : objects_non_colliders)
     {
-        counts.objects_drawn++;
-        object->draw();
+        if (object->should_render())
+        {
+            counts.objects_drawn++;
+            object->draw();
+        }
     }
     return counts;
 }

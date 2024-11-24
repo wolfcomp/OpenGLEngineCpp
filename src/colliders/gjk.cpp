@@ -104,7 +104,7 @@ bool GJK::next_simplex(Simplex &simplex, glm::vec3 &direction)
     return false; // if this is ever hit something has gone wrong
 }
 
-bool GJK::gjk(const ColliderBase &a, const ColliderBase &b)
+bool GJK::gjk(ColliderBase &a, ColliderBase &b)
 {
     auto support = a.support(b, glm::vec3(1, 0, 0));
 
@@ -127,22 +127,30 @@ bool GJK::gjk(const ColliderBase &a, const ColliderBase &b)
     }
 }
 
-bool GJK::gjk(const ColliderBase &a, const std::vector<glm::vec3> &b)
+bool GJK::gjk(ColliderBase &a, std::vector<glm::vec3> &b)
 {
     auto direction = glm::vec3(1, 0, 0);
-    auto furthest = std::max_element(b.begin(), b.end(), [&](auto &point)
-                                     { return dot(point, direction) > dot(b[0], direction); });
+    auto furthest = glm::vec3(0);
+    for (auto &point : b)
+    {
+        if (dot(point, direction) > dot(furthest, direction))
+            furthest = point;
+    }
     auto support = a.support(direction) - furthest;
 
     Simplex simplex;
     simplex.push_front(support);
 
-    auto direction = -support;
+    direction = -support;
 
     while (true)
     {
-        furthest = std::max_element(b.begin(), b.end(), [&](auto &point)
-                                    { return dot(point, direction) > dot(b[0], direction); });
+        furthest = glm::vec3(0);
+        for (auto &point : b)
+        {
+            if (dot(point, direction) > dot(furthest, direction))
+                furthest = point;
+        }
         support = a.support(direction) - furthest;
 
         if (dot(support, direction) <= 0)

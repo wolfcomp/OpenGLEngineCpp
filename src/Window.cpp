@@ -105,6 +105,9 @@ void spawn_on_camera()
     world->insert(ball);
     world->get_ecs()->insert<PhysicsComponent>(ball->get_uuid(), new PhysicsComponent{});
     ball->get_component<TransformComponent>()->set_position(pos);
+    auto curve = ball->get_curve();
+    curve->set_shader(ShaderStore::get_shader("noLight"));
+    world->insert(curve);
 }
 
 int Window::init()

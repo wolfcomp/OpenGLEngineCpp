@@ -44,6 +44,6 @@ struct GJK
     static bool tetrahedron(Simplex &simplex, glm::vec3 &direction);
     static bool next_simplex(Simplex &simplex, glm::vec3 &direction);
     static bool same_direction(glm::vec3 a, glm::vec3 b);
-    static bool gjk(const ColliderBase &a, const ColliderBase &b);
-    static bool gjk(const ColliderBase &a, const std::vector<glm::vec3> &vertices);
+    static bool gjk(ColliderBase &a, ColliderBase &b);
+    static bool gjk(ColliderBase &a, std::vector<glm::vec3> &vertices);
 };

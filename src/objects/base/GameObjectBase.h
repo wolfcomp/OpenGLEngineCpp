@@ -60,6 +60,7 @@ public:
     Vertex get_min_vertex() const;
     Vertex get_max_vertex() const;
     void attatch_to_world(World *world) { this->world = world; }
+    bool should_render() const { return vertices.size() > 0; }
     virtual void register_ecs(ECSGlobalMap *ecs)
     {
         ecs->insert<TransformComponent>(uuid, new TransformComponent{glm::vec3(0), glm::quat(1, 0, 0, 0), glm::vec3(1)});
