@@ -7,7 +7,7 @@ InputProcessing::InputProcessing()
 {
     zoom = 45.0f;
     aspect = 16.0f / 9.0f;
-    projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 10000.0f);
     last = {0, 0, 0, 0};
 }
 

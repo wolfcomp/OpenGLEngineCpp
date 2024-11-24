@@ -6,9 +6,13 @@
 
 AABB::AABB(glm::vec3 center, glm::vec3 extent) : center(center), extent(extent)
 {
+    min = center - extent;
+    max = center + extent;
 }
 AABB::AABB() : center(glm::vec3(0.0f)), extent(glm::vec3(0.0f))
 {
+    min = center - extent;
+    max = center + extent;
 }
 AABB::~AABB()
 {

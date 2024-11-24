@@ -13,12 +13,19 @@ class AABB : public Collider<AABB>
 public:
     glm::vec3 center;
     glm::vec3 extent;
+    glm::vec3 min;
+    glm::vec3 max;
 
     AABB(glm::vec3 center, glm::vec3 extent);
     AABB();
     ~AABB();
 
     void draw_debug(Line *line);
+    void recalculate()
+    {
+        min = center - extent;
+        max = center + extent;
+    }
 
     template <typename T>
     bool contains(const T &point) const
@@ -30,12 +37,12 @@ public:
     template <>
     bool contains<glm::vec3>(const glm::vec3 &point) const
     {
-        return (center.x - extent.x <= point.x &&
-                center.x + extent.x >= point.x &&
-                center.y - extent.y <= point.y &&
-                center.y + extent.y >= point.y &&
-                center.z - extent.z <= point.z &&
-                center.z + extent.z >= point.z);
+        return (min.x <= point.x &&
+                max.x >= point.x &&
+                min.y <= point.y &&
+                max.y >= point.y &&
+                min.z <= point.z &&
+                max.z >= point.z);
     }
 
     bool contains(const AABB &other) const override

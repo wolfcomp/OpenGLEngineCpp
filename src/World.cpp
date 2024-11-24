@@ -18,19 +18,7 @@ void World::insert(GameObject *object)
         objects_non_colliders.push_back(object);
         return;
     }
-    if (!tree.insert(object))
-    {
-        // object is out of bounds correct the bounds and try again
-        auto bounds = tree.get_bounds();
-        auto pos = object->get_component<TransformComponent>()->position;
-        auto min = bounds.center - bounds.extent;
-        auto max = bounds.center + bounds.extent;
-        min = glm::min(min, pos);
-        max = glm::max(max, pos);
-        auto center = (min + max) / 2.0f;
-        auto extent = (max - min) / 2.0f;
-        tree.set_bounds(center, extent);
-    }
+    tree.insert(object);
 }
 
 DrawCounts World::draw(Frustum *frustum)
@@ -42,7 +30,7 @@ DrawCounts World::draw(Frustum *frustum)
     counts.objects_filtered = std::get<1>(tuple);
     for (auto &object : objects)
     {
-        if (object->get_collider()->is_on_frustum(frustum) && object->should_render())
+        if ((object->get_collider()->is_on_frustum(frustum) || object->get_uuid() == surface_id) && object->should_render())
         {
             counts.objects_drawn++;
             object->draw();
@@ -207,4 +195,10 @@ void World::draw_light_editor()
         ImGui::SliderFloat("Direction Y", &spotLight->direction.y, -1.0f, 1.0f);
         ImGui::SliderFloat("Direction Z", &spotLight->direction.z, -1.0f, 1.0f);
     }
+}
+
+GameObject *World::get_object(UUID id)
+{
+    return tree.get_node([&id](GameObject *object)
+                         { return object->get_uuid() == id; });
 }

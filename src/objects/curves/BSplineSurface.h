@@ -5,6 +5,7 @@
 #include "BSpline.h"
 #include <map>
 #include <format>
+#include <glm/gtx/exterior_product.hpp>
 
 class BSplineSurface : public GameObject
 {
@@ -72,6 +73,96 @@ private:
         while (t < knot_vector[n] && n > degree)
             n--;
         return n;
+    }
+
+    glm::vec3 barycentric_claude(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c, const glm::vec3 &p)
+    {
+        glm::vec3 v0 = b - a, v1 = c - a, v2 = p - a;
+        float d00 = glm::dot(v0, v0);
+        float d01 = glm::dot(v0, v1);
+        float d11 = glm::dot(v1, v1);
+        float d20 = glm::dot(v2, v0);
+        float d21 = glm::dot(v2, v1);
+        float denom = d00 * d11 - d01 * d01;
+
+        float v = (d11 * d20 - d01 * d21) / denom;
+        float w = (d00 * d21 - d01 * d20) / denom;
+        float u = 1.0f - v - w;
+
+        return glm::vec3(u, v, w);
+    }
+
+    glm::vec3 *barycentric(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c, const glm::vec3 &p)
+    {
+        auto baryc = barycentric_claude(a, b, c, p);
+
+        // auto n = b - a;
+        // auto m = c - a;
+        // auto baryc = glm::cross(n, m);
+        // auto v = glm::length(baryc);
+
+        // auto f = b.xz() - p;
+        // auto g = c.xz() - p;
+        // baryc.x = (glm::cross(f, g) / v);
+
+        // f = c.xz() - p;
+        // g = a.xz() - p;
+        // baryc.y = (glm::cross(f, g) / v);
+
+        // f = a.xz() - p;
+        // g = b.xz() - p;
+        // baryc.z = (glm::cross(f, g) / v);
+
+        if (baryc.x > 1 || baryc.y > 1 || baryc.z > 1 || baryc.x < 0 || baryc.y < 0 || baryc.z < 0)
+            return nullptr;
+
+        return &baryc;
+    }
+
+    float *get_y_at_index(int i, int j, int size, glm::vec3 position)
+    {
+        auto vertices = get_vertices_ptr();
+        auto v0 = vertices->at(i * size + j);
+        auto v1 = vertices->at((i + 1) * size + j);
+        auto v2 = vertices->at(i * size + (j + 1));
+        auto v3 = vertices->at((i + 1) * size + (j + 1));
+        auto baryc = barycentric(v0.position, v1.position, v2.position, position);
+        auto first = true;
+        if (baryc == nullptr)
+        {
+            baryc = barycentric(v2.position, v1.position, v3.position, position);
+            first = false;
+        }
+        if (baryc == nullptr)
+            return nullptr;
+        if (first)
+        {
+            auto y = v0.position.y * baryc->x + v1.position.y * baryc->y + v2.position.y * baryc->z;
+            return &y;
+        }
+        auto y = v2.position.y * baryc->x + v1.position.y * baryc->y + v3.position.y * baryc->z;
+        return &y;
+    }
+
+    glm::vec3 get_normal_at_index(int i, int j, int size, glm::vec3 position)
+    {
+        auto vertices = get_vertices_ptr();
+        auto v0 = vertices->at(i * size + j);
+        auto v1 = vertices->at((i + 1) * size + j);
+        auto v2 = vertices->at(i * size + (j + 1));
+        auto v3 = vertices->at((i + 1) * size + (j + 1));
+        auto baryc = barycentric(v0.position, v1.position, v2.position, position);
+        auto first = true;
+        if (baryc == nullptr)
+        {
+            baryc = barycentric(v2.position, v1.position, v3.position, position);
+            first = false;
+        }
+        if (baryc == nullptr)
+            return glm::vec3(0);
+        if (first)
+            return v0.normal * baryc->x + v1.normal * baryc->y + v2.normal * baryc->z;
+        return v2.normal * baryc->x + v1.normal * baryc->y + v3.normal * baryc->z;
     }
 
 public:
@@ -143,5 +234,71 @@ public:
 
         update_vertices(vertices);
         update_indices(indices);
+    }
+
+    std::tuple<float, glm::vec3> get_y_at(glm::vec3 position)
+    {
+        auto vertices = get_vertices_ptr();
+        auto lastDistanceSquared = FLT_MAX;
+        auto lastVertexIndexX = 0;
+        auto size = static_cast<int>(sqrt(vertices->size()));
+        for (int i = 0; i < size; i++)
+        {
+            auto distanceSquared = glm::distance2(vertices->at(i).position.xz(), position.xz());
+            if (distanceSquared < lastDistanceSquared)
+            {
+                lastDistanceSquared = distanceSquared;
+                lastVertexIndexX = i;
+            }
+            else
+            {
+                break;
+            }
+        }
+        auto lastVertexIndexY = 0;
+        lastDistanceSquared = FLT_MAX;
+        for (int i = 0; i < size; i++)
+        {
+            auto distanceSquared = glm::distance2(vertices->at(i * size).position.xz(), position.xz());
+            if (distanceSquared < lastDistanceSquared)
+            {
+                lastDistanceSquared = distanceSquared;
+                lastVertexIndexY = i;
+            }
+            else
+            {
+                break;
+            }
+        }
+        auto y = get_y_at_index(lastVertexIndexX, lastVertexIndexY, size, position);
+        if (y != nullptr)
+        {
+            auto yCopy = *y;
+            return std::make_tuple(yCopy, get_normal_at_index(lastVertexIndexX, lastVertexIndexY, size, position));
+        }
+        lastVertexIndexX++;
+        y = get_y_at_index(lastVertexIndexX, lastVertexIndexY, size, position);
+        if (y != nullptr)
+        {
+            auto yCopy = *y;
+            return std::make_tuple(yCopy, get_normal_at_index(lastVertexIndexX, lastVertexIndexY, size, position));
+        }
+        lastVertexIndexY++;
+        lastVertexIndexX--;
+        y = get_y_at_index(lastVertexIndexX, lastVertexIndexY, size, position);
+        if (y != nullptr)
+        {
+            auto yCopy = *y;
+            return std::make_tuple(yCopy, get_normal_at_index(lastVertexIndexX, lastVertexIndexY, size, position));
+        }
+        lastVertexIndexX++;
+        y = get_y_at_index(lastVertexIndexX, lastVertexIndexY, size, position);
+        if (y != nullptr)
+        {
+            auto yCopy = *y;
+            return std::make_tuple(yCopy, get_normal_at_index(lastVertexIndexX, lastVertexIndexY, size, position));
+        }
+        auto min_bounds = get_min_vertex().position;
+        return std::make_tuple(min_bounds.y, glm::vec3(0));
     }
 };

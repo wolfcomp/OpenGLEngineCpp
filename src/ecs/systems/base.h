@@ -14,4 +14,5 @@ public:
     virtual ~BaseSystem() { ecs = nullptr; };
     virtual void update(float delta_time) = 0;
     ECSGlobalMap *get_ecs() { return ecs; };
+    World *get_world() { return world; };
 };

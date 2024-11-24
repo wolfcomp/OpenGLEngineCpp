@@ -277,11 +277,19 @@ public:
     {
         for (int i = 0; i < size; i++)
         {
-            if (data[i].get(id))
+            if (types[i] == typeid(T).name())
             {
                 data[i].remove(id);
                 return;
             }
+        }
+    }
+
+    void remove_all(UUID id)
+    {
+        for (int i = 0; i < size; i++)
+        {
+            data[i].remove(id);
         }
     }
 

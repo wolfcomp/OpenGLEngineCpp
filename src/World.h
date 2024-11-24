@@ -34,6 +34,7 @@ private:
     SpotLight *spotLight = nullptr;
     ECSGlobalMap ecs;
     std::vector<BaseSystem *> systems;
+    UUID surface_id;
 
 public:
     World()
@@ -69,6 +70,7 @@ public:
     ECSGlobalMap *get_ecs() { return &ecs; }
     void draw_light_editor();
     void register_system(BaseSystem *system) { systems.push_back(system); }
+    AABB get_bounds() { return tree.get_bounds(); }
 
     void set_shader(const Shader *shader)
     {
@@ -98,4 +100,9 @@ public:
         delete directionalLight;
         delete spotLight;
     }
+
+    GameObject *get_object(UUID id);
+
+    void set_surface_id(UUID id) { surface_id = id; }
+    UUID get_surface_id() { return surface_id; }
 };

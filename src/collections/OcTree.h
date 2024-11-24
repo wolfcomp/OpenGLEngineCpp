@@ -16,6 +16,7 @@ public:
     {
         boundary.center = center;
         boundary.extent = extent;
+        boundary.recalculate();
     };
 
     AABB get_bounds() const { return boundary; }
@@ -186,7 +187,7 @@ public:
         delete southEastLower;
     };
 
-    bool insert(T point)
+    bool insert(T point, int max_depth = 20)
     {
         if (!get_bounds().contains(point))
             return false;
@@ -198,24 +199,27 @@ public:
             return true;
         }
 
+        if (max_depth == 0)
+            return false;
+
         if (is_leaf())
             subdivide();
 
-        if (northWestUpper->insert(point))
+        if (northWestUpper->insert(point, max_depth - 1))
             return true;
-        if (northEastUpper->insert(point))
+        if (northEastUpper->insert(point, max_depth - 1))
             return true;
-        if (southWestUpper->insert(point))
+        if (southWestUpper->insert(point, max_depth - 1))
             return true;
-        if (southEastUpper->insert(point))
+        if (southEastUpper->insert(point, max_depth - 1))
             return true;
-        if (northWestLower->insert(point))
+        if (northWestLower->insert(point, max_depth - 1))
             return true;
-        if (northEastLower->insert(point))
+        if (northEastLower->insert(point, max_depth - 1))
             return true;
-        if (southWestLower->insert(point))
+        if (southWestLower->insert(point, max_depth - 1))
             return true;
-        if (southEastLower->insert(point))
+        if (southEastLower->insert(point, max_depth - 1))
             return true;
         return false;
     };
@@ -446,6 +450,36 @@ public:
         northEastLower->draw_debug(line, false);
         southWestLower->draw_debug(line, false);
         southEastLower->draw_debug(line, false);
+    }
+
+    T get_node(std::function<bool(T)> predicate)
+    {
+        if (node != nullptr && predicate(node->data))
+            return node->data;
+        if (is_leaf())
+            return nullptr;
+        auto result = northWestUpper->get_node(predicate);
+        if (result != nullptr)
+            return result;
+        result = northEastUpper->get_node(predicate);
+        if (result != nullptr)
+            return result;
+        result = southWestUpper->get_node(predicate);
+        if (result != nullptr)
+            return result;
+        result = southEastUpper->get_node(predicate);
+        if (result != nullptr)
+            return result;
+        result = northWestLower->get_node(predicate);
+        if (result != nullptr)
+            return result;
+        result = northEastLower->get_node(predicate);
+        if (result != nullptr)
+            return result;
+        result = southWestLower->get_node(predicate);
+        if (result != nullptr)
+            return result;
+        return southEastLower->get_node(predicate);
     }
 
     void clear()

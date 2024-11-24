@@ -26,6 +26,8 @@
 #include "objects/combined/TrackedBall.h"
 #include "ecs/components/physics.h"
 #include "ecs/systems/physics.h"
+#include "ecs/systems/collision.h"
+#include "colliders/mesh.h"
 
 #define CAMERA_SPEED 2.5f
 
@@ -57,6 +59,8 @@ GLFWmousebuttonfun prev_mouse_button_callback;
 GLFWscrollfun prev_scroll_callback;
 glm::vec3 a = glm::normalize(glm::vec3(-.5, 0, -1));
 glm::vec3 b = {0, 0, -1};
+glm::vec3 currentSpawnPos = {0, 0, 0};
+glm::vec3 currentSpawnScale = {1, 1, 1};
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
@@ -105,6 +109,20 @@ void spawn_on_camera()
     world->insert(ball);
     world->get_ecs()->insert<PhysicsComponent>(ball->get_uuid(), new PhysicsComponent{});
     ball->get_component<TransformComponent>()->set_position(pos);
+    auto curve = ball->get_curve();
+    curve->set_shader(ShaderStore::get_shader("noLight"));
+    world->insert(curve);
+}
+
+void spawn_on_position(glm::vec3 position, glm::vec3 scale)
+{
+    auto ball = new TrackedBall();
+    ball->set_shader(ShaderStore::get_shader("default"));
+    ball->set_material(new ColorMaterial(glm::vec4(1)));
+    world->insert(ball);
+    world->get_ecs()->insert<PhysicsComponent>(ball->get_uuid(), new PhysicsComponent{});
+    ball->get_component<TransformComponent>()->set_position(position);
+    ball->get_component<TransformComponent>()->set_scale(scale);
     auto curve = ball->get_curve();
     curve->set_shader(ShaderStore::get_shader("noLight"));
     world->insert(curve);
@@ -191,6 +209,7 @@ int Window::init()
                                         light->diffuse = hsl(0, 0, 0.8f);
                                         light->specular = hsl(0, 0, 0.5f); });
     world->register_system(new PhysicsSystem(world->get_ecs(), world));
+    world->register_system(new CollisionSystem(world->get_ecs(), world));
     debugLine = new Line();
     debugLine->set_shader(ShaderStore::get_shader("noLight"));
     debugLine->set_material(new ColorMaterial());
@@ -218,8 +237,8 @@ int Window::init()
     delete pointCloud;
     bsplineSurface->set_shader(ShaderStore::get_shader("default"));
     bsplineSurface->set_material(new ColorMaterial());
+    bsplineSurface->set_collider(new Mesh());
     dynamic_cast<ColorMaterial *>(bsplineSurface->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    world->insert(bsplineSurface);
     auto vertices = bsplineSurface->get_vertices();
     auto min = glm::vec3(FLT_MAX);
     auto max = glm::vec3(-FLT_MAX);
@@ -231,6 +250,9 @@ int Window::init()
     auto center = (min + max) / 2.0f;
     auto extent = (max - min) / 2.0f;
     world->set_bounds(center, extent);
+    world->insert(bsplineSurface);
+    bsplineSurface->get_component<TransformComponent>()->set_position(glm::vec3(0.0001f));
+    world->set_surface_id(bsplineSurface->get_uuid());
 
     glfwSetWindowTitle(glfWindow, "OpenGLEngineCpp");
     return 0;
@@ -296,13 +318,13 @@ void Window::update() const
     // has to do microseconds due to fps being over 1000
     deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(currentFrame - lastFrame).count() / 1000000.0f;
     lastFrame = currentFrame;
-    fps = 1.0f / deltaTime;
+    auto currentFps = 1.0f / deltaTime;
     // calculate the average fps
     for (int i = 0; i < 99; i++)
     {
         fpsAvg[i] = fpsAvg[i + 1];
     }
-    fpsAvg[99] = fps;
+    fpsAvg[99] = currentFps;
     float sum = 0;
     for (int i = 0; i < 100; i++)
     {
@@ -329,7 +351,8 @@ void Window::update() const
 
     ImGui::Begin("Debug");
     ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
-    ImGui::Text("FPS: %.1f", fps);
+    ImGui::Text("Average FPS: %.1f", fps);
+    ImGui::Text("Current FPS: %.1f", currentFps);
     ImGui::Separator();
     if (ImGui::Button("Spawn on camera"))
     {
@@ -366,6 +389,30 @@ void Window::update() const
     ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
     world->draw_light_editor();
     ImGui::End();
+
+    ImGui::Begin("Particles");
+    ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
+    ImGui::Text("Bounds");
+    auto bounds = world->get_bounds();
+    auto max = bounds.center + bounds.extent;
+    auto min = bounds.center - bounds.extent;
+    ImGui::Text("Min: (%.2f, %.2f, %.2f)", min.x, min.y, min.z);
+    ImGui::Text("Max: (%.2f, %.2f, %.2f)", max.x, max.y, max.z);
+    auto pos = currentSpawnPos;
+    auto size = currentSpawnScale;
+    if (ImGui::SliderFloat("Position X", &pos.x, min.x, max.x))
+        currentSpawnPos.x = std::clamp(pos.x, min.x, max.x);
+    if (ImGui::SliderFloat("Position Y", &pos.y, min.y, max.y))
+        currentSpawnPos.y = std::clamp(pos.y, min.y, max.y);
+    if (ImGui::SliderFloat("Position Z", &pos.z, min.z, max.z))
+        currentSpawnPos.z = std::clamp(pos.z, min.z, max.z);
+    if (ImGui::SliderFloat3("Size", &size.x, 0.1f, 10.0f))
+        currentSpawnScale = glm::clamp(size, glm::vec3(0.1f), glm::vec3(10.0f));
+    if (ImGui::Button("Spawn on position"))
+    {
+        spawn_on_position(pos, size);
+    }
+    ImGui::End();
     frustum = Frustum::create_from_camera_and_input(&camera, &input);
 }
 
@@ -379,6 +426,8 @@ void Window::render() const
     if (drawDebug)
     {
         world->draw_debug(debugLine, debugArrow);
+        debugSphere->get_component<TransformComponent>()->set_position(currentSpawnPos);
+        dynamic_cast<ColorMaterial *>(debugSphere->get_material())->color = glm::vec4(0.0f, 0.0f, 1.0f, 0.5f);
         debugSphere->draw();
     }
 

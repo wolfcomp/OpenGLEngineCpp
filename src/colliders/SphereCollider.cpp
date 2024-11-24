@@ -9,6 +9,7 @@ void SphereCollider::update(GameObject *object)
 }
 
 glm::vec3 SphereCollider::get_center() { return get_parent()->get_component<TransformComponent>()->position; }
+glm::vec3 SphereCollider::get_scale() { return get_parent()->get_component<TransformComponent>()->scale; }
 
 bool SphereCollider::is_on_frustum(Frustum *frustum)
 {

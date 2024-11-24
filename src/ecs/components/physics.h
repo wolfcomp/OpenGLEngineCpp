@@ -65,6 +65,7 @@ struct PhysicsComponent : public BaseComponent
         auto drag_force = velocity * drag;
         if (isnan(drag_force.x) || isnan(drag_force.y) || isnan(drag_force.z))
             return;
+        apply_impulse(-drag_force);
         apply_force(-drag_force);
     }
 

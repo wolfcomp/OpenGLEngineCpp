@@ -5,11 +5,20 @@
 #include "src/LuaState.h"
 
 #include <iostream>
+#include <filesystem>
 
 Window *window;
 
 int main()
 {
+    auto path = std::filesystem::current_path();
+    // check if path ends with Debug if not append Debug and set as current path
+    if (path.string().find("Debug") == std::string::npos)
+    {
+        path = path / "Debug";
+        std::filesystem::current_path(path);
+    }
+
     LuaState();
     LuaState::open_libs();
 
