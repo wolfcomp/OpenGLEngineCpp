@@ -15,7 +15,7 @@ template <typename T>
 class Curve : public GameObject
 {
 private:
-    CurveBase<T> curve;
+    CurveBase<T> *curve;
     float resolution = 100;
 
 public:
@@ -24,7 +24,7 @@ public:
         set_mode(GL_LINES);
     }
 
-    Curve(CurveBase<T> curve) : Curve()
+    Curve(CurveBase<T> *curve) : Curve()
     {
         this->curve = curve;
         this->generate_curve();
@@ -35,9 +35,14 @@ public:
         this->resolution = resolution;
     }
 
+    ~Curve()
+    {
+        delete curve;
+    }
+
     virtual void generate_curve()
     {
-        if (!curve.has_points())
+        if (!curve->has_points())
             return;
         std::vector<Vertex> vertices;
         std::vector<unsigned> indices;
@@ -45,8 +50,8 @@ public:
         {
             float t = i / resolution;
             float t2 = (i + 1) / resolution;
-            T p0 = curve.get_point(t);
-            T p1 = curve.get_point(t2);
+            T p0 = curve->get_point(t);
+            T p1 = curve->get_point(t2);
             vertices.push_back(Vertex{p0, glm::vec3(0, 0, 0), glm::vec2(0, 0)});
             vertices.push_back(Vertex{p1, glm::vec3(0, 0, 0), glm::vec2(0, 0)});
             indices.push_back(i * 2);
@@ -76,7 +81,12 @@ public:
 
     void add_point(T point)
     {
-        curve.add_point(point);
+        curve->add_point(point);
         generate_curve();
+    }
+
+    bool has_points()
+    {
+        return this->curve->has_points();
     }
 };

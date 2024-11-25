@@ -51,4 +51,5 @@ public:
     float get_fov_y() const;
     float get_near_z() const;
     float get_far_z() const;
+    bool is_key_pressed(int key) { return key_pressed[key]; };
 };

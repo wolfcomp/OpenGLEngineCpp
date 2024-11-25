@@ -21,7 +21,7 @@ public:
         throw message + typeid(T).name();
     }
 
-    bool contains(const Mesh &other) const override;
+    bool contains(Mesh &other) override;
 
     template <>
     bool contains<GameObject *>(GameObject *point);

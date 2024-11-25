@@ -39,7 +39,7 @@ public:
     void update_vertices(std::vector<Vertex> vertices) { this->vertices = vertices; }
     void update_indices(std::vector<unsigned> indices) { this->indices = indices; }
     std::vector<Vertex> get_vertices() const { return vertices; }
-    std::vector<Vertex> *get_vertices_ptr() { return &vertices; }
+    std::vector<Vertex> *get_vertices_ptr() const { return const_cast<std::vector<Vertex> *>(&vertices); }
     std::vector<unsigned> get_indices() const { return indices; }
     void set_shader(Shader *shader) { this->shader = shader; }
     void set_mode(GLenum mode) { this->mode = mode; }

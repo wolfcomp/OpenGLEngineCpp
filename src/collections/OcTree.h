@@ -19,7 +19,7 @@ public:
         boundary.recalculate();
     };
 
-    AABB get_bounds() const { return boundary; }
+    AABB get_bounds() { return boundary; }
     virtual void draw_debug(Line *line, bool draw_bounds = true);
     bool is_leaf() const { return leaf; }
     void set_leaf(bool vleaf) { leaf = vleaf; }
@@ -260,7 +260,7 @@ public:
         return result;
     }
     template <typename F>
-    std::tuple<unsigned, unsigned> query_range(const AABB &range, std::vector<F> &found, Frustum *frustum = nullptr)
+    std::tuple<unsigned, unsigned> query_range(AABB range, std::vector<F> &found, Frustum *frustum = nullptr)
     {
         auto total = 0;
         auto found_count = 0;
@@ -320,7 +320,7 @@ public:
     };
 
     template <typename F>
-    void query_range(const AABB &range, std::vector<F> &found, std::function<bool(const F)> filter)
+    void query_range(AABB range, std::vector<F> &found, std::function<bool(const F)> filter)
     {
         if (!get_bounds().contains(range))
             return;

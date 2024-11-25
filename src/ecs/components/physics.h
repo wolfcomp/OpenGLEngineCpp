@@ -2,15 +2,18 @@
 
 #include <glm/vec3.hpp>
 #include <glm/geometric.hpp>
+#include <glm/simd/common.h>
+#include <immintrin.h>
 #include "base.h"
 #include "../ecs_map.h"
 
 struct PhysicsComponent : public BaseComponent
 {
-    glm::vec3 velocity = glm::vec3(0);
-    glm::vec3 acceleration = glm::vec3(0);
+    alignas(16) glm::vec3 velocity = glm::vec3(0);     // 16 byte alignment due to SIMD instructions
+    alignas(16) glm::vec3 acceleration = glm::vec3(0); // 16 byte alignment due to SIMD instructions
     float mass = 1.0f;
     float dragCoefficient = 0.1f;
+    static float restitution;
 
     void update(float delta_time)
     {
@@ -69,7 +72,7 @@ struct PhysicsComponent : public BaseComponent
         apply_force(-drag_force);
     }
 
-    void apply_collision(PhysicsComponent *other);
+    void apply_collision(PhysicsComponent *other, glm::vec3 normal);
     void apply_collision(glm::vec3 normal);
 };
 

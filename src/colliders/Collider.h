@@ -71,5 +71,5 @@ public:
     virtual ~Collider() {}
     void add_callback(std::function<void(Collider *)> callback) { onCollisionCallbacks.push_back(callback); }
 
-    virtual bool contains(const T &point) const = 0;
+    virtual bool contains(T &point) = 0;
 };

@@ -29,7 +29,8 @@
 #include "ecs/systems/collision.h"
 #include "colliders/mesh.h"
 
-#define CAMERA_SPEED 2.5f
+#define CAMERA_SPEED 25.0f
+#define CAMERA_SLOW_SPEED 5.0f
 
 constexpr int width = 1280, height = 720;
 bool wireframe = false;
@@ -61,6 +62,7 @@ glm::vec3 a = glm::normalize(glm::vec3(-.5, 0, -1));
 glm::vec3 b = {0, 0, -1};
 glm::vec3 currentSpawnPos = {0, 0, 0};
 glm::vec3 currentSpawnScale = {1, 1, 1};
+glm::vec4 currentSpawnColor = {1, 1, 1, 1};
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
@@ -73,12 +75,12 @@ static void glfw_error_callback(int error, const char *description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-void move_camera(const glm::vec3 &direction)
+void move_camera(const glm::vec3 &direction, bool slow = false)
 {
     if (!mouseActive)
         return;
     auto pos = camera.get_pos();
-    pos += camera.get_movement(direction) * (float)(CAMERA_SPEED * deltaTime);
+    pos += camera.get_movement(direction) * (float)(slow ? CAMERA_SLOW_SPEED : CAMERA_SPEED * deltaTime);
     camera.set_position(pos);
 }
 
@@ -114,11 +116,11 @@ void spawn_on_camera()
     world->insert(curve);
 }
 
-void spawn_on_position(glm::vec3 position, glm::vec3 scale)
+void spawn_on_position(glm::vec3 position, glm::vec3 scale, glm::vec4 color)
 {
     auto ball = new TrackedBall();
     ball->set_shader(ShaderStore::get_shader("default"));
-    ball->set_material(new ColorMaterial(glm::vec4(1)));
+    ball->set_material(new ColorMaterial(color));
     world->insert(ball);
     world->get_ecs()->insert<PhysicsComponent>(ball->get_uuid(), new PhysicsComponent{});
     ball->get_component<TransformComponent>()->set_position(position);
@@ -237,7 +239,6 @@ int Window::init()
     delete pointCloud;
     bsplineSurface->set_shader(ShaderStore::get_shader("default"));
     bsplineSurface->set_material(new ColorMaterial());
-    bsplineSurface->set_collider(new Mesh());
     dynamic_cast<ColorMaterial *>(bsplineSurface->get_material())->color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     auto vertices = bsplineSurface->get_vertices();
     auto min = glm::vec3(FLT_MAX);
@@ -272,27 +273,27 @@ void Window::init_listeners()
         false);
     input.attach_keyboard_listener(
         GLFW_KEY_W, []()
-        { move_camera(glm::vec3(0, 0, -1)); },
+        { move_camera(glm::vec3(0, 0, -1), input.is_key_pressed(GLFW_KEY_RIGHT_CONTROL)); },
         true);
     input.attach_keyboard_listener(
         GLFW_KEY_S, []()
-        { move_camera(glm::vec3(0, 0, 1)); },
+        { move_camera(glm::vec3(0, 0, 1), input.is_key_pressed(GLFW_KEY_RIGHT_CONTROL)); },
         true);
     input.attach_keyboard_listener(
         GLFW_KEY_A, []()
-        { move_camera(glm::vec3(-1, 0, 0)); },
+        { move_camera(glm::vec3(-1, 0, 0), input.is_key_pressed(GLFW_KEY_RIGHT_CONTROL)); },
         true);
     input.attach_keyboard_listener(
         GLFW_KEY_D, []()
-        { move_camera(glm::vec3(1, 0, 0)); },
+        { move_camera(glm::vec3(1, 0, 0), input.is_key_pressed(GLFW_KEY_RIGHT_CONTROL)); },
         true);
     input.attach_keyboard_listener(
         GLFW_KEY_SPACE, []()
-        { move_camera(glm::vec3(0, 1, 0)); },
+        { move_camera(glm::vec3(0, 1, 0), input.is_key_pressed(GLFW_KEY_RIGHT_CONTROL)); },
         true);
     input.attach_keyboard_listener(
         GLFW_KEY_LEFT_CONTROL, []()
-        { move_camera(glm::vec3(0, -1, 0)); },
+        { move_camera(glm::vec3(0, -1, 0), input.is_key_pressed(GLFW_KEY_RIGHT_CONTROL)); },
         true);
     input.attach_keyboard_listener(
         GLFW_KEY_ESCAPE, [&]()
@@ -349,46 +350,49 @@ void Window::update() const
 
     // ImGui::ShowDemoWindow();
 
-    ImGui::Begin("Debug");
-    ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
-    ImGui::Text("Average FPS: %.1f", fps);
-    ImGui::Text("Current FPS: %.1f", currentFps);
-    ImGui::Separator();
-    if (ImGui::Button("Spawn on camera"))
-    {
-        spawn_on_camera();
-    }
-    ImGui::Separator();
-    ImGui::TextUnformatted("w, a, s, d, space, ctrl - move camera");
-    ImGui::TextUnformatted("  * forward, left, back, right, up, down");
-    ImGui::TextUnformatted("f - toggle wireframe");
-    ImGui::TextUnformatted("q - toggle debug");
-    ImGui::TextUnformatted("esc - toggle camera control");
-    ImGui::TextUnformatted("Mouse - rotate camera");
-    ImGui::End();
+    // ImGui::Begin("Debug");
+    // ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
+    // ImGui::Text("Average FPS: %.1f", fps);
+    // ImGui::Text("Current FPS: %.1f", currentFps);
+    // ImGui::Separator();
+    // if (ImGui::Button("Spawn on camera"))
+    // {
+    //     spawn_on_camera();
+    // }
+    // ImGui::Separator();
+    // ImGui::TextUnformatted("w, a, s, d, space, left ctrl - move camera");
+    // ImGui::TextUnformatted("  * forward, left, back, right, up, down");
+    // ImGui::TextUnformatted("right ctrl - slow movement");
+    // ImGui::TextUnformatted("f - toggle wireframe");
+    // ImGui::TextUnformatted("q - toggle debug");
+    // ImGui::TextUnformatted("esc - toggle camera control");
+    // ImGui::TextUnformatted("Mouse - rotate camera");
+    // ImGui::Separator();
+    // ImGui::TextUnformatted("Hold ctrl and then click on an input slider to type a value if you need more precision");
+    // ImGui::End();
 
-    if (drawDebug)
-    {
-        ImGui::Begin("Camera");
-        ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
-        ImGui::Text("Position: (%.2f, %.2f, %.2f)", camera.get_pos().x, camera.get_pos().y, camera.get_pos().z);
-        ImGui::Text("Front: (%.2f, %.2f, %.2f)", camera.get_front().x, camera.get_front().y, camera.get_front().z);
-        ImGui::Text("Up: (%.2f, %.2f, %.2f)", camera.get_up().x, camera.get_up().y, camera.get_up().z);
-        ImGui::Text("Right: (%.2f, %.2f, %.2f)", camera.get_right().x, camera.get_right().y, camera.get_right().z);
-        ImGui::End();
+    // if (drawDebug)
+    // {
+    //     ImGui::Begin("Camera");
+    //     ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
+    //     ImGui::Text("Position: (%.2f, %.2f, %.2f)", camera.get_pos().x, camera.get_pos().y, camera.get_pos().z);
+    //     ImGui::Text("Front: (%.2f, %.2f, %.2f)", camera.get_front().x, camera.get_front().y, camera.get_front().z);
+    //     ImGui::Text("Up: (%.2f, %.2f, %.2f)", camera.get_up().x, camera.get_up().y, camera.get_up().z);
+    //     ImGui::Text("Right: (%.2f, %.2f, %.2f)", camera.get_right().x, camera.get_right().y, camera.get_right().z);
+    //     ImGui::End();
 
-        ImGui::Begin("World");
-        ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
-        ImGui::Text("Objects after culling: %d", drawCounts.objects_culled);
-        ImGui::Text("Objects filtered: %d", drawCounts.objects_filtered);
-        ImGui::Text("Objects drawn: %d", drawCounts.objects_drawn);
-        ImGui::End();
-    }
+    //     ImGui::Begin("World");
+    //     ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
+    //     ImGui::Text("Objects after culling: %d", drawCounts.objects_culled);
+    //     ImGui::Text("Objects filtered: %d", drawCounts.objects_filtered);
+    //     ImGui::Text("Objects drawn: %d", drawCounts.objects_drawn);
+    //     ImGui::End();
+    // }
 
-    ImGui::Begin("Light");
-    ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
-    world->draw_light_editor();
-    ImGui::End();
+    // ImGui::Begin("Light");
+    // ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
+    // world->draw_light_editor();
+    // ImGui::End();
 
     ImGui::Begin("Particles");
     ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
@@ -408,9 +412,12 @@ void Window::update() const
         currentSpawnPos.z = std::clamp(pos.z, min.z, max.z);
     if (ImGui::SliderFloat3("Size", &size.x, 0.1f, 10.0f))
         currentSpawnScale = glm::clamp(size, glm::vec3(0.1f), glm::vec3(10.0f));
+    auto color = currentSpawnColor;
+    if (ImGui::ColorEdit4("Color", &color.x))
+        currentSpawnColor = color;
     if (ImGui::Button("Spawn on position"))
     {
-        spawn_on_position(pos, size);
+        spawn_on_position(pos, size, color);
     }
     ImGui::End();
     frustum = Frustum::create_from_camera_and_input(&camera, &input);

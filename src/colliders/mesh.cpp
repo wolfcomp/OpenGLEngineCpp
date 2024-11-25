@@ -5,7 +5,7 @@
 #include "gjk.h"
 #include <ranges>
 
-bool Mesh::contains(const Mesh &other) const
+bool Mesh::contains(Mesh &other)
 {
     return false;
 }

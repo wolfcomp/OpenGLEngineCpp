@@ -77,24 +77,15 @@ void World::update(float delta_time)
     std::vector<GameObject *> objects;
     AABB bounds = tree.get_bounds();
     tree.query_range(bounds, objects);
-    unsigned index = 0;
     for (auto &object : objects)
     {
         if (object != nullptr)
         {
             if (object->get_active())
             {
-                auto model = object->get_model_matrix();
-                auto minVertex = glm::vec3(model * glm::vec4(object->get_min_vertex().position, 1));
-                auto maxVertex = glm::vec3(model * glm::vec4(object->get_max_vertex().position, 1));
-                std::vector<GameObject *> in_range_objects;
-                bounds.center = (minVertex + maxVertex) / 2.0f; // center of the object
-                bounds.extent = (maxVertex - minVertex) * 2.0f; // double the size of the object
-                tree.query_range(bounds, in_range_objects);
-                bool collided = false;
+                object->update(delta_time);
             }
         }
-        index++;
     }
     tree.recalculate();
 }
@@ -199,6 +190,15 @@ void World::draw_light_editor()
 
 GameObject *World::get_object(UUID id)
 {
-    return tree.get_node([&id](GameObject *object)
-                         { return object->get_uuid() == id; });
+    auto object = tree.get_node([&id](GameObject *object)
+                                { return object->get_uuid() == id; });
+    if (object == nullptr)
+    {
+        for (auto &object : objects_non_colliders)
+        {
+            if (object->get_uuid() == id)
+                return object;
+        }
+    }
+    return object;
 }

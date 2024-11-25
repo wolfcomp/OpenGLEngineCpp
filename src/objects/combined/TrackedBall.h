@@ -16,13 +16,15 @@ public:
     TrackedBall() : IcoSphere()
     {
         curve = new BSpline<glm::vec3>({}, 2);
-        curve->set_material(new ColorMaterial(glm::vec4(1, 0, 0, 1)));
         curve->set_shader(ShaderStore::get_shader("no_light"));
+        curve->set_material(new ColorMaterial(glm::vec4(1, 0, 0, 1)));
         create(3);
     }
 
     virtual void update(float delta_time) override
     {
+        if (!curve->has_points())
+            curve->add_point(get_component<TransformComponent>()->position);
         time += delta_time;
         if (time > trackTime)
         {
