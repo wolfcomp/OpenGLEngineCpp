@@ -37,27 +37,27 @@ void CollisionSystem::update(float delta_time)
             component->value->apply_force(std::get<1>(y) + glm::normalize(std::get<1>(y)) * scale);
             transform->position.y = std::get<0>(y) + scale.y;
         }
-        for (int j = 0; j < physics->get_size(); j++)
-        {
-            auto other = physics->get_value_pair<PhysicsComponent>(j);
-            if (other == nullptr)
-                continue;
-            if (component->id == other->id)
-                continue;
-            auto other_object = world->get_object(other->id);
-            if (other_object == nullptr)
-                continue;
-            auto other_object_collider = dynamic_cast<SphereCollider *>(other_object->get_collider());
-            if (other_object_collider == nullptr)
-                continue;
-            if (collider->contains(*other_object_collider))
-            {
-                auto other_transform = other_object->get_component<TransformComponent>();
-                if (other_transform == nullptr)
-                    continue;
-                auto normal = glm::normalize(transform->position - other_transform->position);
-                component->value->apply_collision(other->value, normal);
-            }
-        }
+        // for (int j = 0; j < physics->get_size(); j++)
+        // {
+        //     auto other = physics->get_value_pair<PhysicsComponent>(j);
+        //     if (other == nullptr)
+        //         continue;
+        //     if (component->id == other->id)
+        //         continue;
+        //     auto other_object = world->get_object(other->id);
+        //     if (other_object == nullptr)
+        //         continue;
+        //     auto other_object_collider = dynamic_cast<SphereCollider *>(other_object->get_collider());
+        //     if (other_object_collider == nullptr)
+        //         continue;
+        //     if (collider->contains(*other_object_collider))
+        //     {
+        //         auto other_transform = other_object->get_component<TransformComponent>();
+        //         if (other_transform == nullptr)
+        //             continue;
+        //         auto normal = glm::normalize(transform->position - other_transform->position);
+        //         component->value->apply_collision(other->value, normal);
+        //     }
+        // }
     }
 }

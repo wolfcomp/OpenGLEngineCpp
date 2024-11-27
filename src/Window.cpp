@@ -28,6 +28,7 @@
 #include "ecs/systems/physics.h"
 #include "ecs/systems/collision.h"
 #include "colliders/mesh.h"
+#include "windows/particle.h"
 
 #define CAMERA_SPEED 25.0f
 #define CAMERA_SLOW_SPEED 5.0f
@@ -60,9 +61,6 @@ GLFWmousebuttonfun prev_mouse_button_callback;
 GLFWscrollfun prev_scroll_callback;
 glm::vec3 a = glm::normalize(glm::vec3(-.5, 0, -1));
 glm::vec3 b = {0, 0, -1};
-glm::vec3 currentSpawnPos = {0, 0, 0};
-glm::vec3 currentSpawnScale = {1, 1, 1};
-glm::vec4 currentSpawnColor = {1, 1, 1, 1};
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
@@ -121,10 +119,8 @@ void spawn_on_position(glm::vec3 position, glm::vec3 scale, glm::vec4 color)
     auto ball = new TrackedBall();
     ball->set_shader(ShaderStore::get_shader("default"));
     ball->set_material(new ColorMaterial(color));
-    world->insert(ball);
+    world->insert(ball, position, scale);
     world->get_ecs()->insert<PhysicsComponent>(ball->get_uuid(), new PhysicsComponent{});
-    ball->get_component<TransformComponent>()->set_position(position);
-    ball->get_component<TransformComponent>()->set_scale(scale);
     auto curve = ball->get_curve();
     curve->set_shader(ShaderStore::get_shader("noLight"));
     world->insert(curve);
@@ -350,26 +346,26 @@ void Window::update() const
 
     // ImGui::ShowDemoWindow();
 
-    // ImGui::Begin("Debug");
-    // ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
-    // ImGui::Text("Average FPS: %.1f", fps);
-    // ImGui::Text("Current FPS: %.1f", currentFps);
-    // ImGui::Separator();
-    // if (ImGui::Button("Spawn on camera"))
-    // {
-    //     spawn_on_camera();
-    // }
-    // ImGui::Separator();
-    // ImGui::TextUnformatted("w, a, s, d, space, left ctrl - move camera");
-    // ImGui::TextUnformatted("  * forward, left, back, right, up, down");
-    // ImGui::TextUnformatted("right ctrl - slow movement");
-    // ImGui::TextUnformatted("f - toggle wireframe");
-    // ImGui::TextUnformatted("q - toggle debug");
-    // ImGui::TextUnformatted("esc - toggle camera control");
-    // ImGui::TextUnformatted("Mouse - rotate camera");
-    // ImGui::Separator();
-    // ImGui::TextUnformatted("Hold ctrl and then click on an input slider to type a value if you need more precision");
-    // ImGui::End();
+    ImGui::Begin("Debug values");
+    ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
+    ImGui::Text("Average FPS: %.1f", fps);
+    ImGui::Text("Current FPS: %.1f", currentFps);
+    ImGui::Separator();
+    if (ImGui::Button("Spawn on camera"))
+    {
+        spawn_on_camera();
+    }
+    ImGui::Separator();
+    ImGui::TextUnformatted("w, a, s, d, space, left ctrl - move camera");
+    ImGui::TextUnformatted("  * forward, left, back, right, up, down");
+    ImGui::TextUnformatted("right ctrl - slow movement");
+    ImGui::TextUnformatted("f - toggle wireframe");
+    ImGui::TextUnformatted("q - toggle debug");
+    ImGui::TextUnformatted("esc - toggle camera control");
+    ImGui::TextUnformatted("Mouse - rotate camera");
+    ImGui::Separator();
+    ImGui::TextUnformatted("Hold ctrl and then click on an input slider to type a value if you need more precision");
+    ImGui::End();
 
     // if (drawDebug)
     // {
@@ -394,32 +390,7 @@ void Window::update() const
     // world->draw_light_editor();
     // ImGui::End();
 
-    ImGui::Begin("Particles");
-    ImGui::SetWindowSize(ImVec2(311, 235), ImGuiCond_FirstUseEver);
-    ImGui::Text("Bounds");
-    auto bounds = world->get_bounds();
-    auto max = bounds.center + bounds.extent;
-    auto min = bounds.center - bounds.extent;
-    ImGui::Text("Min: (%.2f, %.2f, %.2f)", min.x, min.y, min.z);
-    ImGui::Text("Max: (%.2f, %.2f, %.2f)", max.x, max.y, max.z);
-    auto pos = currentSpawnPos;
-    auto size = currentSpawnScale;
-    if (ImGui::SliderFloat("Position X", &pos.x, min.x, max.x))
-        currentSpawnPos.x = std::clamp(pos.x, min.x, max.x);
-    if (ImGui::SliderFloat("Position Y", &pos.y, min.y, max.y))
-        currentSpawnPos.y = std::clamp(pos.y, min.y, max.y);
-    if (ImGui::SliderFloat("Position Z", &pos.z, min.z, max.z))
-        currentSpawnPos.z = std::clamp(pos.z, min.z, max.z);
-    if (ImGui::SliderFloat3("Size", &size.x, 0.1f, 10.0f))
-        currentSpawnScale = glm::clamp(size, glm::vec3(0.1f), glm::vec3(10.0f));
-    auto color = currentSpawnColor;
-    if (ImGui::ColorEdit4("Color", &color.x))
-        currentSpawnColor = color;
-    if (ImGui::Button("Spawn on position"))
-    {
-        spawn_on_position(pos, size, color);
-    }
-    ImGui::End();
+    particle_window(world, spawn_on_position);
     frustum = Frustum::create_from_camera_and_input(&camera, &input);
 }
 
@@ -433,9 +404,6 @@ void Window::render() const
     if (drawDebug)
     {
         world->draw_debug(debugLine, debugArrow);
-        debugSphere->get_component<TransformComponent>()->set_position(currentSpawnPos);
-        dynamic_cast<ColorMaterial *>(debugSphere->get_material())->color = glm::vec4(0.0f, 0.0f, 1.0f, 0.5f);
-        debugSphere->draw();
     }
 
     drawCounts = world->draw(&frustum);

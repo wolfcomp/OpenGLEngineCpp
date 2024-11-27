@@ -50,6 +50,9 @@ public:
     }
 
     void insert(GameObject *object);
+    void insert(GameObject *object, glm::vec3 position);
+    void insert(GameObject *object, glm::vec3 position, glm::vec3 scale);
+    void insert(GameObject *object, glm::vec3 position, glm::vec3 scale, glm::quat rotation);
 
     DrawCounts draw(Frustum *frustum);
 

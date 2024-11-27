@@ -20,6 +20,47 @@ void World::insert(GameObject *object)
     }
     tree.insert(object);
 }
+void World::insert(GameObject *object, glm::vec3 position)
+{
+    object->attatch_to_world(this);
+    object->register_ecs(&ecs);
+    object->get_component<TransformComponent>()->set_position(position);
+    if (object->get_collider() == nullptr)
+    {
+        objects_non_colliders.push_back(object);
+        return;
+    }
+    tree.insert(object);
+}
+void World::insert(GameObject *object, glm::vec3 position, glm::vec3 scale)
+{
+    object->attatch_to_world(this);
+    object->register_ecs(&ecs);
+    auto transform = object->get_component<TransformComponent>();
+    transform->set_position(position);
+    transform->set_scale(scale);
+    if (object->get_collider() == nullptr)
+    {
+        objects_non_colliders.push_back(object);
+        return;
+    }
+    tree.insert(object);
+}
+void World::insert(GameObject *object, glm::vec3 position, glm::vec3 scale, glm::quat rotation)
+{
+    object->attatch_to_world(this);
+    object->register_ecs(&ecs);
+    auto transform = object->get_component<TransformComponent>();
+    transform->set_position(position);
+    transform->set_scale(scale);
+    transform->set_rotation(rotation);
+    if (object->get_collider() == nullptr)
+    {
+        objects_non_colliders.push_back(object);
+        return;
+    }
+    tree.insert(object);
+}
 
 DrawCounts World::draw(Frustum *frustum)
 {
