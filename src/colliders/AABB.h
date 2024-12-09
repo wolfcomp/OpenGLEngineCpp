@@ -58,8 +58,6 @@ public:
     template <>
     bool contains<GameObject *>(GameObject *const &point) const;
 
-    void update(GameObject *object) override;
-
     bool is_on_frustum(Frustum *frustum) override;
 
     bool is_on_or_forward_plane(Plane *plane);

@@ -33,27 +33,26 @@ public:
     ColliderBase() : parent(nullptr) {}
     virtual ~ColliderBase() {}
 
-    GameObject *get_parent() { return parent; }
-    CollisionResponse get_response() { return response; }
-    CollisionChannel get_channel() { return channel; }
+    inline GameObject *get_parent() { return parent; }
+    inline CollisionResponse get_response() { return response; }
+    inline CollisionChannel get_channel() { return channel; }
 
-    void set_response(CollisionResponse response) { this->response = response; }
-    void set_channel(CollisionChannel channel) { this->channel = channel; }
-    void set_parent(GameObject *parent) { this->parent = parent; }
+    inline void set_response(CollisionResponse response) { this->response = response; }
+    inline void set_channel(CollisionChannel channel) { this->channel = channel; }
+    inline void set_parent(GameObject *parent) { this->parent = parent; }
 
-    virtual void update(GameObject *object) = 0;
-    virtual float get_radius() { return 0.0f; }
-    virtual glm::vec3 get_center() { return glm::vec3(0.0f); }
-    virtual bool is_on_frustum(Frustum *frustum) { return true; }
+    inline virtual float get_radius() { return 0.0f; }
+    inline virtual glm::vec3 get_center() { return glm::vec3(0.0f); }
+    inline virtual bool is_on_frustum(Frustum *frustum) { return true; }
     template <typename T>
-    float collision_delta(T *collider, float delta_time);
+    inline float collision_delta(T *collider, float delta_time);
 
     virtual glm::vec3 find_furthest_point(glm::vec3 direction) = 0;
-    glm::vec3 support(ColliderBase &other, glm::vec3 direction)
+    inline glm::vec3 support(ColliderBase &other, glm::vec3 direction)
     {
         return this->find_furthest_point(direction) - other.find_furthest_point(-direction);
     }
-    glm::vec3 support(glm::vec3 direction)
+    inline glm::vec3 support(glm::vec3 direction)
     {
         return this->find_furthest_point(direction);
     }
@@ -69,7 +68,7 @@ public:
     Collider(GameObject *parent) : ColliderBase(parent) {}
     Collider() : ColliderBase() {}
     virtual ~Collider() {}
-    void add_callback(std::function<void(Collider *)> callback) { onCollisionCallbacks.push_back(callback); }
+    inline void add_callback(std::function<void(Collider *)> callback) { onCollisionCallbacks.push_back(callback); }
 
-    virtual bool contains(T &point) = 0;
+    inline virtual bool contains(T &point) = 0;
 };

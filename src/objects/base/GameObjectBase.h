@@ -69,7 +69,7 @@ public:
         ecs->insert<TransformComponent>(uuid, new TransformComponent{glm::vec3(0), glm::quat(1, 0, 0, 0), glm::vec3(1)});
     };
     template <typename T>
-    T *get_component() const
+    inline T *get_component() const
     {
         return world->get_ecs()->get<T>(uuid);
     }

@@ -32,8 +32,6 @@ public:
     template <>
     bool contains<SphereCollider *>(SphereCollider *point);
 
-    void update(GameObject *object) override;
-
     bool is_on_frustum(Frustum *frustum) override;
 
     bool is_on_or_forward_plane(Plane *plane);

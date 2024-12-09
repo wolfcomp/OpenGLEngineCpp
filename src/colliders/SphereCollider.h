@@ -86,8 +86,6 @@ public:
         return closest <= radius;
     }
 
-    void update(GameObject *object) override;
-
     float get_radius() override { return radius; }
     glm::vec3 get_center() override;
     glm::vec3 get_scale();

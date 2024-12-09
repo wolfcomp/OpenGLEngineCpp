@@ -62,10 +62,6 @@ bool Mesh::contains<SphereCollider *>(SphereCollider *point)
     return GJK::gjk(*point, points);
 }
 
-void Mesh::update(GameObject *object)
-{
-}
-
 bool Mesh::is_on_frustum(Frustum *frustum)
 {
     return false;

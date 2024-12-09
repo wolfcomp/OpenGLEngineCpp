@@ -21,7 +21,7 @@ void ECSGlobalMap::insert<PhysicsComponent>(UUID id, PhysicsComponent *value)
     data[size++].insert(id, value);
 }
 
-void PhysicsComponent::apply_collision(PhysicsComponent *other, glm::vec3 normal)
+inline void PhysicsComponent::apply_collision(PhysicsComponent *other, glm::vec3 normal)
 {
     // Safety check for invalid mass
     if (mass <= 0.0f || other->mass <= 0.0f)

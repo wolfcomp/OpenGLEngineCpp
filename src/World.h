@@ -70,7 +70,7 @@ public:
     DirectionalLight *get_directional_light() { return directionalLight; }
     PointLight *get_point_light(unsigned index) { return pointLights[index]; }
     SpotLight *get_spot_light() { return spotLight; }
-    ECSGlobalMap *get_ecs() { return &ecs; }
+    inline ECSGlobalMap *get_ecs() { return &ecs; }
     void draw_light_editor();
     void register_system(BaseSystem *system) { systems.push_back(system); }
     AABB get_bounds() { return tree.get_bounds(); }

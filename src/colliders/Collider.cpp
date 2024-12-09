@@ -3,7 +3,7 @@
 #include "../objects/base/GameObject.h"
 
 template <>
-float ColliderBase::collision_delta<SphereCollider>(SphereCollider *collider, float delta_time)
+inline float ColliderBase::collision_delta<SphereCollider>(SphereCollider *collider, float delta_time)
 {
     if (dynamic_cast<SphereCollider *>(this) == nullptr)
         return -1;
@@ -25,13 +25,13 @@ float ColliderBase::collision_delta<SphereCollider>(SphereCollider *collider, fl
 }
 
 template <>
-float ColliderBase::collision_delta<ColliderBase>(ColliderBase *collider, float delta_time)
+inline float ColliderBase::collision_delta<ColliderBase>(ColliderBase *collider, float delta_time)
 {
     return collision_delta(dynamic_cast<SphereCollider *>(collider), delta_time);
 }
 
 template <typename T>
-float ColliderBase::collision_delta(T *collider, float delta_time)
+inline float ColliderBase::collision_delta(T *collider, float delta_time)
 {
     return -1;
 }

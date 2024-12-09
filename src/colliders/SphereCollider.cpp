@@ -1,13 +1,6 @@
 #include "SphereCollider.h"
 #include "../objects/base/GameObject.h"
 
-void SphereCollider::update(GameObject *object)
-{
-    // auto scale = object->get_scale();
-    // auto max_scale = glm::max(scale.x, glm::max(scale.y, scale.z));
-    // radius = max_scale;
-}
-
 glm::vec3 SphereCollider::get_center() { return get_parent()->get_component<TransformComponent>()->position; }
 glm::vec3 SphereCollider::get_scale() { return get_parent()->get_component<TransformComponent>()->scale; }
 

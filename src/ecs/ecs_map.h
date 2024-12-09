@@ -36,7 +36,7 @@ private:
     int size;
     int capacity;
 
-    void expand()
+    inline void expand()
     {
         capacity *= 2;
         ECSValuePair<T> *new_data = new ECSValuePair<T>[capacity];
@@ -63,7 +63,7 @@ public:
         delete[] data;
     }
 
-    void insert(UUID id, T *value)
+    inline void insert(UUID id, T *value)
     {
         if (size >= capacity)
         {
@@ -72,7 +72,7 @@ public:
         data[size++] = ECSValuePair{id, value};
     }
 
-    T *get(UUID id)
+    inline T *get(UUID id)
     {
         for (int i = 0; i < size; i++)
         {
@@ -84,7 +84,7 @@ public:
         return nullptr;
     }
 
-    T *get(int index)
+    inline T *get(int index)
     {
         if (index < 0 || index >= size)
         {
@@ -94,7 +94,7 @@ public:
     }
 
     template <typename U>
-    U *get(UUID id)
+    inline U *get(UUID id)
     {
         for (int i = 0; i < size; i++)
         {
@@ -107,7 +107,7 @@ public:
     }
 
     template <typename U>
-    ECSValuePair<U> *get_value_pair(UUID id)
+    inline ECSValuePair<U> *get_value_pair(UUID id)
     {
         for (int i = 0; i < size; i++)
         {
@@ -120,7 +120,7 @@ public:
     }
 
     template <typename U>
-    ECSValuePair<U> *get_value_pair(int i)
+    inline ECSValuePair<U> *get_value_pair(int i)
     {
         if (i < 0 || i >= size)
         {
@@ -133,7 +133,7 @@ public:
         return nullptr;
     }
 
-    void remove(UUID id)
+    inline void remove(UUID id)
     {
         for (int i = 0; i < size; i++)
         {
@@ -150,17 +150,17 @@ public:
         }
     }
 
-    int get_size()
+    inline int get_size()
     {
         return size;
     }
 
-    T *operator[](UUID id)
+    inline T *operator[](UUID id)
     {
         return get(id);
     }
 
-    ECSMap<T> &operator=(const ECSMap<T> &other)
+    inline ECSMap<T> &operator=(const ECSMap<T> &other)
     {
         if (this == &other)
         {
@@ -177,7 +177,7 @@ public:
         return *this;
     }
 
-    bool operator==(const ECSMap<T> &other)
+    inline bool operator==(const ECSMap<T> &other)
     {
         if (size != other.size)
         {
@@ -193,7 +193,7 @@ public:
         return true;
     }
 
-    bool operator==(const type_info &other)
+    inline bool operator==(const type_info &other)
     {
         return typeid(T) == other;
     }
@@ -207,7 +207,7 @@ private:
     int size;
     int capacity;
 
-    void expand()
+    inline void expand()
     {
         capacity *= 2;
         ECSMap<BaseComponent> *new_data = new ECSMap<BaseComponent>[capacity];
@@ -241,7 +241,7 @@ public:
     }
 
     template <typename T>
-    void insert(UUID id, T *value)
+    inline void insert(UUID id, T *value)
     {
         for (int i = 0; i < size; i++)
         {
@@ -260,7 +260,7 @@ public:
     }
 
     template <typename T>
-    T *get(UUID id)
+    inline T *get(UUID id)
     {
         for (int i = 0; i < size; i++)
         {
@@ -273,7 +273,7 @@ public:
     }
 
     template <typename T>
-    void remove(UUID id)
+    inline void remove(UUID id)
     {
         for (int i = 0; i < size; i++)
         {
@@ -285,7 +285,7 @@ public:
         }
     }
 
-    void remove_all(UUID id)
+    inline void remove_all(UUID id)
     {
         for (int i = 0; i < size; i++)
         {
@@ -294,7 +294,7 @@ public:
     }
 
     template <typename T>
-    ECSMap<BaseComponent> *get()
+    inline ECSMap<BaseComponent> *get()
     {
         for (int i = 0; i < size; i++)
         {
@@ -306,7 +306,7 @@ public:
         return nullptr;
     }
 
-    int get_size()
+    inline int get_size()
     {
         return size;
     }

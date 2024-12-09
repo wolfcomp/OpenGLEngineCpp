@@ -43,7 +43,6 @@ public:
     {
         this->collider = collider;
         collider->set_parent(this);
-        collider->update(this);
     }
     /// @brief Gets the collider of the object
     /// @return The collider of the object

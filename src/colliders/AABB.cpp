@@ -54,11 +54,6 @@ bool AABB::contains<GameObject *>(GameObject *const &point) const
     return contains(point->get_component<TransformComponent>()->get_position());
 }
 
-void AABB::update(GameObject *object)
-{
-    center = object->get_component<TransformComponent>()->get_position();
-}
-
 bool AABB::is_on_frustum(Frustum *frustum)
 {
     return is_on_or_forward_plane(&frustum->left_face) &&
